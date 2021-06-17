@@ -24,3 +24,23 @@ tasks.jar {
         )
     )
 }
+
+val executableJar by tasks.registering {
+    val outputDir = file("$buildDir/libs")
+    dependsOn(tasks.jar)
+
+    doLast {
+        outputDir.mkdirs()
+        val outputFile = file("$outputDir/gchecksum-${project.version}")
+        outputFile.outputStream().use { output ->
+            file("$rootDir/src/main/shell/header.sh").inputStream().use { input ->
+                output.write(input.readAllBytes())
+            }
+            output.write(tasks.jar.get().archiveFile.get().asFile.readBytes())
+        }
+        outputFile.setExecutable(true)
+
+    }
+}
+
+tasks.build.get().dependsOn(executableJar)
