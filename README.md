@@ -39,13 +39,13 @@ Options:
 在 Linux 上安装：
 
 ```shell
-sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.1.0/gchecksum-0.1.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
+sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.2.0/gchecksum-0.2.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
 ```
 
 中国大陆用户如果访问 GitHub 缓慢，可以使用 [FastGit](http://fastgit.org/) 加速：
 
 ```shell
-sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://hub.fastgit.org/Glavo/gchecksum/releases/download/0.1.0/gchecksum-0.1.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
+sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://hub.fastgit.org/Glavo/gchecksum/releases/download/0.2.0/gchecksum-0.2.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
 ```
 
 用户也可以自行访问 [GitHub Release 页](https://github.com/Glavo/gchecksum/releases)下载 JAR 文件，并使用 `java -jar` 执行。
