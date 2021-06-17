@@ -14,8 +14,6 @@ gchecksum create # 或者 gchecksum c
 gchecksum verify # 或者 gchecksum v
 ```
 
-
-
 帮助（可以使用 `gchecksum --help` 查看）：
 ```
 用法:
@@ -31,6 +29,27 @@ Options:
     -a --algorithm          指定将使用的哈希算法（create 模式下默认为 SHA-256，verify 模式下默认根据哈希值长度自动选择）
     -n --num-threads        指定计算哈希值的并发线程数（默认为当前逻辑处理器数的一半）
 ```
+
+## 环境需求
+
+需要安装 JRE（1.8 以上）才可使用。
+
+## 安装方法
+
+在 Linux 上安装：
+
+```shell
+sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.1.0/gchecksum-0.1.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
+```
+
+中国大陆用户如果访问 GitHub 缓慢，可以使用 [FastGit](http://fastgit.org/) 加速：
+
+```shell
+sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://hub.fastgit.org/Glavo/gchecksum/releases/download/0.1.0/gchecksum-0.1.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
+```
+
+用户也可以自行访问 [GitHub Release 页](https://github.com/Glavo/gchecksum/releases)下载 JAR 文件，并使用 `java -jar` 执行。
+## 介绍
 
 gchecksum 有两种模式：创建（create）模式，校验（verify）模式。
 通过将 `create`（缩写为 `c`）或 `verify`（缩写为 `v`） 作为第一个参数传递指定。
@@ -60,3 +79,33 @@ gchecksum 有两种模式：创建（create）模式，校验（verify）模式�
 `--num-threads`（`-n`） 选项用于指定并发计算哈希值的线程数，必须为正整数。
 默认值为运行平台逻辑处理器数的一半（`Runtime.getRuntime().availableProcessors() / 2`）
 
+## checksums 文件
+
+checksums 文件内容形式类似这样：
+```
+862b930590e9abbc9595179a62b3e640a4ecfd22b324f09843375412b9934cc5 Config.json
+5d7090789c8956083887f10bea8628a58c179b3422c7d53bff315e150a812b25 libs/aliyun-java-sdk-alidns-2.6.29.jar
+d9ff177868630668f2da1e4c8b30d215440e4bbaa953d9ccafaaba200a2f7ffc libs/aliyun-java-sdk-core-4.5.20.jar
+12ff01eeaf0c09c6a68f2ec024b3bf9fa4cad6e68b74b968bf62c7f759047032 libs/annotations-19.0.0.jar
+1f58b77470d8d147a0538d515347dd322f49a83b9e884b8970051160464b65b3 libs/apiguardian-api-1.0.0.jar
+d68131283c01f81cc1532ae26aebaf760f6e0b92675a0e13816d45e7f28a7f58 libs/atomicfu-common-0.14.1.jar
+e73c935ed4ecb62de04b56fdf2d0256e7757b47887551a28a34cd5eafa465f3b libs/atomicfu-jvm-0.15.1.jar
+a4f463ce552b908a722fa198ef4892a226b3225e453f8df10d5c0a5bfe5db6b6 libs/bcprov-jdk15on-1.64.jar
+e599d5318e97aa48f42136a2927e6dfa4e8881dff0e6c8e3109ddbbff51d7b7d libs/commons-codec-1.11.jar
+daddea1ea0be0f56978ab3006b8ac92834afeefbd9b7e4e6316fca57df0fa636 libs/commons-logging-1.2.jar
+c8fb4839054d280b3033f800d1f5a97de2f028eb8ba2eb458ad287e536f3f25f libs/gson-2.8.6.jar
+6fe9026a566c6a5001608cf3fc32196641f6c1e5e1986d1037ccdbd5f31ef743 libs/httpclient-4.5.13.jar
+f956209e450cb1d0c51776dfbd23e53e9dd8db9a1298ed62b70bf0944ba63b28 libs/httpcore-4.4.14.jar
+aad60635eee567254ed29f18fb18c0f9e4c4dacf51c8229128203183bb35e2dd libs/ini4j-0.5.4.jar
+43fdef0b5b6ceb31b0424b208b930c74ab58fac2ceeb7b3f6fd3aeb8b5ca4393 libs/javax.activation-api-1.2.0.jar
+2f8e3b5c3c0e3eddd11ed025d3937085d9b7a8f6330ccc9e1497dd2f02297875 logs/2021-03-10_045632.log
+9a728db7640fb6d4b0f257ad94d0185dd76e6ccd650896acee7d80dd835d8f64 logs/2021-03-10_045852.log
+738c3a5d41a582929be1be1374452b53c098a3678f896727a3916155dc137ee6 logs/2021-03-10_050400.log
+0d60e31e04ad4918a25273ad082bcf5b2064792dc5fbfe27c28a39cd3cefa4eb logs/2021-03-11_120522.log
+520c311f7684a81a6d8acdd92f416e8370700c23f1b669f8a7dfce60003f0119 logs/2021-03-11_120659.log
+8f9a12d9bee054d28fe40ae73e5cce128d8cd4c108ca75e7066d1f7f1edd981e logs/2021-03-12_203327.log
+```
+
+每行的内容为 哈希码-空格-文件相对路径。文件中不存储哈希码使用的算法。
+
+gchecksum 生成时会按路径排序，但校验时不要求顺序。
