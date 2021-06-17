@@ -154,6 +154,9 @@ public final class Main {
                     }
                     numThreads = n;
                     break;
+                default:
+                    Logger.logErrorAndExit(resources.getInvalidOptionMessage(), currentArg);
+                    break;
             }
         }
         //endregion

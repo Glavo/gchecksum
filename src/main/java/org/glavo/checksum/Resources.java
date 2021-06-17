@@ -1,10 +1,13 @@
 package org.glavo.checksum;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Locale;
+import java.util.jar.Manifest;
 
 public final class Resources {
-    private static final String VERSION = "0.1.0";
-
     private static final String HELP_MESSAGE_EN =
             "Usage: \n" +
                     "    gchecksum c(reate) [options]    : Create checksums file\n" +
@@ -55,7 +58,8 @@ public final class Resources {
             "error: file '%s' cannot be read",
             "error: invalid hash record '%s'",
             "error: path '%s' is a directory",
-            "error: hash value of file '%s'(%s) does not match the value in the record(%s)"
+            "error: hash value of file '%s'(%s) does not match the value in the record(%s)",
+            "error: invalid option: %s"
     };
 
     private static final String[] ERROR_TABLE_ZH = {
@@ -71,7 +75,8 @@ public final class Resources {
             "错误：文件 '%s' 无法读取",
             "错误：无效哈希记录 '%s'",
             "错误：路径 '%s' 是一个目录",
-            "错误：文件 '%s' 的哈希值（%s）不匹配记录（%s）"
+            "错误：文件 '%s' 的哈希值（%s）不匹配记录（%s）",
+            "错误：无效参数：%s"
     };
 
     private static final String[] MESSAGE_TABLE_EN = {
@@ -88,7 +93,9 @@ public final class Resources {
         final Locale locale = Locale.getDefault();
 
 
-        if ("zh".equals(locale.getLanguage()) || "CN".equals(locale.getCountry())) {
+        if ("zh".equals(locale.getLanguage())
+                || "CN".equals(locale.getCountry())
+                || "zh".equals(System.getProperty("user.language"))) {
             INSTANCE = new Resources(HELP_MESSAGE_ZH, ERROR_TABLE_ZH, MESSAGE_TABLE_ZH);
         } else {
             INSTANCE = new Resources(HELP_MESSAGE_EN, ERROR_TABLE_EN, MESSAGE_TABLE_EN);
@@ -114,7 +121,14 @@ public final class Resources {
     }
 
     public final String getVersionInformation() {
-        return VERSION;
+        //noinspection ConstantConditions
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(Resources.class.getResourceAsStream("Version.txt")))) {
+            return reader.readLine();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+            return null;
+        }
     }
 
     public final String getUnknownModeMessage() {
@@ -167,6 +181,10 @@ public final class Resources {
 
     public final String getHashNotMatchMessage() {
         return errorTable[12];
+    }
+
+    public final String getInvalidOptionMessage() {
+        return errorTable[13];
     }
 
     public final String getVerificationCompletedMessage() {

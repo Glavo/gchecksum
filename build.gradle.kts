@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "org.glavo"
-version = "0.4.0" + "-SNAPSHOT"
+version = "0.4.0" //+ "-SNAPSHOT"
 
 val mainName = "org.glavo.checksum.Main"
 
@@ -17,6 +17,12 @@ application {
 tasks.compileJava {
     options.release.set(8)
     options.encoding = "UTF-8"
+}
+
+val generateVersionInfo by tasks.registering {
+    val baseDir = file("$buildDir/version")
+    baseDir.mkdirs()
+    file("$baseDir/Version.txt").writeText(version.toString())
 }
 
 val executableJar by tasks.registering {
@@ -47,11 +53,16 @@ val nativeImageJar by tasks.registering(org.gradle.jvm.tasks.Jar::class) {
 }
 
 tasks.withType(org.gradle.jvm.tasks.Jar::class) {
+    dependsOn(generateVersionInfo)
     manifest.attributes(
         mapOf(
-            "Main-Class" to mainName
+            "Main-Class" to mainName,
+            "Program-Version" to project.version.toString()
         )
     )
+    into("org/glavo/checksum") {
+        from(file("$buildDir/version/Version.txt"))
+    }
 }
 
 val buildNativeImage by tasks.registering {
