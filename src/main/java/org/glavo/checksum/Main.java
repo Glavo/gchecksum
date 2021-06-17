@@ -414,7 +414,7 @@ public final class Main {
 
         @Override
         public final FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-            // TODO
+            exc.printStackTrace(); // TODO
             return FileVisitResult.CONTINUE;
         }
 
@@ -429,6 +429,18 @@ public final class Main {
         }
     }
 
+    private static void printPath(PrintWriter writer, String[] path) {
+        final int length = path.length;
+        if (length != 0) {
+            writer.print(path[0]);
+            for (int i = 1; i < length; i++) {
+                writer.print('/');
+                writer.print(path[i]);
+            }
+        }
+        writer.println();
+    }
+
     private static void create(Path basePath, PrintWriter writer, Path exclude, Hasher hasher, int numThreads) throws Exception {
         if (numThreads == 1) {
             FTW<String> ftw = new FTW<String>(exclude) {
@@ -441,14 +453,15 @@ public final class Main {
             ftw.result().forEach((k, v) -> {
                 writer.print(v);
                 writer.print(" ");
-                writer.println(String.join("/", k));
+                printPath(writer, k);
             });
+            Logger.info(Resources.getInstance().getDoneMessage());
         } else {
             final ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
             try {
                 FTW<Future<String>> ftw = new FTW<Future<String>>(exclude) {
                     @Override
-                    protected final Future<String> processFile(Path file) throws IOException {
+                    protected final Future<String> processFile(Path file) {
                         return executorService.submit(() -> hasher.hashFile(file));
                     }
                 };
@@ -457,11 +470,14 @@ public final class Main {
                     try {
                         writer.print(v.get());
                         writer.print(" ");
-                        writer.println(String.join("/", k));
-                    } catch (InterruptedException | ExecutionException e) {
-                        throw new RuntimeException(e);
+                        printPath(writer, k);
+                    } catch (InterruptedException | CancellationException e) {
+                        throw new AssertionError(e);
+                    } catch (ExecutionException e) {
+                        e.printStackTrace(); // TODO
                     }
                 });
+                Logger.info(Resources.getInstance().getDoneMessage());
             } finally {
                 executorService.shutdown();
             }

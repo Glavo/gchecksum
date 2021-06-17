@@ -44,7 +44,7 @@ Options:
 
 ### Linux
 
-在 Linux 上安装（需要 JRE 8 或更高版本）：
+在 Linux 上安装 Java 版本（需要 JRE 8 或更高版本）：
 
 ```shell
 sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.6.0/gchecksum-0.6.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
@@ -56,7 +56,7 @@ sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gcheck
 sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://hub.fastgit.org/Glavo/gchecksum/releases/download/0.6.0/gchecksum-0.6.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
 ```
 
-（备选）安装 Native Image 版本（无需 JRE 环境）：
+（备选）安装 Native Image 版本（**无需 JRE 环境，但性能差于 Java 版本**）：
 
 ```shell
 sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.6.0/gchecksum-0.6.0-native-image) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'

@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "org.glavo"
-version = "0.7.0" + "-SNAPSHOT"
+version = "0.7.0"// + "-SNAPSHOT"
 
 val mainName = "org.glavo.checksum.Main"
 
@@ -57,7 +57,8 @@ tasks.withType(org.gradle.jvm.tasks.Jar::class) {
     manifest.attributes(
         mapOf(
             "Main-Class" to mainName,
-            "Program-Version" to project.version.toString()
+            "Implementation-URL" to "https://github.com/Glavo/gchecksum",
+            "Implementation-Vendor" to "Glavo"
         )
     )
     into("org/glavo/checksum") {

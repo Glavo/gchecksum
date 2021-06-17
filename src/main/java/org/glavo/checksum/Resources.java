@@ -1,11 +1,8 @@
 package org.glavo.checksum;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.Locale;
-import java.util.jar.Manifest;
 
 public final class Resources {
     private static final String HELP_MESSAGE_EN =
@@ -31,7 +28,7 @@ public final class Resources {
                     "    gchecksum c(reate) [选项]     : 创建校验文件\n" +
                     "    gchecksum v(erify) [选项]     : 使用校验文件对文件进行验证\n" +
                     "    \n" +
-                    "Options:\n" +
+                    "选项：\n" +
                     "    -v --version            打印程序版本信息\n" +
                     "    -h -? --help            打印本帮助信息\n" +
                     "    -f <checksums file>     指定校验文件路径（默认值为 checksums.txt）\n" +
@@ -80,18 +77,19 @@ public final class Resources {
     };
 
     private static final String[] MESSAGE_TABLE_EN = {
-            "Verification completed: %d success, %d failure"
+            "Verification completed: %d success, %d failure",
+            "Done"
     };
 
     private static final String[] MESSAGE_TABLE_ZH = {
-            "校验完毕：%d 个成功，%d 个失败"
+            "校验完毕：%d 个成功，%d 个失败",
+            "完成"
     };
 
     public static final Resources INSTANCE;
 
     static {
         final Locale locale = Locale.getDefault();
-
 
         if ("zh".equals(locale.getLanguage())
                 || "CN".equals(locale.getCountry())
@@ -189,5 +187,9 @@ public final class Resources {
 
     public final String getVerificationCompletedMessage() {
         return messageTable[0];
+    }
+
+    public final String getDoneMessage() {
+        return messageTable[1];
     }
 }

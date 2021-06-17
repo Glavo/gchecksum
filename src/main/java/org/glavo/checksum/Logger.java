@@ -8,8 +8,12 @@ public final class Logger {
     private static final boolean colored;
 
     static {
-        colored = "true".equalsIgnoreCase(
-                System.getProperty("org.glavo.checksum.logger.colored", System.getenv("CHECKSUM_LOGGER_COLORED")));
+        String p = System.getProperty("org.glavo.checksum.logger.colored", System.getenv("GCHECKSUM_LOGGER_COLORED"));
+        if (p == null) {
+            colored = !System.getProperty("os.name").toLowerCase().startsWith("windows");
+        } else {
+            colored = "true".equalsIgnoreCase(p);
+        }
     }
 
     public static void info(String message) {
