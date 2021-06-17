@@ -17,14 +17,6 @@ tasks.compileJava {
     options.encoding = "UTF-8"
 }
 
-tasks.jar {
-    manifest.attributes(
-        mapOf(
-            "Main-Class" to mainName
-        )
-    )
-}
-
 val executableJar by tasks.registering {
     val outputDir = file("$buildDir/libs")
     dependsOn(tasks.jar)
@@ -43,4 +35,19 @@ val executableJar by tasks.registering {
     }
 }
 
+val nativeImageJar by tasks.registering(org.gradle.jvm.tasks.Jar::class) {
+    archiveClassifier.set("native-image")
+    from(sourceSets.main.get().output)
+    from("src/main/native-image")
+}
+
+tasks.withType(org.gradle.jvm.tasks.Jar::class) {
+    manifest.attributes(
+        mapOf(
+            "Main-Class" to mainName
+        )
+    )
+}
+
 tasks.build.get().dependsOn(executableJar)
+tasks.build.get().dependsOn(nativeImageJar)

@@ -3,6 +3,7 @@ package org.glavo.checksum;
 import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.TreeMap;
 import java.util.concurrent.*;
@@ -295,14 +296,22 @@ public final class Main {
                     });
                 }
                 final Hasher finalHasher = hasher;
-                pool.submit(() -> reader.lines().collect(Collectors.toList()).stream().parallel()
+                final ArrayList<String> lines = new ArrayList<>(1024);
+                {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        if (!line.isEmpty()) {
+                            lines.add(line);
+                        }
+                    }
+                }
+
+                pool.submit(() -> lines.stream().parallel()
                         .forEach(line -> {
-                            if (!line.isEmpty()) {
-                                if (verifyFile(basePath, line, finalHasher)) {
-                                    successCount.add(1);
-                                } else {
-                                    failureCount.add(1);
-                                }
+                            if (verifyFile(basePath, line, finalHasher)) {
+                                successCount.add(1);
+                            } else {
+                                failureCount.add(1);
                             }
                         })).get();
 
