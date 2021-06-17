@@ -34,6 +34,7 @@ public final class Main {
         Hasher algorithm = null;
         int numThreads = 0;
 
+
         boolean skipFirst = true;
         //region Parse Args
         final int argsLength = args.length;
@@ -219,7 +220,7 @@ public final class Main {
                         Logger.logErrorAndExit(resources.getPathIsDirMessage(), cf);
                     }
                     if (Files.exists(cf)) {
-                        //
+                        ; //TODO
                     }
                     exclude = cf;
                     writer = new PrintWriter(Files.newBufferedWriter(cf));
@@ -258,18 +259,18 @@ public final class Main {
                     }
                     //noinspection ConstantConditions
                     if (verifyFile(basePath, firstLine, hasher)) {
-                        successCount.add(1);
+                        successCount.increment();
                     } else {
-                        failureCount.add(1);
+                        failureCount.increment();
                     }
                 }
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    if (!"".equals(line)) {
+                    if (!line.isEmpty()) {
                         if (verifyFile(basePath, line, hasher)) {
-                            successCount.add(1);
+                            successCount.increment();
                         } else {
-                            failureCount.add(1);
+                            failureCount.increment();
                         }
                     }
                 }
@@ -278,7 +279,7 @@ public final class Main {
                 ForkJoinTask<?> t0 = null;
                 if (hasher == null) {
                     String firstLine = reader.readLine();
-                    while ("".equals(firstLine)) {
+                    while (firstLine != null && firstLine.isEmpty()) {
                         firstLine = reader.readLine();
                     }
                     if (firstLine == null) {
@@ -293,9 +294,9 @@ public final class Main {
                     final Hasher h = hasher;
                     t0 = pool.submit(() -> {
                         if (verifyFile(basePath, l, h)) {
-                            successCount.add(1);
+                            successCount.increment();
                         } else {
-                            failureCount.add(1);
+                            failureCount.increment();
                         }
                     });
                 }

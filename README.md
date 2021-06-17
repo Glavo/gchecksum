@@ -6,7 +6,6 @@ English documents are not available, welcome to contribute.
 
 (English help is available, please execute `gchecksum -- help` to view)
 
-w
 一个简单的文件夹校验工具，用于为文件夹下所有文件生成哈希码并保存到文件，
 以及使用保存的哈希码对文件夹内容进行校验。
 
@@ -168,3 +167,8 @@ gchecksum 生成时会按路径排序，但校验时不要求顺序。
 
 * 生成：4.995s
 * 验证：4.947s
+
+使用 [Amazon Corretto Crypto Provider](https://github.com/corretto/amazon-corretto-crypto-provider) 替换 JDK 内置哈希算法实现
+可以获得轻微性能提升，但主要瓶颈应该处于文件 io 上。
+
+gchecksum 当前实现较为简略，未来会考虑更细致地优化性能。
