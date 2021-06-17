@@ -203,7 +203,7 @@ public final class Main {
                 } finally {
                     reader.close();
                 }
-
+                break;
             }
             case Create: {
                 if (algorithm == null) {
@@ -229,6 +229,7 @@ public final class Main {
                 } finally {
                     writer.close();
                 }
+                break;
             }
         }
 
