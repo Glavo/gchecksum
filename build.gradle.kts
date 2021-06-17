@@ -1,10 +1,12 @@
+import java.nio.file.*
+
 plugins {
     java
     application
 }
 
 group = "org.glavo"
-version = "0.3.0" + "-SNAPSHOT"
+version = "0.3.0" //+ "-SNAPSHOT"
 
 val mainName = "org.glavo.checksum.Main"
 
@@ -18,6 +20,8 @@ tasks.compileJava {
 }
 
 val executableJar by tasks.registering {
+    group = "build"
+
     val outputDir = file("$buildDir/libs")
     dependsOn(tasks.jar)
 
@@ -36,6 +40,7 @@ val executableJar by tasks.registering {
 }
 
 val nativeImageJar by tasks.registering(org.gradle.jvm.tasks.Jar::class) {
+    group = "build"
     archiveClassifier.set("native-image")
     from(sourceSets.main.get().output)
     from("src/main/native-image")
@@ -47,6 +52,34 @@ tasks.withType(org.gradle.jvm.tasks.Jar::class) {
             "Main-Class" to mainName
         )
     )
+}
+
+val buildNativeImage by tasks.registering {
+    group = "build"
+    dependsOn(nativeImageJar)
+
+    doLast {
+        val home = System.getenv("GRAALVM_HOME")
+        if (home == null) {
+            System.err.println("Missing GRAALVM_HOME")
+        } else {
+            val binPath = Paths.get(home).resolve("bin")
+
+            val ni = binPath.resolve("native-image.cmd").let {
+                if (Files.exists(it)) it else binPath.resolve("native-image")
+            }.toAbsolutePath().toString()
+
+
+            exec {
+                workingDir(file("$buildDir/libs"))
+                commandLine(
+                    ni,
+                    "-jar",
+                    nativeImageJar.get().archiveFile.get().asFile
+                )
+            }
+        }
+    }
 }
 
 tasks.build.get().dependsOn(executableJar)
