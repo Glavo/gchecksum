@@ -101,9 +101,10 @@ public final class Hasher {
     }
 
     public final String hashFile(Path file) throws IOException {
+        final String[] byte2str = Utils.byte2str;
+
         MessageDigest md = localMessageDigest.get();
         byte[] buffer = localBuffer.get();
-        final String[] byte2str = Utils.byte2str;
 
         int read;
         try (InputStream input = Files.newInputStream(file)) {
@@ -118,7 +119,7 @@ public final class Hasher {
                 throw new AssertionError("File: " + file);
             }
 
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new StringBuilder(digest.length * 2);
             for (byte b : digest) {
                 builder.append(byte2str[b & 0xFF]);
             }
