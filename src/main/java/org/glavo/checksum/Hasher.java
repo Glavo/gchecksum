@@ -101,7 +101,7 @@ public final class Hasher {
     public final String hashFile(Path file) throws IOException {
         MessageDigest md = localMessageDigest.get();
         byte[] buffer = localBuffer.get();
-        int read = 0;
+        int read;
         try (InputStream input = Files.newInputStream(file)) {
             do {
                 read = input.read(buffer);

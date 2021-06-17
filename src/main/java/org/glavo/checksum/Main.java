@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.TreeMap;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.stream.Collectors;
 
 public final class Main {
 
@@ -294,13 +295,14 @@ public final class Main {
                     });
                 }
                 final Hasher finalHasher = hasher;
-                pool.submit(() -> reader.lines().parallel()
-                        .filter(line -> !line.isEmpty())
+                pool.submit(() -> reader.lines().collect(Collectors.toList()).stream().parallel()
                         .forEach(line -> {
-                            if (verifyFile(basePath, line, finalHasher)) {
-                                successCount.add(1);
-                            } else {
-                                failureCount.add(1);
+                            if (!line.isEmpty()) {
+                                if (verifyFile(basePath, line, finalHasher)) {
+                                    successCount.add(1);
+                                } else {
+                                    failureCount.add(1);
+                                }
                             }
                         })).get();
 
