@@ -1,5 +1,12 @@
 # gchecksum
 
+**Chinese** | English (TODO)
+
+English documents are not available, welcome to contribute.
+
+(English help is available, please execute 'gcheck -- help' to view)
+
+
 一个简单的文件夹校验工具，用于为文件夹下所有文件生成哈希码并保存到文件，
 以及使用保存的哈希码对文件夹内容进行校验。
 

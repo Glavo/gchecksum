@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "org.glavo"
-version = "0.4.0" //+ "-SNAPSHOT"
+version = "0.5.0" + "-SNAPSHOT"
 
 val mainName = "org.glavo.checksum.Main"
 
