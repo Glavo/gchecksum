@@ -367,17 +367,16 @@ public final class Main {
         private final TreeMap<String[], T> result = new TreeMap<>((x, y) -> {
             final int xLength = x.length;
             final int yLength = y.length;
-            int c = Integer.compare(xLength, yLength);
-            if (c != 0) {
-                return c;
-            }
-            for (int i = 0; i < xLength; i++) {
-                c = x[i].compareTo(y[i]);
-                if (c != 0) {
-                    return c;
+
+            int length = Math.min(xLength, yLength);
+            for (int i = 0; i < length; i++) {
+                int v = x[i].compareTo(y[i]);
+                if (v != 0) {
+                    return v;
                 }
             }
-            return 0;
+
+            return xLength - yLength;
         });
 
         private final Path exclude;
