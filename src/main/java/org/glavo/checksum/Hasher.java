@@ -2,8 +2,10 @@ package org.glavo.checksum;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -101,6 +103,8 @@ public final class Hasher {
     public final String hashFile(Path file) throws IOException {
         MessageDigest md = localMessageDigest.get();
         byte[] buffer = localBuffer.get();
+        final String[] byte2str = Utils.byte2str;
+
         int read;
         try (InputStream input = Files.newInputStream(file)) {
             do {
@@ -109,7 +113,6 @@ public final class Hasher {
                     md.update(buffer, 0, read);
                 }
             } while (read != -1);
-
             byte[] digest = md.digest();
             if (digest == null) {
                 throw new AssertionError("File: " + file);
@@ -117,7 +120,7 @@ public final class Hasher {
 
             StringBuilder builder = new StringBuilder();
             for (byte b : digest) {
-                builder.append(Integer.toString((b & 0xFF) + 0x100, 16).substring(1).toLowerCase());
+                builder.append(byte2str[b & 0xFF]);
             }
             return builder.toString();
         } finally {
