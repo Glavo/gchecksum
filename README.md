@@ -48,33 +48,33 @@ Options:
 在 Linux 上安装（需要 JRE 8 或更高版本）：
 
 ```shell
-sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.5.0/gchecksum-0.5.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
+sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.6.0/gchecksum-0.6.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
 ```
 
 中国大陆用户如果访问 GitHub 缓慢，可以使用 [FastGit](http://fastgit.org/) 加速：
 
 ```shell
-sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://hub.fastgit.org/Glavo/gchecksum/releases/download/0.5.0/gchecksum-0.5.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
+sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://hub.fastgit.org/Glavo/gchecksum/releases/download/0.6.0/gchecksum-0.6.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
 ```
 
 （备选）安装 Native Image 版本（无需 JRE 环境）：
 
 ```shell
-sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.5.0/gchecksum-0.5.0-native-image) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
+sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.6.0/gchecksum-0.6.0-native-image) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
 ```
 
 使用 [FastGit](http://fastgit.org/) 镜像：
 
 ```shell
-sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://hub.fastgit.org/Glavo/gchecksum/releases/download/0.5.0/gchecksum-0.5.0-native-image) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
+sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://hub.fastgit.org/Glavo/gchecksum/releases/download/0.6.0/gchecksum-0.6.0-native-image) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
 ```
 
 ### Windows
 
 下载为 Windows 生成的 Native Image 镜像：
 
-* [gchecksum-0.5.0-native-image.exe](https://github.com/Glavo/gchecksum/releases/download/0.5.0/gchecksum-0.5.0-native-image.exe)
-* [gchecksum-0.5.0-native-image.exe](https://hub.fastgit.org/Glavo/gchecksum/releases/download/0.5.0/gchecksum-0.5.0-native-image.exe)（FastGit 镜像链接）
+* [gchecksum-0.6.0-native-image.exe](https://github.com/Glavo/gchecksum/releases/download/0.6.0/gchecksum-0.6.0-native-image.exe)
+* [gchecksum-0.6.0-native-image.exe](https://hub.fastgit.org/Glavo/gchecksum/releases/download/0.6.0/gchecksum-0.6.0-native-image.exe)（FastGit 镜像链接）
 
 ## 介绍
 
