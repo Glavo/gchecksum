@@ -30,25 +30,45 @@ Options:
     -n --num-threads        指定计算哈希值的并发线程数（默认为当前逻辑处理器数的一半）
 ```
 
-## 环境需求
-
-需要安装 JRE（1.8 以上）才可使用。
-
 ## 安装方法
 
-在 Linux 上安装：
+### 通用
+
+访问 [GitHub Release 页](https://github.com/Glavo/gchecksum/releases)下载 JAR 文件，并使用 `java -jar` 执行。
+
+### Linux
+
+在 Linux 上安装（需要 JRE 8 或更高版本）：
 
 ```shell
-sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.2.0/gchecksum-0.2.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
+sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.3.0/gchecksum-0.3.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
 ```
 
 中国大陆用户如果访问 GitHub 缓慢，可以使用 [FastGit](http://fastgit.org/) 加速：
 
 ```shell
-sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://hub.fastgit.org/Glavo/gchecksum/releases/download/0.2.0/gchecksum-0.2.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
+sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://hub.fastgit.org/Glavo/gchecksum/releases/download/0.3.0/gchecksum-0.3.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
 ```
 
-用户也可以自行访问 [GitHub Release 页](https://github.com/Glavo/gchecksum/releases)下载 JAR 文件，并使用 `java -jar` 执行。
+（备选）安装 Native Image 版本（无需 JRE 环境）：
+
+```shell
+sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.3.0/gchecksum-0.3.0-native-image) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
+```
+
+使用 [FastGit](http://fastgit.org/) 镜像：
+
+```shell
+sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://hub.fastgit.org/Glavo/gchecksum/releases/download/0.3.0/gchecksum-0.3.0-native-image) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
+```
+
+### Windows
+
+下载为 Windows 生成的 Native Image 镜像：
+
+* [gchecksum-0.3.0-native-image.exe](https://github.com/Glavo/gchecksum/releases/download/0.3.0/gchecksum-0.3.0-native-image.exe)
+* [gchecksum-0.3.0-native-image.exe](https://hub.fastgit.org/Glavo/gchecksum/releases/download/0.3.0/gchecksum-0.3.0-native-image.exe)（FastGit 镜像链接）
+
 ## 介绍
 
 gchecksum 有两种模式：创建（create）模式，校验（verify）模式。
