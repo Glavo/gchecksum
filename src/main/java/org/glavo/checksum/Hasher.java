@@ -2,8 +2,10 @@ package org.glavo.checksum;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -114,7 +116,7 @@ public final class Hasher {
             } while (read != -1);
             byte[] digest = md.digest();
             if (digest == null) {
-                throw new AssertionError("File: " + file);
+                throw new AssertionError(file);
             }
 
             StringBuilder builder = new StringBuilder(digest.length * 2);

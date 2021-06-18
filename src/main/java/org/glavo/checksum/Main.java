@@ -220,7 +220,7 @@ public final class Main {
                         Logger.logErrorAndExit(resources.getPathIsDirMessage(), cf);
                     }
                     if (Files.exists(cf)) {
-                        ; //TODO
+                        Logger.info(resources.getOverwriteFileMessage(), cf);
                     }
                     exclude = cf;
                     writer = new PrintWriter(Files.newBufferedWriter(cf));

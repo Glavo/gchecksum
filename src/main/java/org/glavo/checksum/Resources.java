@@ -78,12 +78,14 @@ public final class Resources {
 
     private static final String[] MESSAGE_TABLE_EN = {
             "Verification completed: %d success, %d failure",
-            "Done"
+            "Done",
+            "The existing file '%s' will be overwritten"
     };
 
     private static final String[] MESSAGE_TABLE_ZH = {
             "校验完毕：%d 个成功，%d 个失败",
-            "完成"
+            "完成",
+            "已存在的文件 '%s' 将被覆盖"
     };
 
     public static final Resources INSTANCE;
@@ -191,5 +193,9 @@ public final class Resources {
 
     public final String getDoneMessage() {
         return messageTable[1];
+    }
+
+    public final String getOverwriteFileMessage() {
+        return messageTable[2];
     }
 }
