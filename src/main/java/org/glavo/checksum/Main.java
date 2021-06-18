@@ -331,13 +331,27 @@ public final class Main {
 
     private static boolean verifyFile(Path basePath, String line, Hasher hasher) {
         try {
+            final int lineLength = line.length();
             final int idx = line.indexOf(' ');
             if (idx != hasher.getHashStringLength()) {
                 Logger.error(Resources.getInstance().getInvalidHashRecordMessage(), line);
                 return false;
             }
             final String recordHashValue = line.substring(0, idx);
-            final String filePath = line.substring(idx + 1);
+            final String filePath;
+
+            if (lineLength == idx + 1) {
+                Logger.error(Resources.getInstance().getInvalidHashRecordMessage(), line);
+                return false;
+            } else if (line.charAt(idx + 1) == ' ') {
+                if (lineLength == idx + 2) {
+                    Logger.error(Resources.getInstance().getInvalidHashRecordMessage(), line);
+                    return false;
+                }
+                filePath = line.substring(idx + 2);
+            } else {
+                filePath = line.substring(idx + 1);
+            }
 
             final Path file = basePath.resolve(filePath).toAbsolutePath();
             if (Files.notExists(file)) {
@@ -452,7 +466,7 @@ public final class Main {
             Files.walkFileTree(basePath, ftw);
             ftw.result().forEach((k, v) -> {
                 writer.print(v);
-                writer.print(" ");
+                writer.print("  ");
                 printPath(writer, k);
             });
             Logger.info(Resources.getInstance().getDoneMessage());
@@ -469,7 +483,7 @@ public final class Main {
                 ftw.result().forEach((k, v) -> {
                     try {
                         writer.print(v.get());
-                        writer.print(" ");
+                        writer.print("  ");
                         printPath(writer, k);
                     } catch (InterruptedException | CancellationException e) {
                         throw new AssertionError(e);
