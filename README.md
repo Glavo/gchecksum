@@ -38,6 +38,15 @@ Options:
 
 ## 安装方法
 
+gchecksum 工具使用 Java 编写，可以在任意拥有 JRE 8 或更高版本的环境下运行。
+
+gchecksum 工具为 Linux 平台提供带 bash 头的特殊 JAR 分发：它们可以普通地用 `java -jar` 执行，也可以在 Linux 上如同脚本般直接运行！
+
+gchecksum 同时会为常见平台提供 Native Image 构建，无需 JRE 环境，但性能会降低。目前 gchecksum 为这些平台提供 Native Image 构建：
+
+* Windows x86-64
+* Linux x86-64
+
 ### 通用
 
 访问 [GitHub Release 页](https://github.com/Glavo/gchecksum/releases)下载 JAR 文件，并使用 `java -jar` 执行。
