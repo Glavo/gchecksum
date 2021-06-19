@@ -9,10 +9,11 @@ public final class Resources {
             "Usage: \n" +
                     "    gchecksum c(reate) [options]    : Create checksums file\n" +
                     "    gchecksum v(erify) [options]    : Verify files using checksums file\n" +
-                    "    \n" +
+                    "    gchecksum u(pdate) [options]    : Update the existing checksums file and print the changes\n" +
+                    "\n" +
                     "Options:\n" +
-                    "    -v --version            Print version information\n" +
                     "    -h -? --help            Print this help message\n" +
+                    "    -v --version            Print version information\n" +
                     "    -f <checksums file>     Specify the checksums file [default=checksums.txt]\n" +
                     "    -d <directory>          Specify the directory that will be validated [default=.] \n" +
                     //"                            (don't use both -d and -i)\n" +
@@ -27,12 +28,12 @@ public final class Resources {
             "用法: \n" +
                     "    gchecksum c(reate) [选项]     : 创建校验文件\n" +
                     "    gchecksum v(erify) [选项]     : 使用校验文件对文件进行验证\n" +
-                    "    \n" +
+                    "    gchecksum u(pdate) [选项]     : 更新已存在的校验文件，打印发生变化的文件\n" +
+                    "\n" +
                     "选项：\n" +
-                    "    -v --version            打印程序版本信息\n" +
                     "    -h -? --help            打印本帮助信息\n" +
-                    "    -f <checksums file>     指定校验文件路径（默认值为 checksums.txt）\n" +
-                    "    -x                      将校验值输出至标准输出流，或从标准输入流读取校验值（与 -f 选项互斥）\n" +
+                    "    -v --version            打印程序版本信息\n" +
+                    "    -f <checksums file>     指定校验文件路径（使用 '-' 指定为标准输入/输出流，默认为 checksums.txt）\n" +
                     "    -d <directory>          指定要验证的文件夹（默认值为当前工作路径）\n" +
                     //"                            （与 -i 选项互斥）\n" +
                     //"    -i <files>              指定要验证的文件列表\n" +

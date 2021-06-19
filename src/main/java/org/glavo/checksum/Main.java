@@ -3,12 +3,9 @@ package org.glavo.checksum;
 import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.LongAdder;
-import java.util.stream.Collectors;
 
 public final class Main {
 
@@ -23,12 +20,52 @@ public final class Main {
         System.exit(1);
     }
 
+    private static void printProperties(String... keys) {
+
+    }
+
+    private static void printRuntimeInformation() {
+        final String[] properties = {
+                "file.encoding",
+                "file.separator",
+                "java.class.path",
+                "java.home",
+                "java.io.tmpdir",
+                "java.library.path",
+                "java.runtime.name",
+                "java.runtime.version",
+                "java.vm.name",
+                "java.vm.info",
+                "java.vm.vendor",
+                "java.vm.version",
+                "line.separator",
+                "os.name",
+                "os.arch",
+                "os.version",
+                "path.separator",
+                "sun.boot.library.path",
+                "user.dir",
+                "user.language"
+        };
+
+        System.out.println(Resources.getInstance().getVersionInformation());
+
+        System.out.println("Property settings:");
+        for (String key : properties) {
+            System.out.println("    " + key + " = " + System.getProperty(key));
+        }
+
+
+        System.out.println("Locale settings:");
+        System.out.println("    default locale = " + Locale.getDefault());
+        System.out.println("    available locales = " + Arrays.toString(Locale.getAvailableLocales()));
+    }
+
     public static void main(String[] args) throws Exception {
         final Resources resources = Resources.getInstance();
 
-        Mode mode = null;
+        Mode mode = Mode.Verify;
         String checksumsFile = null;
-        boolean stdio = false;
         String directory = null;
         String inputs = null;
         Hasher algorithm = null;
@@ -38,10 +75,7 @@ public final class Main {
         boolean skipFirst = true;
         //region Parse Args
         final int argsLength = args.length;
-        if (argsLength == 0) {
-            mode = Mode.Verify;
-
-        } else {
+        if (argsLength != 0) {
             switch (args[0]) {
                 case "v":
                 case "verify":
@@ -50,6 +84,10 @@ public final class Main {
                 case "c":
                 case "create":
                     mode = Mode.Create;
+                    break;
+                case "u":
+                case "update":
+                    mode = Mode.Update;
                     break;
                 default:
                     skipFirst = false;
@@ -66,6 +104,10 @@ public final class Main {
                 case "-v":
                 case "--version":
                     System.out.println(resources.getVersionInformation());
+                    System.out.println();
+                    return;
+                case "--print-runtime-information":
+                    printRuntimeInformation();
                     return;
                 case "-f":
                     if (i == argsLength - 1) {
@@ -74,21 +116,7 @@ public final class Main {
                     if (checksumsFile != null) {
                         reportParamRespecified(currentArg);
                     }
-                    if (stdio) {
-                        Logger.error(resources.getOptionMixedMessage(), "-f", "-x");
-                        System.exit(1);
-                    }
                     checksumsFile = args[++i];
-                    break;
-                case "-x":
-                    if (stdio) {
-                        reportParamRespecified(currentArg);
-                    }
-                    if (checksumsFile != null) {
-                        Logger.error(resources.getOptionMixedMessage(), "-f", "-x");
-                        System.exit(1);
-                    }
-                    stdio = true;
                     break;
                 case "-d":
                     if (i == argsLength - 1) {
@@ -99,8 +127,7 @@ public final class Main {
                     }
                     //noinspection ConstantConditions
                     if (inputs != null) {
-                        Logger.error(resources.getOptionMixedMessage(), "-d", "-i");
-                        System.exit(1);
+                        Logger.logErrorAndExit(resources.getOptionMixedMessage(), "-d", "-i");
                     }
                     directory = args[++i];
                     break;
@@ -113,8 +140,7 @@ public final class Main {
                         reportParamRespecified(currentArg);
                     }
                     if (directory != null) {
-                        Logger.error(resources.getOptionMixedMessage(), "-d", "-i");
-                        System.exit(1);
+                        Logger.logErrorAndExit(resources.getOptionMixedMessage(), "-d", "-i");
                     }
                     inputs = args[++i];
                     Logger.error("error: -i option is not yet supported");
@@ -131,8 +157,7 @@ public final class Main {
                     String algoName = args[++i];
                     algorithm = Hasher.ofName(algoName);
                     if (algorithm == null) {
-                        Logger.error(resources.getUnsupportedAlgorithmMessage(), algoName);
-                        System.exit(1);
+                        Logger.logErrorAndExit(resources.getUnsupportedAlgorithmMessage(), algoName);
                     }
                     break;
                 case "-n":
@@ -150,8 +175,7 @@ public final class Main {
                     } catch (NumberFormatException ignored) {
                     }
                     if (n <= 0) {
-                        Logger.error(resources.getInvalidArgMessage(), nt);
-                        System.exit(1);
+                        Logger.logErrorAndExit(resources.getInvalidArgMessage(), nt);
                     }
                     numThreads = n;
                     break;
@@ -175,18 +199,14 @@ public final class Main {
             System.exit(1);
         }
 
-        if (!stdio && checksumsFile == null) {
+        if (checksumsFile == null) {
             checksumsFile = "checksums.txt";
-        }
-
-        if (mode == null) {
-            mode = Mode.Verify;
         }
 
         switch (mode) {
             case Verify: {
                 BufferedReader reader;
-                if (stdio) {
+                if ("-".equals(checksumsFile)) {
                     reader = new BufferedReader(new InputStreamReader(System.in));
                 } else {
                     final Path cf = Paths.get(checksumsFile).toAbsolutePath();
@@ -206,13 +226,14 @@ public final class Main {
                 }
                 break;
             }
+            case Update:
             case Create: {
                 if (algorithm == null) {
                     algorithm = Hasher.getDefault();
                 }
                 PrintWriter writer;
                 Path exclude = null;
-                if (stdio) {
+                if ("-".equals(checksumsFile)) {
                     writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
                 } else {
                     final Path cf = Paths.get(checksumsFile).toAbsolutePath();
@@ -225,8 +246,13 @@ public final class Main {
                     exclude = cf;
                     writer = new PrintWriter(Files.newBufferedWriter(cf));
                 }
+                Map<String, String> old = null;
+                if (mode == Mode.Update) {
+                    old = new HashMap<>();
+                    // TODO
+                }
                 try {
-                    create(basePath, writer, exclude, algorithm, numThreads);
+                    create(basePath, writer, exclude, algorithm, numThreads, old);
                 } finally {
                     writer.close();
                 }
@@ -455,7 +481,13 @@ public final class Main {
         writer.println();
     }
 
-    private static void create(Path basePath, PrintWriter writer, Path exclude, Hasher hasher, int numThreads) throws Exception {
+    private static void create(
+            Path basePath,
+            PrintWriter writer,
+            Path exclude,
+            Hasher hasher,
+            int numThreads,
+            Map<String, String> old) throws Exception {
         if (numThreads == 1) {
             FTW<String> ftw = new FTW<String>(exclude) {
                 @Override

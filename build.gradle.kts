@@ -22,7 +22,7 @@ tasks.compileJava {
 val generateVersionInfo by tasks.registering {
     val baseDir = file("$buildDir/version")
     baseDir.mkdirs()
-    file("$baseDir/Version.txt").writeText(version.toString())
+    file("$baseDir/Version.txt").writeText("gchecksum $version")
 }
 
 val executableJar by tasks.registering {
