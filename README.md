@@ -194,4 +194,4 @@ Minecraft 服务器文件夹，5604 个文件，7.2G。
 
 （参照组）使用 Linux 的 sha256sum 工具进行校验，命令 `sha256sum --quiet -c checksums.txt`：
 
-* 验证：0m26.187s
+* 验证：26.187s
