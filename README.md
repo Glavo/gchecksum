@@ -175,7 +175,7 @@ gchecksum 当前实现较为简略，未来会考虑更细致地优化性能。
 * 生成：3m27.069s
 * 验证：3m27.096s
 
-（参照组）使用 Linux 的 sha256sum 工具进行校验，命令 `sha256sum --quiet -c checksums.txt`。
+（参照组）使用 Linux 的 sha256sum 工具进行校验，命令 `sha256sum --quiet -c checksums.txt`：
 
 * 验证：11m53.429s
 
