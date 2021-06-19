@@ -167,6 +167,14 @@ gchecksum 生成时会按路径排序，但校验时不要求顺序。
 * 生成：3m27.069s
 * 验证：3m27.096s
 
+参照组：使用 Linux 的 shasum 工具进行校验，命令 `shasum -q -c checksums.txt`。
+
+* 时间：12m26.909s
+
+参照组：使用 Linux 的 sha256sum 工具进行校验，命令 `sha256sum --quiet -c checksums.txt`。
+
+* 时间 11m53.429s
+
 测试3：Minecraft 服务器文件夹，5604 个文件，7.2G。默认参数执行（8 线程）。
 
 * 生成：0.859s
