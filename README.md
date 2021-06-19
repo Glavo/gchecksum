@@ -147,7 +147,12 @@ gchecksum 生成时会按路径排序，但校验时不要求顺序。
 
 ## 性能
 
-基于 0.6.0 测试，将会在未来优化。
+基于 0.6.0 测试，使用默认 SHA-256 实现。
+
+使用 [Amazon Corretto Crypto Provider](https://github.com/corretto/amazon-corretto-crypto-provider) 替换 JDK 内置哈希算法实现
+可以获得轻微性能提升，但主要瓶颈应该处于文件 io 上。
+
+gchecksum 当前实现较为简略，未来会考虑更细致地优化性能。
 
 测试平台：
 
@@ -157,35 +162,36 @@ gchecksum 生成时会按路径排序，但校验时不要求顺序。
 * Java：OpenJDK 16.0.1
 * 硬盘：SN750 500G
 
-测试1：47 个压缩文件，共 188G。默认参数执行（8 线程）。
+### 测试1
+47 个压缩文件，共 188G。
+
+默认参数（8 线程）：
 
 * 生成：1m0.787s
 * 验证：1m2.424s
 
-测试2：47 个压缩文件，共 188G。参数 `-n 1`（单线程）。
+参数 `-n 1`（单线程）：
 
 * 生成：3m27.069s
 * 验证：3m27.096s
 
-参照组：使用 Linux 的 shasum 工具进行校验，命令 `shasum -q -c checksums.txt`。
+（参照组）使用 Linux 的 sha256sum 工具进行校验，命令 `sha256sum --quiet -c checksums.txt`。
 
-* 时间：12m26.909s
+* 验证：11m53.429s
 
-参照组：使用 Linux 的 sha256sum 工具进行校验，命令 `sha256sum --quiet -c checksums.txt`。
+### 测试2
+Minecraft 服务器文件夹，5604 个文件，7.2G。
 
-* 时间 11m53.429s
-
-测试3：Minecraft 服务器文件夹，5604 个文件，7.2G。默认参数执行（8 线程）。
+默认参数（8 线程）：
 
 * 生成：0.859s
 * 验证：0.908s
 
-测试4：Minecraft 服务器文件夹，5604 个文件，7.2G。参数 `-n 1`（单线程）。
+参数 `-n 1`（单线程）：
 
 * 生成：4.995s
 * 验证：4.947s
 
-使用 [Amazon Corretto Crypto Provider](https://github.com/corretto/amazon-corretto-crypto-provider) 替换 JDK 内置哈希算法实现
-可以获得轻微性能提升，但主要瓶颈应该处于文件 io 上。
+（参照组）使用 Linux 的 sha256sum 工具进行校验，命令 `sha256sum --quiet -c checksums.txt`：
 
-gchecksum 当前实现较为简略，未来会考虑更细致地优化性能。
+* 验证：0m26.187s
