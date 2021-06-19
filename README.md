@@ -147,7 +147,7 @@ gchecksum 生成时会按路径排序，但校验时不要求顺序。
 
 ## 性能
 
-基于 0.6.0 测试，使用默认 SHA-256 实现。
+基于 0.6.0 测试，使用 OpenJDK 默认 SHA-256 实现。
 
 使用 [Amazon Corretto Crypto Provider](https://github.com/corretto/amazon-corretto-crypto-provider) 替换 JDK 内置哈希算法实现
 可以获得轻微性能提升，但主要瓶颈应该处于文件 io 上。
