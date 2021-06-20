@@ -2,7 +2,6 @@ package org.glavo.checksum;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Locale;
 
 public final class Resources {
     private static final String HELP_MESSAGE_EN =
@@ -66,7 +65,7 @@ public final class Resources {
             "错误：选项 %s 被指定多次",
             "错误：不能混用选项 %s 和 %s",
             "错误：不支持的哈希算法：%s",
-            "错误：无效参数：%s",
+            "错误：无效参数值：%s",
             "错误：路径 '%s' 不存在",
             "错误：路径 '%s' 是一个文件",
             "错误：文件 '%s' 不存在",
@@ -80,23 +79,35 @@ public final class Resources {
     private static final String[] MESSAGE_TABLE_EN = {
             "Verification completed: %d success, %d failure",
             "Done",
-            "The existing file '%s' will be overwritten"
+            "The existing file '%s' will be overwritten, do you want to continue? [y/n]",
+            "The file '%s' not exist, do you want to create it? [y/n]",
+            "The new file '%s' be recorded",
+            "The hash value of file '%s' (%s) is updated to '%s'",
+            "The record of file '%s' will be removed"
     };
 
     private static final String[] MESSAGE_TABLE_ZH = {
             "校验完毕：%d 个成功，%d 个失败",
             "完成",
-            "已存在的文件 '%s' 将被覆盖"
+            "已存在的文件 '%s' 将被覆盖，是否继续？[y/n]",
+            "文件 '%s' 尚不存在，是否想要创建它？[y/n]",
+            "新的文件 '%s' 被记录",
+            "文件 '%s' 在记录中的哈希值（%s）被更新为 '%s'",
+            "文件 '%s' 的记录将被删除"
     };
 
-    public static final Resources INSTANCE;
+    private static final Resources INSTANCE;
 
     static {
-        final Locale locale = Locale.getDefault();
+        String lang = System.getProperty("user.language");
+        if (lang == null) {
+            String l = System.getenv("LANG");
+            if (l != null && l.startsWith("zh_")) {
+                lang = "zh";
+            }
+        }
 
-        if ("zh".equals(locale.getLanguage())
-                || "CN".equals(locale.getCountry())
-                || "zh".equals(System.getProperty("user.language"))) {
+        if ("zh".equalsIgnoreCase(lang)) {
             INSTANCE = new Resources(HELP_MESSAGE_ZH, ERROR_TABLE_ZH, MESSAGE_TABLE_ZH);
         } else {
             INSTANCE = new Resources(HELP_MESSAGE_EN, ERROR_TABLE_EN, MESSAGE_TABLE_EN);
@@ -152,7 +163,7 @@ public final class Resources {
         return errorTable[4];
     }
 
-    public final String getInvalidArgMessage() {
+    public final String getInvalidOptionValueMessage() {
         return errorTable[5];
     }
 
@@ -198,5 +209,21 @@ public final class Resources {
 
     public final String getOverwriteFileMessage() {
         return messageTable[2];
+    }
+
+    public final String getCreateFileMessage() {
+        return messageTable[3];
+    }
+
+    public final String getNewFileBeRecordedMessage() {
+        return messageTable[4];
+    }
+
+    public final String getFileHashUpdatedMessage() {
+        return messageTable[5];
+    }
+
+    public final String getFileRecordBeRemoved() {
+        return messageTable[6];
     }
 }

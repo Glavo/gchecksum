@@ -1,4 +1,4 @@
-package org.glavo.checksum;
+package org.glavo.checksum.util;
 
 public final class Logger {
     public static final String GREEN = "\u001b[32m";

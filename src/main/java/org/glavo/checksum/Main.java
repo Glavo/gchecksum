@@ -1,11 +1,19 @@
 package org.glavo.checksum;
 
+import org.glavo.checksum.mode.CreateOrUpdate;
+import org.glavo.checksum.mode.Mode;
+import org.glavo.checksum.mode.Verify;
+import org.glavo.checksum.util.IOUtils;
+import org.glavo.checksum.util.Logger;
+import org.glavo.checksum.util.Pair;
+import org.glavo.checksum.util.Utils;
+
+import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
 import java.io.*;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.LongAdder;
 
 public final class Main {
 
@@ -38,7 +46,6 @@ public final class Main {
                 "java.vm.info",
                 "java.vm.vendor",
                 "java.vm.version",
-                "line.separator",
                 "os.name",
                 "os.arch",
                 "os.version",
@@ -55,16 +62,19 @@ public final class Main {
             System.out.println("    " + key + " = " + System.getProperty(key));
         }
 
-
-        System.out.println("Locale settings:");
-        System.out.println("    default locale = " + Locale.getDefault());
-        System.out.println("    available locales = " + Arrays.toString(Locale.getAvailableLocales()));
+        System.out.println("Crypto settings:");
+        try {
+            System.out.println("    provider = " + Cipher.getInstance("AES/GCM/NoPadding").getProvider());
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) throws Exception {
         final Resources resources = Resources.getInstance();
 
         Mode mode = Mode.Verify;
+        boolean quiet = false;
         String checksumsFile = null;
         String directory = null;
         String inputs = null;
@@ -76,7 +86,8 @@ public final class Main {
         //region Parse Args
         final int argsLength = args.length;
         if (argsLength != 0) {
-            switch (args[0]) {
+            String firstArg = args[0];
+            switch (firstArg) {
                 case "v":
                 case "verify":
                     mode = Mode.Verify;
@@ -90,21 +101,24 @@ public final class Main {
                     mode = Mode.Update;
                     break;
                 default:
-                    skipFirst = false;
+                    if (firstArg.startsWith("-")) {
+                        skipFirst = false;
+                    } else {
+                        Logger.logErrorAndExit(Resources.getInstance().getUnknownModeMessage(), firstArg);
+                    }
             }
         }
         for (int i = skipFirst ? 1 : 0; i < argsLength; i++) {
             final String currentArg = args[i];
             switch (currentArg) {
+                case "-?":
                 case "-h":
                 case "--help":
-                case "-?":
                     System.out.println(Resources.getInstance().getHelpMessage());
                     return;
                 case "-v":
                 case "--version":
                     System.out.println(resources.getVersionInformation());
-                    System.out.println();
                     return;
                 case "--print-runtime-information":
                     printRuntimeInformation();
@@ -125,7 +139,6 @@ public final class Main {
                     if (directory != null) {
                         reportParamRespecified(currentArg);
                     }
-                    //noinspection ConstantConditions
                     if (inputs != null) {
                         Logger.logErrorAndExit(resources.getOptionMixedMessage(), "-d", "-i");
                     }
@@ -135,7 +148,6 @@ public final class Main {
                     if (i == argsLength - 1) {
                         reportMissArg(currentArg);
                     }
-                    //noinspection ConstantConditions
                     if (inputs != null) {
                         reportParamRespecified(currentArg);
                     }
@@ -143,8 +155,7 @@ public final class Main {
                         Logger.logErrorAndExit(resources.getOptionMixedMessage(), "-d", "-i");
                     }
                     inputs = args[++i];
-                    Logger.error("error: -i option is not yet supported");
-                    System.exit(1);
+                    Logger.logErrorAndExit("error: -i option is not yet supported");
                     break;
                 case "-a":
                 case "--algorithm":
@@ -175,9 +186,16 @@ public final class Main {
                     } catch (NumberFormatException ignored) {
                     }
                     if (n <= 0) {
-                        Logger.logErrorAndExit(resources.getInvalidArgMessage(), nt);
+                        Logger.logErrorAndExit(resources.getInvalidOptionValueMessage(), nt);
                     }
                     numThreads = n;
+                    break;
+                case "-q":
+                case "--quiet":
+                    if (quiet) {
+                        reportParamRespecified(currentArg);
+                    }
+                    quiet = true;
                     break;
                 default:
                     Logger.logErrorAndExit(resources.getInvalidOptionMessage(), currentArg);
@@ -192,11 +210,9 @@ public final class Main {
 
         final Path basePath = Paths.get(directory == null ? "" : directory).toAbsolutePath();
         if (Files.notExists(basePath)) {
-            Logger.error(resources.getPathNotExistMessage(), basePath);
-            System.exit(1);
+            Logger.logErrorAndExit(resources.getPathNotExistMessage(), basePath);
         } else if (!Files.isDirectory(basePath)) {
-            Logger.error(resources.getPathIsAFileMessage(), basePath);
-            System.exit(1);
+            Logger.logErrorAndExit(resources.getPathIsAFileMessage(), basePath);
         }
 
         if (checksumsFile == null) {
@@ -211,16 +227,14 @@ public final class Main {
                 } else {
                     final Path cf = Paths.get(checksumsFile).toAbsolutePath();
                     if (Files.notExists(cf)) {
-                        Logger.error(resources.getFileNotExistMessage(), cf);
-                        System.exit(1);
+                        Logger.logErrorAndExit(resources.getFileNotExistMessage(), cf);
                     } else if (!Files.isReadable(cf)) {
-                        Logger.error(resources.getFileCannotBeReadMessage(), cf);
-                        System.exit(1);
+                        Logger.logErrorAndExit(resources.getFileCannotBeReadMessage(), cf);
                     }
-                    reader = Files.newBufferedReader(cf);
+                    reader = IOUtils.newBufferedReader(cf);
                 }
                 try {
-                    verify(basePath, reader, algorithm, numThreads);
+                    Verify.verify(basePath, reader, algorithm, numThreads);
                 } finally {
                     reader.close();
                 }
@@ -231,9 +245,13 @@ public final class Main {
                 if (algorithm == null) {
                     algorithm = Hasher.getDefault();
                 }
+                Map<String, String> old = null;
                 PrintWriter writer;
                 Path exclude = null;
                 if ("-".equals(checksumsFile)) {
+                    if (mode == Mode.Update) {
+                        Logger.logErrorAndExit(resources.getInvalidOptionValueMessage(), "-f");
+                    }
                     writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
                 } else {
                     final Path cf = Paths.get(checksumsFile).toAbsolutePath();
@@ -241,18 +259,43 @@ public final class Main {
                         Logger.logErrorAndExit(resources.getPathIsDirMessage(), cf);
                     }
                     if (Files.exists(cf)) {
-                        Logger.info(resources.getOverwriteFileMessage(), cf);
+                        if (mode == Mode.Update) {
+                            old = new HashMap<>();
+                            try (BufferedReader r = IOUtils.newBufferedReader(cf)) {
+                                String line;
+                                while ((line = r.readLine()) != null) {
+                                    if (!line.isEmpty()) {
+                                        final Pair<String, String> p = Utils.spiltRecord(line);
+                                        if (p == null) {
+                                            Logger.error(resources.getInvalidHashRecordMessage(), line);
+                                        } else {
+                                            old.put(p.component2, p.component1);// TODO
+                                        }
+                                    }
+                                }
+                            }
+                        } else if (!quiet) {
+                            Logger.error(resources.getOverwriteFileMessage(), cf);
+                            if (!IOUtils.readChoice()) {
+                                System.exit(1);
+                            }
+                        }
+                    } else if (mode == Mode.Update && !quiet) {
+                        Logger.info(resources.getCreateFileMessage(), cf);
+                        if (!IOUtils.readChoice()) {
+                            System.exit(1);
+                        }
                     }
                     exclude = cf;
                     writer = new PrintWriter(Files.newBufferedWriter(cf));
                 }
-                Map<String, String> old = null;
-                if (mode == Mode.Update) {
-                    old = new HashMap<>();
-                    // TODO
-                }
+
                 try {
-                    create(basePath, writer, exclude, algorithm, numThreads, old);
+                    if (numThreads == 1) {
+                        CreateOrUpdate.updateInSingleThread(basePath, writer, exclude, algorithm, old);
+                    } else {
+                        CreateOrUpdate.update(basePath, writer, exclude, algorithm, numThreads, old);
+                    }
                 } finally {
                     writer.close();
                 }
@@ -262,271 +305,5 @@ public final class Main {
 
     }
 
-    private static void verify(Path basePath, BufferedReader reader, Hasher hasher, int numThreads)
-            throws Exception {
 
-        final LongAdder successCount = new LongAdder();
-        final LongAdder failureCount = new LongAdder();
-
-        try {
-            if (numThreads == 1) {
-                if (hasher == null) {
-                    String firstLine = reader.readLine();
-                    while ("".equals(firstLine)) {
-                        firstLine = reader.readLine();
-                    }
-                    if (firstLine == null) {
-                        return;
-                    }
-                    final int idx = firstLine.indexOf(' ');
-                    hasher = Hasher.ofHashStringLength(idx);
-                    if (hasher == null) {
-                        Logger.logErrorAndExit(Resources.getInstance().getInvalidHashRecordMessage(), firstLine);
-                    }
-                    //noinspection ConstantConditions
-                    if (verifyFile(basePath, firstLine, hasher)) {
-                        successCount.increment();
-                    } else {
-                        failureCount.increment();
-                    }
-                }
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (!line.isEmpty()) {
-                        if (verifyFile(basePath, line, hasher)) {
-                            successCount.increment();
-                        } else {
-                            failureCount.increment();
-                        }
-                    }
-                }
-            } else {
-                final ForkJoinPool pool = new ForkJoinPool(numThreads);
-                ForkJoinTask<?> t0 = null;
-                if (hasher == null) {
-                    String firstLine = reader.readLine();
-                    while (firstLine != null && firstLine.isEmpty()) {
-                        firstLine = reader.readLine();
-                    }
-                    if (firstLine == null) {
-                        return;
-                    }
-                    final int idx = firstLine.indexOf(' ');
-                    hasher = Hasher.ofHashStringLength(idx);
-                    if (hasher == null) {
-                        Logger.logErrorAndExit(Resources.getInstance().getInvalidHashRecordMessage(), firstLine);
-                    }
-                    final String l = firstLine;
-                    final Hasher h = hasher;
-                    t0 = pool.submit(() -> {
-                        if (verifyFile(basePath, l, h)) {
-                            successCount.increment();
-                        } else {
-                            failureCount.increment();
-                        }
-                    });
-                }
-                final Hasher finalHasher = hasher;
-                final ArrayList<String> lines = new ArrayList<>(1024);
-                {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        if (!line.isEmpty()) {
-                            lines.add(line);
-                        }
-                    }
-                }
-
-                pool.submit(() -> lines.stream().parallel()
-                        .forEach(line -> {
-                            if (verifyFile(basePath, line, finalHasher)) {
-                                successCount.add(1);
-                            } else {
-                                failureCount.add(1);
-                            }
-                        })).get();
-
-                if (t0 != null) {
-                    t0.get();
-                }
-            }
-        } finally {
-            Logger.info(Resources.getInstance().getVerificationCompletedMessage(), successCount.longValue(), failureCount.longValue());
-        }
-    }
-
-    private static boolean verifyFile(Path basePath, String line, Hasher hasher) {
-        try {
-            final int lineLength = line.length();
-            final int idx = line.indexOf(' ');
-            if (idx != hasher.getHashStringLength()) {
-                Logger.error(Resources.getInstance().getInvalidHashRecordMessage(), line);
-                return false;
-            }
-            final String recordHashValue = line.substring(0, idx);
-            final String filePath;
-
-            if (lineLength == idx + 1) {
-                Logger.error(Resources.getInstance().getInvalidHashRecordMessage(), line);
-                return false;
-            } else if (line.charAt(idx + 1) == ' ') {
-                if (lineLength == idx + 2) {
-                    Logger.error(Resources.getInstance().getInvalidHashRecordMessage(), line);
-                    return false;
-                }
-                filePath = line.substring(idx + 2);
-            } else {
-                filePath = line.substring(idx + 1);
-            }
-
-            final Path file = basePath.resolve(filePath).toAbsolutePath();
-            if (Files.notExists(file)) {
-                Logger.error(Resources.getInstance().getFileNotExistMessage(), file);
-                return false;
-            } else if (Files.isDirectory(file)) {
-                Logger.error(Resources.getInstance().getPathIsDirMessage(), file);
-                return false;
-            } else if (!Files.isReadable(file)) {
-                Logger.error(Resources.getInstance().getFileCannotBeReadMessage(), file);
-                return false;
-            }
-
-            final String fileHash = hasher.hashFile(file);
-            if (!recordHashValue.equalsIgnoreCase(fileHash)) {
-                Logger.error(Resources.getInstance().getHashNotMatchMessage(), file, fileHash, recordHashValue);
-                return false;
-            }
-            return true;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private static abstract class FTW<T> implements FileVisitor<Path> {
-        String[] pathBuffer = new String[256]; // tmp
-        int count = -1;
-
-        private final TreeMap<String[], T> result = new TreeMap<>((x, y) -> {
-            final int xLength = x.length;
-            final int yLength = y.length;
-
-            int length = Math.min(xLength, yLength);
-            for (int i = 0; i < length; i++) {
-                int v = x[i].compareTo(y[i]);
-                if (v != 0) {
-                    return v;
-                }
-            }
-
-            return xLength - yLength;
-        });
-
-        private final Path exclude;
-
-        protected FTW(Path exclude) {
-            this.exclude = exclude;
-        }
-
-        protected abstract T processFile(Path file) throws IOException;
-
-        @Override
-        public final FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            if (count >= 0) {
-                pathBuffer[count] = dir.getFileName().toString();
-            }
-            count++;
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public final FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            if (!file.equals(exclude)) {
-                if (Files.isReadable(file)) {
-                    final String[] p = Arrays.copyOf(pathBuffer, count + 1);
-                    p[count] = file.getFileName().toString();
-                    result.put(p, processFile(file));
-                } else {
-                    Logger.error(Resources.getInstance().getFileCannotBeReadMessage(), file);
-                }
-            }
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public final FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-            exc.printStackTrace(); // TODO
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public final FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-            count--;
-            return FileVisitResult.CONTINUE;
-        }
-
-        public final TreeMap<String[], T> result() {
-            return result;
-        }
-    }
-
-    private static void printPath(PrintWriter writer, String[] path) {
-        final int length = path.length;
-        if (length != 0) {
-            writer.print(path[0]);
-            for (int i = 1; i < length; i++) {
-                writer.print('/');
-                writer.print(path[i]);
-            }
-        }
-        writer.println();
-    }
-
-    private static void create(
-            Path basePath,
-            PrintWriter writer,
-            Path exclude,
-            Hasher hasher,
-            int numThreads,
-            Map<String, String> old) throws Exception {
-        if (numThreads == 1) {
-            FTW<String> ftw = new FTW<String>(exclude) {
-                @Override
-                protected final String processFile(Path file) throws IOException {
-                    return hasher.hashFile(file);
-                }
-            };
-            Files.walkFileTree(basePath, ftw);
-            ftw.result().forEach((k, v) -> {
-                writer.print(v);
-                writer.print("  ");
-                printPath(writer, k);
-            });
-            Logger.info(Resources.getInstance().getDoneMessage());
-        } else {
-            final ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
-            try {
-                FTW<Future<String>> ftw = new FTW<Future<String>>(exclude) {
-                    @Override
-                    protected final Future<String> processFile(Path file) {
-                        return executorService.submit(() -> hasher.hashFile(file));
-                    }
-                };
-                Files.walkFileTree(basePath, ftw);
-                ftw.result().forEach((k, v) -> {
-                    try {
-                        writer.print(v.get());
-                        writer.print("  ");
-                        printPath(writer, k);
-                    } catch (InterruptedException | CancellationException e) {
-                        throw new AssertionError(e);
-                    } catch (ExecutionException e) {
-                        e.printStackTrace(); // TODO
-                    }
-                });
-                Logger.info(Resources.getInstance().getDoneMessage());
-            } finally {
-                executorService.shutdown();
-            }
-        }
-    }
 }

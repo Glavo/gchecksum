@@ -1,11 +1,12 @@
 package org.glavo.checksum;
 
+import org.glavo.checksum.util.IOUtils;
+import org.glavo.checksum.util.Utils;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -16,7 +17,7 @@ public final class Hasher {
     private static final ThreadLocal<byte[]> localBuffer = new ThreadLocal<byte[]>() {
         @Override
         protected final byte[] initialValue() {
-            return new byte[327680]; // 320 kb
+            return new byte[IOUtils.DEFAULT_BUFFER_SIZE];
         }
     };
 
@@ -106,6 +107,7 @@ public final class Hasher {
         MessageDigest md = localMessageDigest.get();
         byte[] buffer = localBuffer.get();
 
+        md.reset();
         int read;
         try (InputStream input = Files.newInputStream(file)) {
             do {
@@ -124,8 +126,6 @@ public final class Hasher {
                 builder.append(byte2str[b & 0xFF]);
             }
             return builder.toString();
-        } finally {
-            md.reset();
         }
     }
 }

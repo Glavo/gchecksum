@@ -1,10 +1,7 @@
-package org.glavo.checksum;
+package org.glavo.checksum.util;
 
 public final class Utils {
-    private Utils() {
-    }
-
-    static final String[] byte2str = {
+    public static final String[] byte2str = {
             "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "0a", "0b", "0c", "0d", "0e", "0f",
             "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "1a", "1b", "1c", "1d", "1e", "1f",
             "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "2a", "2b", "2c", "2d", "2e", "2f",
@@ -22,5 +19,21 @@ public final class Utils {
             "e0", "e1", "e2", "e3", "e4", "e5", "e6", "e7", "e8", "e9", "ea", "eb", "ec", "ed", "ee", "ef",
             "f0", "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "fa", "fb", "fc", "fd", "fe", "ff"
     };
+
+    public static Pair<String, String> spiltRecord(String r) {
+        final int rLength = r.length();
+
+        final int idx = r.indexOf(' ');
+        if (idx == -1 || idx == rLength - 1) {
+            return null;
+        }
+
+        for (int i = idx + 1; i < rLength; i++) {
+            if (r.charAt(i) != ' ') {
+                return new Pair<>(r.substring(0, idx), r.substring(i));
+            }
+        }
+        return null;
+    }
 
 }
