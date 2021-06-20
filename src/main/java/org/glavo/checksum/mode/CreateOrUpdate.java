@@ -165,7 +165,7 @@ public final class CreateOrUpdate {
                 }
             };
             Files.walkFileTree(basePath, ftw);
-            if(old == null) {
+            if (old == null) {
                 ftw.result().forEach((k, v) -> {
                     try {
                         writer.print(v.get());
@@ -200,9 +200,9 @@ public final class CreateOrUpdate {
                     }
                 });
             }
-            Logger.info(Resources.getInstance().getDoneMessage());
         } finally {
             executorService.shutdown();
         }
+        Logger.info(Resources.getInstance().getDoneMessage());
     }
 }

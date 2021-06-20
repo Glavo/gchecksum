@@ -6,5 +6,5 @@ fi
 if test -n "$GCHECKSUM_JAVA_HOME"; then
     _java="$GCHECKSUM_JAVA_HOME/bin/java"
 fi
-exec "$_java" -Xmx1g -XX:+UseG1GC $JAVA_OPTS $GCHECKSUM_JAVA_OPTS -cp "$0" 'org.glavo.checksum.Main' "$@"
+exec "$_java" -Xmx1g -XX:+UseG1GC $GCHECKSUM_JAVA_OPTS -cp "$0" 'org.glavo.checksum.Main' $GCHECKSUM_OPTS "$@"
 exit 1

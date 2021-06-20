@@ -17,7 +17,6 @@ import java.util.*;
 
 public final class Main {
 
-
     private static void reportMissArg(String opt) {
         Logger.error(Resources.getInstance().getMissArgMessage(), opt);
         System.exit(1);
@@ -74,7 +73,7 @@ public final class Main {
         final Resources resources = Resources.getInstance();
 
         Mode mode = Mode.Verify;
-        boolean quiet = false;
+        boolean assumeYes = false;
         String checksumsFile = null;
         String directory = null;
         String inputs = null;
@@ -82,8 +81,8 @@ public final class Main {
         int numThreads = 0;
 
 
-        boolean skipFirst = true;
         //region Parse Args
+        boolean skipFirst = true;
         final int argsLength = args.length;
         if (argsLength != 0) {
             String firstArg = args[0];
@@ -190,12 +189,13 @@ public final class Main {
                     }
                     numThreads = n;
                     break;
-                case "-q":
-                case "--quiet":
-                    if (quiet) {
+                case "-y":
+                case "--yes":
+                case "--assume-yes":
+                    if (assumeYes) {
                         reportParamRespecified(currentArg);
                     }
-                    quiet = true;
+                    assumeYes = true;
                     break;
                 default:
                     Logger.logErrorAndExit(resources.getInvalidOptionMessage(), currentArg);
@@ -234,7 +234,11 @@ public final class Main {
                     reader = IOUtils.newBufferedReader(cf);
                 }
                 try {
-                    Verify.verify(basePath, reader, algorithm, numThreads);
+                    if (numThreads == 1) {
+                        Verify.verifyInSignalThread(basePath, reader, algorithm);
+                    } else {
+                        Verify.verify(basePath, reader, algorithm, numThreads);
+                    }
                 } finally {
                     reader.close();
                 }
@@ -274,13 +278,13 @@ public final class Main {
                                     }
                                 }
                             }
-                        } else if (!quiet) {
+                        } else if (!assumeYes) {
                             Logger.error(resources.getOverwriteFileMessage(), cf);
                             if (!IOUtils.readChoice()) {
                                 System.exit(1);
                             }
                         }
-                    } else if (mode == Mode.Update && !quiet) {
+                    } else if (mode == Mode.Update && !assumeYes) {
                         Logger.info(resources.getCreateFileMessage(), cf);
                         if (!IOUtils.readChoice()) {
                             System.exit(1);
@@ -304,6 +308,5 @@ public final class Main {
         }
 
     }
-
 
 }
