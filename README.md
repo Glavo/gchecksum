@@ -1,5 +1,7 @@
 # gchecksum
 
+[![License](license.svg)](LICENSE)
+
 **Chinese** | English (TODO)
 
 English documents are not available, welcome to contribute.
