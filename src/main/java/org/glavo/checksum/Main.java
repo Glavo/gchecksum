@@ -270,7 +270,8 @@ public final class Main {
                                 while ((line = r.readLine()) != null) {
                                     if (!line.isEmpty()) {
                                         final Pair<String, String> p = Utils.spiltRecord(line);
-                                        if (p == null || p.component2.length() != algorithm.getHashStringLength()) {
+                                        if (p == null ||
+                                                p.component1.length() != algorithm.getHashStringLength()) {
                                             Logger.error(resources.getInvalidHashRecordMessage(), line);
                                         } else {
                                             old.put(p.component2, p.component1);// TODO

@@ -83,7 +83,7 @@ public final class Resources {
             "Done",
             "The existing file '%s' will be overwritten, do you want to continue? [y/n]",
             "The file '%s' not exist, do you want to create it? [y/n]",
-            "change: The new file '%s' be recorded",
+            "change: The new file '%s' will be recorded",
             "change: The hash value of file '%s' (%s) will be updated to '%s'",
             "change: The record of file '%s' will be deleted"
     };
