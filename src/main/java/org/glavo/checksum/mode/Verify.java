@@ -11,9 +11,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.LongAdder;
 
 public final class Verify {
@@ -99,10 +97,8 @@ public final class Verify {
 
         final LongAdder successCount = new LongAdder();
         final LongAdder failureCount = new LongAdder();
-
+        final ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
         try {
-            final ForkJoinPool pool = new ForkJoinPool(numThreads);
-            ForkJoinTask<?> t0 = null;
             if (hasher == null) {
                 String firstLine = reader.readLine();
                 while (firstLine != null && firstLine.isEmpty()) {
@@ -118,7 +114,7 @@ public final class Verify {
                 }
                 final String l = firstLine;
                 final Hasher h = hasher;
-                t0 = pool.submit(() -> {
+                executorService.submit(() -> {
                     if (verifyFile(basePath, l, h)) {
                         successCount.increment();
                     } else {
@@ -126,30 +122,24 @@ public final class Verify {
                     }
                 });
             }
-            final ArrayList<String> lines = new ArrayList<>(1024);
-            {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (!line.isEmpty()) {
-                        lines.add(line);
-                    }
+            String line;
+            final Hasher theHasher = hasher;
+            while ((line = reader.readLine()) != null) {
+                if (!line.isEmpty()) {
+                    final String theLine = line;
+                    executorService.submit(() -> {
+                        if (verifyFile(basePath, theLine, theHasher)) {
+                            successCount.increment();
+                        } else {
+                            failureCount.increment();
+                        }
+                    });
                 }
             }
-
-            final Hasher finalHasher = hasher;
-            pool.submit(() -> lines.stream().parallel()
-                    .forEach(line -> {
-                        if (verifyFile(basePath, line, finalHasher)) {
-                            successCount.add(1);
-                        } else {
-                            failureCount.add(1);
-                        }
-                    })).get();
-
-            if (t0 != null) {
-                t0.get();
-            }
         } finally {
+            executorService.shutdown();
+            //noinspection ResultOfMethodCallIgnored
+            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.MINUTES);
             Logger.info(Resources.getInstance().getVerificationCompletedMessage(), successCount.longValue(), failureCount.longValue());
         }
     }
