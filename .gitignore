@@ -1,4 +1,4 @@
 .gradle/
 build/
 .idea/
-test/
+/test/
