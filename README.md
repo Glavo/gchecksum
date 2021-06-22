@@ -129,7 +129,7 @@ gchecksum 有三种模式：
 
 ## checksums 文件
 
-checksums 文件内容形式类似这样：
+checksums 文件内容形式如下：
 ```
 862b930590e9abbc9595179a62b3e640a4ecfd22b324f09843375412b9934cc5  Config.json
 5d7090789c8956083887f10bea8628a58c179b3422c7d53bff315e150a812b25  libs/aliyun-java-sdk-alidns-2.6.29.jar
@@ -154,9 +154,14 @@ aad60635eee567254ed29f18fb18c0f9e4c4dacf51c8229128203183bb35e2dd  libs/ini4j-0.5
 8f9a12d9bee054d28fe40ae73e5cce128d8cd4c108ca75e7066d1f7f1edd981e  logs/2021-03-12_203327.log
 ```
 
-每行的内容为 哈希码-空格-文件相对路径。文件中不存储哈希码使用的算法。
+每行的内容为 哈希码-空格-文件相对路径。
+
+文件所有哈希码所用算法必须一致。文件不存储哈希码使用的算法。
 
 gchecksum 生成时会按路径排序，但校验时不要求顺序。
+
+哈希码与文件路径之间可以间隔任意个空格，而生成模式下默认生成为 BSD 风格的两空格，与 Linux 下 `shasum` 系工具兼容，
+可以使用 `shasum -c checksums.txt` 进行校验。
 
 ## 性能
 
