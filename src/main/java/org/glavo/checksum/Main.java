@@ -270,7 +270,7 @@ public final class Main {
                                 while ((line = r.readLine()) != null) {
                                     if (!line.isEmpty()) {
                                         final Pair<String, String> p = Utils.spiltRecord(line);
-                                        if (p == null) {
+                                        if (p == null || p.component2.length() != algorithm.getHashStringLength()) {
                                             Logger.error(resources.getInvalidHashRecordMessage(), line);
                                         } else {
                                             old.put(p.component2, p.component1);// TODO
@@ -281,13 +281,13 @@ public final class Main {
                         } else if (!assumeYes) {
                             Logger.error(resources.getOverwriteFileMessage(), cf);
                             if (!IOUtils.readChoice()) {
-                                System.exit(1);
+                                return;
                             }
                         }
                     } else if (mode == Mode.Update && !assumeYes) {
-                        Logger.info(resources.getCreateFileMessage(), cf);
+                        Logger.error(resources.getCreateFileMessage(), cf);
                         if (!IOUtils.readChoice()) {
-                            System.exit(1);
+                            return;
                         }
                     }
                     exclude = cf;

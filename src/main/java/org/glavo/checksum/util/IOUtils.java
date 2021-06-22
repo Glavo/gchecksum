@@ -21,8 +21,7 @@ public final class IOUtils {
     public static boolean readChoice() throws IOException {
         try (BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in))) {
             final String res = stdin.readLine();
-            return res != null
-                    && (res.equalsIgnoreCase("y") || res.equalsIgnoreCase("yes"));
+            return "y".equalsIgnoreCase(res) || "yes".equalsIgnoreCase(res);
         }
     }
 }
