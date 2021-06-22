@@ -15,11 +15,14 @@ English documents are not available, welcome to contribute.
 
 简单用法：
 ```
-# 创建校验码
+# 创建校验文件
 gchecksum create # 或者 gchecksum c
 
 # 校验文件
 gchecksum verify # 或者 gchecksum v
+
+# 更新已存在的校验文件
+gchecksum update # 或者 gchecksum u
 ```
 
 帮助（可以使用 `gchecksum --help` 查看）：
@@ -89,13 +92,20 @@ sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://hub.fastgit.org/Glavo/g
 
 ## 介绍
 
-gchecksum 有两种模式：创建（create）模式，校验（verify）模式。
-通过将 `create`（缩写为 `c`）或 `verify`（缩写为 `v`） 作为第一个参数传递指定。
+gchecksum 有三种模式：
+
+* 创建（create）模式：创建记录文件与其哈希值的校验文件。
+* 校验（verify）模式：校验文件是否与记录中的哈希值所匹配。
+* 更新（update）模式：更新已存在的校验文件，输出发生变更的文件。
+
+通过将 `create`（缩写为 `c`）、 `verify`（缩写为 `v`）或 `update`（缩写为 `u`） 作为第一个参数传递指定。
 不指定的情况下，默认为校验模式。
+
+默认情况下，创建模式覆盖已存在的校验文件前会询问用户是否想要覆盖。传入 `-y` 选项让工具静默覆盖已有校验文件。
 
 `-f` 选项用于指定 checksums 文件的路径，默认为当前工作路径下的 `checksums.txt` 文件。
 
-可以用 `-x` 选项指定使用标准输入/输出流代替 checksums 文件，该选项与 `-f` 选项互斥。
+可以用 `-` 代替文件名，指定工具使用标准输入/输出流代替 checksums 文件。
 
 `-d` 选项用于指定处理的根路径，默认为当前工作路径。
 
