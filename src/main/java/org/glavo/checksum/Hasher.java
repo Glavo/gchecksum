@@ -5,19 +5,26 @@ import org.glavo.checksum.util.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.ByteChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileAttribute;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 
 public final class Hasher {
     private final String name;
     private final int hashStringLength;
 
-    private static final ThreadLocal<byte[]> localBuffer = new ThreadLocal<byte[]>() {
+    private static final FileAttribute<?>[] EMPTY_ATTRIBUTES = new FileAttribute[0];
+
+    private static final ThreadLocal<ByteBuffer> localBuffer = new ThreadLocal<ByteBuffer>() {
         @Override
-        protected final byte[] initialValue() {
-            return new byte[IOUtils.DEFAULT_BUFFER_SIZE];
+        protected final ByteBuffer initialValue() {
+            return ByteBuffer.allocate(IOUtils.DEFAULT_BUFFER_SIZE);
         }
     };
 
@@ -104,28 +111,31 @@ public final class Hasher {
     public final String hashFile(Path file) throws IOException {
         final String[] byte2str = Utils.byte2str;
 
-        MessageDigest md = localMessageDigest.get();
-        byte[] buffer = localBuffer.get();
+        ByteBuffer buffer = localBuffer.get();
+        final byte[] array = buffer.array();
 
+        MessageDigest md = localMessageDigest.get();
         md.reset();
+
         int read;
-        try (InputStream input = Files.newInputStream(file)) {
+        try (ByteChannel channel = Files.newByteChannel(file, Collections.emptySet(), EMPTY_ATTRIBUTES)) {
             do {
-                read = input.read(buffer);
+                buffer.clear();
+                read = channel.read(buffer);
                 if (read > 0) {
-                    md.update(buffer, 0, read);
+                    md.update(array, 0, read);
                 }
             } while (read != -1);
-            byte[] digest = md.digest();
-            if (digest == null) {
-                throw new AssertionError(file);
-            }
-
-            StringBuilder builder = new StringBuilder(digest.length * 2);
-            for (byte b : digest) {
-                builder.append(byte2str[b & 0xFF]);
-            }
-            return builder.toString();
         }
+        byte[] digest = md.digest();
+        if (digest == null) {
+            throw new AssertionError(file);
+        }
+
+        StringBuilder builder = new StringBuilder(digest.length * 2);
+        for (byte b : digest) {
+            builder.append(byte2str[b & 0xFF]);
+        }
+        return builder.toString();
     }
 }
