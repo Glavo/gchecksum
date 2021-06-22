@@ -27,12 +27,13 @@ gchecksum verify # 或者 gchecksum v
 用法:
     gchecksum c(reate) [选项]     : 创建校验文件
     gchecksum v(erify) [选项]     : 使用校验文件对文件进行验证
+    gchecksum u(pdate) [选项]     : 更新已存在的校验文件，打印目录发生的变更
 
 Options:
     -v --version            打印程序版本信息
     -h -? --help            打印本帮助信息
-    -f <checksums file>     指定校验文件路径（默认值为 checksums.txt）
-    -x                      将校验值输出至标准输出流，或从标准输入流读取校验值（与 -f 选项互斥）
+    -f <checksums file>     指定校验文件路径（默认值为 checksums.txt，使用 '-' 指定为标准输入/输出流）
+    -y --yes --assume-yes   静默覆盖已存在的 checksums 文件
     -d <directory>          指定要验证的文件夹（默认值为当前工作路径）
     -a --algorithm          指定将使用的哈希算法（create 模式下默认为 SHA-256，verify 模式下默认根据哈希值长度自动选择）
     -n --num-threads        指定计算哈希值的并发线程数（默认为当前逻辑处理器数的一半）
