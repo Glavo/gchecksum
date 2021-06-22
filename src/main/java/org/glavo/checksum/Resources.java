@@ -83,9 +83,9 @@ public final class Resources {
             "Done",
             "The existing file '%s' will be overwritten, do you want to continue? [y/n]",
             "The file '%s' not exist, do you want to create it? [y/n]",
-            "The new file '%s' be recorded",
-            "The hash value of file '%s' (%s) is updated to '%s'",
-            "The record of file '%s' will be removed"
+            "change: The new file '%s' be recorded",
+            "change: The hash value of file '%s' (%s) will be updated to '%s'",
+            "change: The record of file '%s' will be deleted"
     };
 
     private static final String[] MESSAGE_TABLE_ZH = {
@@ -93,9 +93,9 @@ public final class Resources {
             "完成",
             "已存在的文件 '%s' 将被覆盖，是否继续？[y/n]",
             "文件 '%s' 尚不存在，是否想要创建它？[y/n]",
-            "新的文件 '%s' 被记录",
-            "文件 '%s' 在记录中的哈希值（%s）被更新为 '%s'",
-            "文件 '%s' 的记录将被删除"
+            "变化：新的文件 '%s' 将被记录",
+            "变化：文件 '%s' 在记录中的哈希值（%s）被更新为 '%s'",
+            "变化：文件 '%s' 的记录将被删除"
     };
 
     private static final Resources INSTANCE;
