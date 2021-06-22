@@ -4,10 +4,8 @@ import org.glavo.checksum.util.IOUtils;
 import org.glavo.checksum.util.Utils;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
@@ -16,23 +14,29 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 
 public final class Hasher {
+    static final class ThreadLocalData {
+        final ByteBuffer buffer;
+        final MessageDigest md;
+
+        ThreadLocalData(ByteBuffer buffer, MessageDigest md) {
+            this.buffer = buffer;
+            this.md = md;
+        }
+    }
+
     private final String name;
     private final int hashStringLength;
 
     private static final FileAttribute<?>[] EMPTY_ATTRIBUTES = new FileAttribute[0];
 
-    private static final ThreadLocal<ByteBuffer> localBuffer = new ThreadLocal<ByteBuffer>() {
+    private final ThreadLocal<ThreadLocalData> threadLocalData = new ThreadLocal<ThreadLocalData>() {
         @Override
-        protected final ByteBuffer initialValue() {
-            return ByteBuffer.allocate(IOUtils.DEFAULT_BUFFER_SIZE);
-        }
-    };
-
-    private final ThreadLocal<MessageDigest> localMessageDigest = new ThreadLocal<MessageDigest>() {
-        @Override
-        protected final MessageDigest initialValue() {
+        protected final ThreadLocalData initialValue() {
             try {
-                return MessageDigest.getInstance(name);
+                return new ThreadLocalData(
+                        ByteBuffer.allocate(IOUtils.DEFAULT_BUFFER_SIZE),
+                        MessageDigest.getInstance(name)
+                );
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
                 System.exit(-1);
@@ -110,11 +114,12 @@ public final class Hasher {
 
     public final String hashFile(Path file) throws IOException {
         final String[] byte2str = Utils.byte2str;
+        final ThreadLocalData data = this.threadLocalData.get();
 
-        ByteBuffer buffer = localBuffer.get();
+        ByteBuffer buffer = data.buffer;
         final byte[] array = buffer.array();
 
-        MessageDigest md = localMessageDigest.get();
+        MessageDigest md = data.md;
         md.reset();
 
         int read;
