@@ -27,12 +27,12 @@ gchecksum update # 或者 gchecksum u
 
 帮助（可以使用 `gchecksum --help` 查看）：
 ```
-用法:
+用法：
     gchecksum c(reate) [选项]     : 创建校验文件
     gchecksum v(erify) [选项]     : 使用校验文件对文件进行验证
     gchecksum u(pdate) [选项]     : 更新已存在的校验文件，打印目录发生的变更
 
-Options:
+选项：
     -v --version            打印程序版本信息
     -h -? --help            打印本帮助信息
     -f <checksums file>     指定校验文件路径（默认值为 checksums.txt，使用 '-' 指定为标准输入/输出流）
