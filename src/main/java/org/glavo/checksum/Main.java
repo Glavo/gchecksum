@@ -231,7 +231,7 @@ public final class Main {
                     } else if (!Files.isReadable(cf)) {
                         Logger.logErrorAndExit(resources.getFileCannotBeReadMessage(), cf);
                     }
-                    reader = IOUtils.newBufferedReader(cf);
+                    reader = Files.newBufferedReader(cf);
                 }
                 try {
                     Verify.verify(basePath, reader, algorithm, numThreads);
@@ -261,7 +261,7 @@ public final class Main {
                     if (Files.exists(cf)) {
                         if (mode == Mode.Update) {
                             old = new HashMap<>();
-                            try (BufferedReader r = IOUtils.newBufferedReader(cf)) {
+                            try (BufferedReader r = Files.newBufferedReader(cf)) {
                                 String line;
                                 while ((line = r.readLine()) != null) {
                                     if (!line.isEmpty()) {
