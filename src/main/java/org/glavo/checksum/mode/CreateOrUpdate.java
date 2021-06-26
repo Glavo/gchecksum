@@ -42,8 +42,8 @@ public final class CreateOrUpdate {
         });
 
         Files.walkFileTree(basePath, new FileVisitor<Path>() {
-            final String[] pathBuffer = new String[256]; // tmp
-            int count = -1;
+            private final String[] pathBuffer = new String[256]; // tmp
+            private int count = -1;
 
             @Override
             public final FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {

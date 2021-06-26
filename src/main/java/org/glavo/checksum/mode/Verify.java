@@ -53,30 +53,15 @@ public final class Verify {
         }
     }
 
-    static final class VerifyFileTask implements Runnable {
-        private final LongAdder successCount;
-        private final LongAdder failureCount;
-
-        private final Path basePath;
-        private final String line;
-        private final Hasher hasher;
-
-        VerifyFileTask(LongAdder successCount, LongAdder failureCount, Path basePath, String line, Hasher hasher) {
-            this.successCount = successCount;
-            this.failureCount = failureCount;
-            this.basePath = basePath;
-            this.line = line;
-            this.hasher = hasher;
-        }
-
-        @Override
-        public final void run() {
+    private static Runnable verifyFileTask(
+            LongAdder successCount, LongAdder failureCount, Path basePath, String line, Hasher hasher) {
+        return () -> {
             if (verifyFile(basePath, line, hasher)) {
                 successCount.increment();
             } else {
                 failureCount.increment();
             }
-        }
+        };
     }
 
     public static void verify(Path basePath, BufferedReader reader, Hasher hasher, int numThreads)
@@ -100,17 +85,17 @@ public final class Verify {
                 if (hasher == null) {
                     Logger.logErrorAndExit(Resources.getInstance().getInvalidHashRecordMessage(), line);
                 }
-                pool.submit(new VerifyFileTask(successCount, failureCount, basePath, line, hasher));
+                pool.submit(verifyFileTask(successCount, failureCount, basePath, line, hasher));
             }
             while ((line = reader.readLine()) != null) {
                 if (!line.isEmpty()) {
-                    pool.submit(new VerifyFileTask(successCount, failureCount, basePath, line, hasher));
+                    pool.submit(verifyFileTask(successCount, failureCount, basePath, line, hasher));
                 }
             }
         } finally {
             pool.shutdown();
             //noinspection ResultOfMethodCallIgnored
-            pool.awaitTermination(Long.MAX_VALUE, TimeUnit.MINUTES);
+            pool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
             Logger.info(Resources.getInstance().getVerificationCompletedMessage(), successCount.longValue(), failureCount.longValue());
         }
     }
