@@ -53,42 +53,29 @@ public final class Verify {
         }
     }
 
-    public static void verifyInSignalThread(Path basePath, BufferedReader reader, Hasher hasher) throws IOException {
-        long successCount = 0;
-        long failureCount = 0;
+    static final class VerifyFileTask implements Runnable {
+        private final LongAdder successCount;
+        private final LongAdder failureCount;
 
-        try {
-            if (hasher == null) {
-                String firstLine = reader.readLine();
-                while ("".equals(firstLine)) {
-                    firstLine = reader.readLine();
-                }
-                if (firstLine == null) {
-                    return;
-                }
-                final int idx = firstLine.indexOf(' ');
-                hasher = Hasher.ofHashStringLength(idx);
-                if (hasher == null) {
-                    Logger.logErrorAndExit(Resources.getInstance().getInvalidHashRecordMessage(), firstLine);
-                }
-                if (verifyFile(basePath, firstLine, hasher)) {
-                    successCount++;
-                } else {
-                    failureCount++;
-                }
+        private final Path basePath;
+        private final String line;
+        private final Hasher hasher;
+
+        VerifyFileTask(LongAdder successCount, LongAdder failureCount, Path basePath, String line, Hasher hasher) {
+            this.successCount = successCount;
+            this.failureCount = failureCount;
+            this.basePath = basePath;
+            this.line = line;
+            this.hasher = hasher;
+        }
+
+        @Override
+        public final void run() {
+            if (verifyFile(basePath, line, hasher)) {
+                successCount.increment();
+            } else {
+                failureCount.increment();
             }
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (!line.isEmpty()) {
-                    if (verifyFile(basePath, line, hasher)) {
-                        successCount++;
-                    } else {
-                        failureCount++;
-                    }
-                }
-            }
-        } finally {
-            Logger.info(Resources.getInstance().getVerificationCompletedMessage(), successCount, failureCount);
         }
     }
 
@@ -97,49 +84,33 @@ public final class Verify {
 
         final LongAdder successCount = new LongAdder();
         final LongAdder failureCount = new LongAdder();
-        final ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
+        final ExecutorService pool = Executors.newFixedThreadPool(numThreads);
         try {
+            String line;
             if (hasher == null) {
-                String firstLine = reader.readLine();
-                while (firstLine != null && firstLine.isEmpty()) {
-                    firstLine = reader.readLine();
+                line = reader.readLine();
+                while (line != null && line.isEmpty()) {
+                    line = reader.readLine();
                 }
-                if (firstLine == null) {
+                if (line == null) {
                     return;
                 }
-                final int idx = firstLine.indexOf(' ');
+                final int idx = line.indexOf(' ');
                 hasher = Hasher.ofHashStringLength(idx);
                 if (hasher == null) {
-                    Logger.logErrorAndExit(Resources.getInstance().getInvalidHashRecordMessage(), firstLine);
+                    Logger.logErrorAndExit(Resources.getInstance().getInvalidHashRecordMessage(), line);
                 }
-                final String l = firstLine;
-                final Hasher h = hasher;
-                executorService.submit(() -> {
-                    if (verifyFile(basePath, l, h)) {
-                        successCount.increment();
-                    } else {
-                        failureCount.increment();
-                    }
-                });
+                pool.submit(new VerifyFileTask(successCount, failureCount, basePath, line, hasher));
             }
-            String line;
-            final Hasher theHasher = hasher;
             while ((line = reader.readLine()) != null) {
                 if (!line.isEmpty()) {
-                    final String theLine = line;
-                    executorService.submit(() -> {
-                        if (verifyFile(basePath, theLine, theHasher)) {
-                            successCount.increment();
-                        } else {
-                            failureCount.increment();
-                        }
-                    });
+                    pool.submit(new VerifyFileTask(successCount, failureCount, basePath, line, hasher));
                 }
             }
         } finally {
-            executorService.shutdown();
+            pool.shutdown();
             //noinspection ResultOfMethodCallIgnored
-            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.MINUTES);
+            pool.awaitTermination(Long.MAX_VALUE, TimeUnit.MINUTES);
             Logger.info(Resources.getInstance().getVerificationCompletedMessage(), successCount.longValue(), failureCount.longValue());
         }
     }

@@ -234,11 +234,7 @@ public final class Main {
                     reader = IOUtils.newBufferedReader(cf);
                 }
                 try {
-                    if (numThreads == 1) {
-                        Verify.verifyInSignalThread(basePath, reader, algorithm);
-                    } else {
-                        Verify.verify(basePath, reader, algorithm, numThreads);
-                    }
+                    Verify.verify(basePath, reader, algorithm, numThreads);
                 } finally {
                     reader.close();
                 }
@@ -296,11 +292,7 @@ public final class Main {
                 }
 
                 try {
-                    if (numThreads == 1) {
-                        CreateOrUpdate.updateInSingleThread(basePath, writer, exclude, algorithm, old);
-                    } else {
-                        CreateOrUpdate.update(basePath, writer, exclude, algorithm, numThreads, old);
-                    }
+                    CreateOrUpdate.update(basePath, writer, exclude, algorithm, numThreads, old);
                 } finally {
                     writer.close();
                 }
