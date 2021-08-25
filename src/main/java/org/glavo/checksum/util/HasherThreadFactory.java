@@ -7,7 +7,7 @@ public final class HasherThreadFactory implements ThreadFactory {
     }
 
     @Override
-    public final Thread newThread(Runnable r) {
+    public Thread newThread(Runnable r) {
         return new HasherThread(r);
     }
 }

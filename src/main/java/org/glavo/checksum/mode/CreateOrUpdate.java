@@ -47,7 +47,7 @@ public final class CreateOrUpdate {
             private int count = -1;
 
             @Override
-            public final FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
                 if (count >= 0) {
                     pathBuffer[count] = dir.getFileName().toString();
                 }
@@ -56,7 +56,7 @@ public final class CreateOrUpdate {
             }
 
             @Override
-            public final FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 if (!file.equals(exclude)) {
                     if (Files.isReadable(file)) {
                         final int count = this.count;
@@ -72,13 +72,13 @@ public final class CreateOrUpdate {
             }
 
             @Override
-            public final FileVisitResult visitFileFailed(Path file, IOException exc) {
+            public FileVisitResult visitFileFailed(Path file, IOException exc) {
                 exc.printStackTrace();
                 return FileVisitResult.CONTINUE;
             }
 
             @Override
-            public final FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
                 count--;
                 return FileVisitResult.CONTINUE;
             }

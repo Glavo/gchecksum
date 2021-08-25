@@ -130,11 +130,11 @@ public final class Resources {
         this.messageTable = messageTable;
     }
 
-    public final String getHelpMessage() {
+    public String getHelpMessage() {
         return helpMessage;
     }
 
-    public final String getVersionInformation() {
+    public String getVersionInformation() {
         //noinspection ConstantConditions
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(Resources.class.getResourceAsStream("Version.txt")))) {
             return reader.readLine();
@@ -145,87 +145,87 @@ public final class Resources {
         }
     }
 
-    public final String getUnknownModeMessage() {
+    public String getUnknownModeMessage() {
         return errorTable[0];
     }
 
-    public final String getMissArgMessage() {
+    public String getMissArgMessage() {
         return errorTable[1];
     }
 
-    public final String getParamRespecifiedMessage() {
+    public String getParamRespecifiedMessage() {
         return errorTable[2];
     }
 
-    public final String getOptionMixedMessage() {
+    public String getOptionMixedMessage() {
         return errorTable[3];
     }
 
-    public final String getUnsupportedAlgorithmMessage() {
+    public String getUnsupportedAlgorithmMessage() {
         return errorTable[4];
     }
 
-    public final String getInvalidOptionValueMessage() {
+    public String getInvalidOptionValueMessage() {
         return errorTable[5];
     }
 
-    public final String getPathNotExistMessage() {
+    public String getPathNotExistMessage() {
         return errorTable[6];
     }
 
-    public final String getPathIsAFileMessage() {
+    public String getPathIsAFileMessage() {
         return errorTable[7];
     }
 
-    public final String getFileNotExistMessage() {
+    public String getFileNotExistMessage() {
         return errorTable[8];
     }
 
-    public final String getFileCannotBeReadMessage() {
+    public String getFileCannotBeReadMessage() {
         return errorTable[9];
     }
 
-    public final String getInvalidHashRecordMessage() {
+    public String getInvalidHashRecordMessage() {
         return errorTable[10];
     }
 
-    public final String getPathIsDirMessage() {
+    public String getPathIsDirMessage() {
         return errorTable[11];
     }
 
-    public final String getHashNotMatchMessage() {
+    public String getHashNotMatchMessage() {
         return errorTable[12];
     }
 
-    public final String getInvalidOptionMessage() {
+    public String getInvalidOptionMessage() {
         return errorTable[13];
     }
 
-    public final String getVerificationCompletedMessage() {
+    public String getVerificationCompletedMessage() {
         return messageTable[0];
     }
 
-    public final String getDoneMessage() {
+    public String getDoneMessage() {
         return messageTable[1];
     }
 
-    public final String getOverwriteFileMessage() {
+    public String getOverwriteFileMessage() {
         return messageTable[2];
     }
 
-    public final String getCreateFileMessage() {
+    public String getCreateFileMessage() {
         return messageTable[3];
     }
 
-    public final String getNewFileBeRecordedMessage() {
+    public String getNewFileBeRecordedMessage() {
         return messageTable[4];
     }
 
-    public final String getFileHashUpdatedMessage() {
+    public String getFileHashUpdatedMessage() {
         return messageTable[5];
     }
 
-    public final String getFileRecordBeRemoved() {
+    public String getFileRecordBeRemoved() {
         return messageTable[6];
     }
 }

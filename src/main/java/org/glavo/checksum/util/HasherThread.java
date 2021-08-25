@@ -13,15 +13,11 @@ public final class HasherThread extends Thread {
         super(target);
     }
 
-    public final ByteBuffer getBuffer() {
+    public ByteBuffer getBuffer() {
         return buffer;
     }
 
-    public final MessageDigest getMessageDigest(Hasher hasher) {
-        if (digest == null) {
-            return digest = hasher.newMessageDigest();
-        } else {
-            return digest;
-        }
+    public MessageDigest getMessageDigest(Hasher hasher) {
+        return digest != null ? digest : (digest = hasher.newMessageDigest());
     }
 }

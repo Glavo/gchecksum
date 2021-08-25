@@ -95,7 +95,7 @@ public final class Hasher {
         return hashStringLength;
     }
 
-    public final String hashFile(Path file) throws IOException {
+    public String hashFile(Path file) throws IOException {
         final String[] byte2str = Utils.byte2str;
 
         HasherThread thread = (HasherThread) Thread.currentThread();
@@ -117,9 +117,7 @@ public final class Hasher {
             } while (read != -1);
         }
         byte[] digest = md.digest();
-        if (digest == null) {
-            throw new AssertionError(file);
-        }
+        assert digest != null : file;
 
         StringBuilder builder = new StringBuilder(digest.length * 2);
         for (byte b : digest) {
