@@ -1,5 +1,6 @@
 package org.glavo.checksum;
 
+import org.glavo.checksum.util.HasherThread;
 import org.glavo.checksum.util.IOUtils;
 import org.glavo.checksum.util.Utils;
 
@@ -14,36 +15,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
 
 public final class Hasher {
-    static final class ThreadLocalData {
-        final ByteBuffer buffer;
-        final MessageDigest md;
-
-        ThreadLocalData(ByteBuffer buffer, MessageDigest md) {
-            this.buffer = buffer;
-            this.md = md;
-        }
-    }
-
     private final String name;
     private final int hashStringLength;
 
     private static final FileAttribute<?>[] EMPTY_ATTRIBUTES = new FileAttribute[0];
-
-    private final ThreadLocal<ThreadLocalData> threadLocalData = new ThreadLocal<ThreadLocalData>() {
-        @Override
-        protected final ThreadLocalData initialValue() {
-            try {
-                return new ThreadLocalData(
-                        ByteBuffer.allocate(IOUtils.DEFAULT_BUFFER_SIZE),
-                        MessageDigest.getInstance(name)
-                );
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-                System.exit(-1);
-                return null;
-            }
-        }
-    };
 
     public static final Hasher MD5 = new Hasher("MD5", 32);
     public static final Hasher SHA_1 = new Hasher("SHA-1", 40);
@@ -108,18 +83,27 @@ public final class Hasher {
         this.hashStringLength = hashStringLength;
     }
 
+    public MessageDigest newMessageDigest() {
+        try {
+            return MessageDigest.getInstance(name);
+        } catch (NoSuchAlgorithmException ignored) {
+            return null;
+        }
+    }
+
     public int getHashStringLength() {
         return hashStringLength;
     }
 
     public final String hashFile(Path file) throws IOException {
         final String[] byte2str = Utils.byte2str;
-        final ThreadLocalData data = this.threadLocalData.get();
 
-        ByteBuffer buffer = data.buffer;
+        HasherThread thread = (HasherThread) Thread.currentThread();
+
+        ByteBuffer buffer = thread.getBuffer();
         final byte[] array = buffer.array();
 
-        MessageDigest md = data.md;
+        MessageDigest md = thread.getMessageDigest(this);
         md.reset();
 
         int read;
