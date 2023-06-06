@@ -7,12 +7,10 @@ import org.glavo.checksum.Resources;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.*;
@@ -42,7 +40,7 @@ public final class CreateOrUpdate {
             return xLength - yLength;
         });
 
-        Files.walkFileTree(basePath, new FileVisitor<Path>() {
+        Files.walkFileTree(basePath, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new FileVisitor<Path>() {
             private final String[] pathBuffer = new String[256]; // tmp
             private int count = -1;
 
@@ -58,7 +56,7 @@ public final class CreateOrUpdate {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                 if (!file.equals(exclude)) {
-                    if (Files.isReadable(file)) {
+                    if (attrs.isRegularFile() && Files.isReadable(file)) {
                         final int count = this.count;
 
                         final String[] p = Arrays.copyOf(pathBuffer, count + 1);
