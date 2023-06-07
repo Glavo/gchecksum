@@ -12,7 +12,7 @@ import java.nio.file.attribute.FileAttribute;
 import java.util.Collections;
 
 public final class IOUtils {
-    public static final int DEFAULT_BUFFER_SIZE = 64 * 1024; // 64 KiB
+    public static final int DEFAULT_BUFFER_SIZE = 320 * 1024; // 320 KiB
 
     private static final FileAttribute<?>[] EMPTY_FILE_ATTRIBUTES = new FileAttribute[0];
 
