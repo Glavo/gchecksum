@@ -4,10 +4,7 @@ import org.glavo.checksum.hash.Hasher;
 import org.glavo.checksum.mode.CreateOrUpdate;
 import org.glavo.checksum.mode.Mode;
 import org.glavo.checksum.mode.Verify;
-import org.glavo.checksum.util.IOUtils;
-import org.glavo.checksum.util.Logger;
-import org.glavo.checksum.util.Pair;
-import org.glavo.checksum.util.Utils;
+import org.glavo.checksum.util.*;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
@@ -19,17 +16,11 @@ import java.util.*;
 public final class Main {
 
     private static void reportMissArg(String opt) {
-        Logger.error(Resources.getInstance().getMissArgMessage(), opt);
-        System.exit(1);
+        Logger.logErrorAndExit(Lang.getInstance().getMissArgMessage(), opt);
     }
 
     private static void reportParamRespecified(String opt) {
-        Logger.error(Resources.getInstance().getParamRespecifiedMessage(), opt);
-        System.exit(1);
-    }
-
-    private static void printProperties(String... keys) {
-
+        Logger.logErrorAndExit(Lang.getInstance().getParamRespecifiedMessage(), opt);
     }
 
     private static void printRuntimeInformation() {
@@ -55,7 +46,7 @@ public final class Main {
                 "user.language"
         };
 
-        System.out.println(Resources.getInstance().getVersionInformation());
+        System.out.println(Lang.getInstance().getVersionInformation());
 
         System.out.println("Property settings:");
         for (String key : properties) {
@@ -71,7 +62,7 @@ public final class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        final Resources resources = Resources.getInstance();
+        final Lang resources = Lang.getInstance();
 
         Mode mode = Mode.Verify;
         boolean assumeYes = false;
@@ -104,7 +95,7 @@ public final class Main {
                     if (firstArg.startsWith("-")) {
                         skipFirst = false;
                     } else {
-                        Logger.logErrorAndExit(Resources.getInstance().getUnknownModeMessage(), firstArg);
+                        Logger.logErrorAndExit(Lang.getInstance().getUnknownModeMessage(), firstArg);
                     }
             }
         }
@@ -114,7 +105,7 @@ public final class Main {
                 case "-?":
                 case "-h":
                 case "--help":
-                    System.out.println(Resources.getInstance().getHelpMessage());
+                    System.out.println(Lang.getInstance().getHelpMessage());
                     return;
                 case "-v":
                 case "--version":
@@ -228,7 +219,12 @@ public final class Main {
                 } else {
                     final Path cf = Paths.get(checksumsFile).toAbsolutePath();
                     if (Files.notExists(cf)) {
-                        Logger.logErrorAndExit(resources.getFileNotExistMessage(), cf);
+                        if (args.length == 0) {
+                            System.out.println(Lang.getInstance().getHelpMessage());
+                            System.exit(1);
+                        } else {
+                            Logger.logErrorAndExit(resources.getFileNotExistMessage(), cf);
+                        }
                     } else if (!Files.isReadable(cf)) {
                         Logger.logErrorAndExit(resources.getFileCannotBeReadMessage(), cf);
                     }

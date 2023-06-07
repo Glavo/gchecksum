@@ -3,7 +3,7 @@ package org.glavo.checksum.mode;
 import org.glavo.checksum.hash.Hasher;
 import org.glavo.checksum.util.ChecksumThreadFactory;
 import org.glavo.checksum.util.Logger;
-import org.glavo.checksum.Resources;
+import org.glavo.checksum.util.Lang;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -63,7 +63,7 @@ public final class CreateOrUpdate {
                         p[count] = file.getFileName().toString();
                         result.put(p, pool.submit(() -> hasher.hashFile(file)));
                     } else {
-                        Logger.error(Resources.getInstance().getFileCannotBeReadMessage(), file);
+                        Logger.error(Lang.getInstance().getFileCannotBeReadMessage(), file);
                     }
                 }
                 return FileVisitResult.CONTINUE;
@@ -124,9 +124,9 @@ public final class CreateOrUpdate {
 
                     String oldHash = old.remove(path);
                     if (oldHash == null) {
-                        Logger.info(Resources.getInstance().getNewFileBeRecordedMessage(), path);
+                        Logger.info(Lang.getInstance().getNewFileBeRecordedMessage(), path);
                     } else if (!oldHash.equalsIgnoreCase(newHash)) {
-                        Logger.info(Resources.getInstance().getFileHashUpdatedMessage(), path, oldHash, newHash);
+                        Logger.info(Lang.getInstance().getFileHashUpdatedMessage(), path, oldHash, newHash);
                     }
 
                     writer.print(newHash);
@@ -138,6 +138,6 @@ public final class CreateOrUpdate {
             });
         }
 
-        Logger.info(Resources.getInstance().getDoneMessage());
+        Logger.info(Lang.getInstance().getDoneMessage());
     }
 }

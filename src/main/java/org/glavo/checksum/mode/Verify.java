@@ -3,7 +3,7 @@ package org.glavo.checksum.mode;
 import org.glavo.checksum.hash.Hasher;
 import org.glavo.checksum.util.ChecksumThreadFactory;
 import org.glavo.checksum.util.Logger;
-import org.glavo.checksum.Resources;
+import org.glavo.checksum.util.Lang;
 import org.glavo.checksum.util.Pair;
 import org.glavo.checksum.util.Utils;
 
@@ -21,31 +21,31 @@ public final class Verify {
             final int lineLength = line.length();
             final Pair<String, String> r = Utils.spiltRecord(line);
             if (r == null) {
-                Logger.error(Resources.getInstance().getInvalidHashRecordMessage(), line);
+                Logger.error(Lang.getInstance().getInvalidHashRecordMessage(), line);
                 return false;
             }
 
             final String recordHashValue = r.component1;
             if (hasher.isAcceptChecksum(recordHashValue)) {
-                Logger.error(Resources.getInstance().getInvalidHashRecordMessage(), line);
+                Logger.error(Lang.getInstance().getInvalidHashRecordMessage(), line);
                 return false;
             }
 
             final Path file = basePath.resolve(r.component2).toAbsolutePath();
             if (Files.notExists(file)) {
-                Logger.error(Resources.getInstance().getFileNotExistMessage(), file);
+                Logger.error(Lang.getInstance().getFileNotExistMessage(), file);
                 return false;
             } else if (Files.isDirectory(file)) {
-                Logger.error(Resources.getInstance().getPathIsDirMessage(), file);
+                Logger.error(Lang.getInstance().getPathIsDirMessage(), file);
                 return false;
             } else if (!Files.isReadable(file)) {
-                Logger.error(Resources.getInstance().getFileCannotBeReadMessage(), file);
+                Logger.error(Lang.getInstance().getFileCannotBeReadMessage(), file);
                 return false;
             }
 
             final String fileHash = hasher.hashFile(file);
             if (!recordHashValue.equalsIgnoreCase(fileHash)) {
-                Logger.error(Resources.getInstance().getHashNotMatchMessage(), file, fileHash, recordHashValue);
+                Logger.error(Lang.getInstance().getHashNotMatchMessage(), file, fileHash, recordHashValue);
                 return false;
             }
             return true;
@@ -84,7 +84,7 @@ public final class Verify {
                 final int idx = line.indexOf(' ');
                 hasher = Hasher.ofHashStringLength(idx);
                 if (hasher == null) {
-                    Logger.logErrorAndExit(Resources.getInstance().getInvalidHashRecordMessage(), line);
+                    Logger.logErrorAndExit(Lang.getInstance().getInvalidHashRecordMessage(), line);
                 }
                 pool.submit(verifyFileTask(successCount, failureCount, basePath, line, hasher));
             }
@@ -97,7 +97,7 @@ public final class Verify {
             pool.shutdown();
             //noinspection ResultOfMethodCallIgnored
             pool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-            Logger.info(Resources.getInstance().getVerificationCompletedMessage(), successCount.longValue(), failureCount.longValue());
+            Logger.info(Lang.getInstance().getVerificationCompletedMessage(), successCount.longValue(), failureCount.longValue());
         }
     }
 }

@@ -31,8 +31,7 @@ public final class Logger {
         if (colored) {
             System.out.println(GREEN + String.format(format, args) + RESET);
         } else {
-            //noinspection RedundantStringFormatCall
-            System.out.println(String.format(format, args));
+            System.out.printf(format + "%n", args);
         }
     }
 
@@ -48,8 +47,7 @@ public final class Logger {
         if (colored) {
             System.err.println(RED + String.format(format, args) + RESET);
         } else {
-            //noinspection RedundantStringFormatCall
-            System.err.println(String.format(format, args));
+            System.err.printf(format + "%n", args);
         }
     }
 
