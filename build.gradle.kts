@@ -44,13 +44,6 @@ val executableJar by tasks.registering {
     }
 }
 
-val nativeImageJar by tasks.registering(org.gradle.jvm.tasks.Jar::class) {
-    group = "build"
-    archiveClassifier.set("native-image")
-    from(sourceSets.main.get().output)
-    from("src/main/native-image")
-}
-
 tasks.withType(org.gradle.jvm.tasks.Jar::class) {
     dependsOn(generateVersionInfo)
     manifest.attributes(
@@ -93,7 +86,7 @@ for (multiVersion in 9..21) {
 
 val buildNativeImage by tasks.registering {
     group = "build"
-    dependsOn(nativeImageJar)
+    dependsOn(tasks.jar)
 
     doLast {
         val home = System.getenv("GRAALVM_HOME")
@@ -112,7 +105,7 @@ val buildNativeImage by tasks.registering {
                 commandLine(
                     ni,
                     "-jar",
-                    nativeImageJar.get().archiveFile.get().asFile
+                    tasks.jar.get().archiveFile.get().asFile
                 )
             }
         }
@@ -120,7 +113,6 @@ val buildNativeImage by tasks.registering {
 }
 
 tasks.build.get().dependsOn(executableJar)
-tasks.build.get().dependsOn(nativeImageJar)
 
 repositories {
     mavenCentral()

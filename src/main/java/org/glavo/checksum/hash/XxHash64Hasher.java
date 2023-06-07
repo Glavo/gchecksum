@@ -10,6 +10,7 @@ import java.nio.channels.ByteChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+// The implementation references https://github.com/OpenHFT/Zero-Allocation-Hashing
 final class XxHash64Hasher extends Hasher {
     // Primes if treated as unsigned
     private static final long P1 = -7046029288634856825L;
