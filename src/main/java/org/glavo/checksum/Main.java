@@ -1,5 +1,6 @@
 package org.glavo.checksum;
 
+import org.glavo.checksum.hash.Hasher;
 import org.glavo.checksum.mode.CreateOrUpdate;
 import org.glavo.checksum.mode.Mode;
 import org.glavo.checksum.mode.Verify;

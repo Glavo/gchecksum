@@ -1,7 +1,7 @@
 package org.glavo.checksum.mode;
 
-import org.glavo.checksum.Hasher;
-import org.glavo.checksum.util.HasherThreadFactory;
+import org.glavo.checksum.hash.Hasher;
+import org.glavo.checksum.util.ChecksumThreadFactory;
 import org.glavo.checksum.util.Logger;
 import org.glavo.checksum.Resources;
 import org.glavo.checksum.util.Pair;
@@ -70,7 +70,7 @@ public final class Verify {
 
         final LongAdder successCount = new LongAdder();
         final LongAdder failureCount = new LongAdder();
-        final ExecutorService pool = Executors.newFixedThreadPool(numThreads, new HasherThreadFactory());
+        final ExecutorService pool = Executors.newFixedThreadPool(numThreads, new ChecksumThreadFactory());
         try {
             String line;
             if (hasher == null) {

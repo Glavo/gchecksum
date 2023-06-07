@@ -1,7 +1,7 @@
 package org.glavo.checksum.mode;
 
-import org.glavo.checksum.Hasher;
-import org.glavo.checksum.util.HasherThreadFactory;
+import org.glavo.checksum.hash.Hasher;
+import org.glavo.checksum.util.ChecksumThreadFactory;
 import org.glavo.checksum.util.Logger;
 import org.glavo.checksum.Resources;
 
@@ -24,7 +24,7 @@ public final class CreateOrUpdate {
             Hasher hasher,
             int numThreads,
             Map<String, String> old) throws Exception {
-        final ExecutorService pool = Executors.newFixedThreadPool(numThreads, new HasherThreadFactory());
+        final ExecutorService pool = Executors.newFixedThreadPool(numThreads, new ChecksumThreadFactory());
         final TreeMap<String[], Future<String>> result = new TreeMap<>((x, y) -> {
             final int xLength = x.length;
             final int yLength = y.length;
