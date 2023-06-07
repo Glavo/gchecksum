@@ -58,11 +58,37 @@ tasks.withType(org.gradle.jvm.tasks.Jar::class) {
         mapOf(
             "Main-Class" to mainName,
             "Implementation-URL" to "https://github.com/Glavo/gchecksum",
-            "Implementation-Vendor" to "Glavo"
+            "Implementation-Vendor" to "Glavo",
+            "Multi-Release" to "true"
         )
     )
     into("org/glavo/checksum") {
         from(file("$buildDir/version/Version.txt"))
+    }
+}
+
+for (multiVersion in 9..21) {
+    if (!project.file("src/main/java$multiVersion").exists()) {
+        continue
+    }
+
+    val multiSourceSet = sourceSets.create("java$multiVersion") {
+        java.srcDir("src/main/java$multiVersion")
+    }
+
+    tasks.named<JavaCompile>("compileJava${multiVersion}Java") {
+        sourceCompatibility = "$multiVersion"
+        targetCompatibility = "$multiVersion"
+    }
+
+    dependencies {
+        "java${multiVersion}Implementation"(sourceSets.main.get().output.classesDirs)
+    }
+
+    tasks.withType(org.gradle.jvm.tasks.Jar::class) {
+        into("META-INF/versions/${multiVersion}") {
+            from(multiSourceSet.output)
+        }
     }
 }
 

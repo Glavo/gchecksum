@@ -50,10 +50,15 @@ public abstract class Hasher {
             case "SHA512":
             case "SHA-512":
                 return MessageDigestHasher.SHA_512;
+            // java.util.zip.Checksum
             case "CRC32":
                 return ZipChecksumHasher.CRC32;
             case "ADLER32":
                 return ZipChecksumHasher.ADLER32;
+            // xxHash
+            case "XXH64":
+            case "XXHASH64":
+                return XxHash64Hasher.DEFAULT;
             default:
                 try {
                     // Check if the algorithm is available

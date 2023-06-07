@@ -5,9 +5,7 @@ import org.glavo.checksum.util.IOUtils;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 
 abstract class HasherBase<C extends HasherBase.Context> extends Hasher {
     private final ThreadLocal<C> threadLocalContext = ThreadLocal.withInitial(this::createContext);
@@ -26,7 +24,7 @@ abstract class HasherBase<C extends HasherBase.Context> extends Hasher {
         final byte[] array = buffer.array();
 
         int read;
-        try (ByteChannel channel = Files.newByteChannel(file, Collections.emptySet(), IOUtils.EMPTY_FILE_ATTRIBUTES)) {
+        try (ByteChannel channel = IOUtils.newByteChannel(file)) {
             do {
                 buffer.clear();
                 read = channel.read(buffer);

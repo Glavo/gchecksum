@@ -25,11 +25,34 @@ public final class Utils {
         out[2] = DIGITS_LOWER[(int) ((data >>> 20) & 0x0f)];
         out[3] = DIGITS_LOWER[(int) ((data >>> 16) & 0x0f)];
         out[4] = DIGITS_LOWER[(int) ((data >>> 12) & 0x0f)];
-        out[5] = DIGITS_LOWER[(int) ((data >>> 8) & 0x0f)];
-        out[6] = DIGITS_LOWER[(int) ((data >>> 4) & 0x0f)];
-        out[7] = DIGITS_LOWER[(int) ((data >>> 0) & 0x0f)];
+        out[5] = DIGITS_LOWER[(int) ((data >>>  8) & 0x0f)];
+        out[6] = DIGITS_LOWER[(int) ((data >>>  4) & 0x0f)];
+        out[7] = DIGITS_LOWER[(int) ((data >>>  0) & 0x0f)];
 
         return new String(out, 0, 8, StandardCharsets.US_ASCII);
+    }
+
+    public static String encodeHex64(long data) {
+        byte[] out = new byte[16];
+
+        out[0]  = DIGITS_LOWER[(int) ((data >>> 60) & 0x0f)];
+        out[1]  = DIGITS_LOWER[(int) ((data >>> 56) & 0x0f)];
+        out[2]  = DIGITS_LOWER[(int) ((data >>> 52) & 0x0f)];
+        out[3]  = DIGITS_LOWER[(int) ((data >>> 48) & 0x0f)];
+        out[4]  = DIGITS_LOWER[(int) ((data >>> 44) & 0x0f)];
+        out[5]  = DIGITS_LOWER[(int) ((data >>> 40) & 0x0f)];
+        out[6]  = DIGITS_LOWER[(int) ((data >>> 36) & 0x0f)];
+        out[7]  = DIGITS_LOWER[(int) ((data >>> 32) & 0x0f)];
+        out[8]  = DIGITS_LOWER[(int) ((data >>> 28) & 0x0f)];
+        out[9]  = DIGITS_LOWER[(int) ((data >>> 24) & 0x0f)];
+        out[10] = DIGITS_LOWER[(int) ((data >>> 20) & 0x0f)];
+        out[11] = DIGITS_LOWER[(int) ((data >>> 16) & 0x0f)];
+        out[12] = DIGITS_LOWER[(int) ((data >>> 12) & 0x0f)];
+        out[13] = DIGITS_LOWER[(int) ((data >>>  8) & 0x0f)];
+        out[14] = DIGITS_LOWER[(int) ((data >>>  4) & 0x0f)];
+        out[15] = DIGITS_LOWER[(int) ((data >>>  0) & 0x0f)];
+
+        return new String(out, 0, 16, StandardCharsets.US_ASCII);
     }
 
     public static Pair<String, String> spiltRecord(String r) {
