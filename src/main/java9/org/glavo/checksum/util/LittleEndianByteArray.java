@@ -15,6 +15,10 @@ public final class LittleEndianByteArray {
         return (int) INT.get(array, offset);
     }
 
+    public static long getUnsignedInt(byte[] array, int offset) {
+        return ((long) getInt(array, offset)) & 0xffffffffL;
+    }
+
     public static long getLong(byte[] array, int offset) {
         return (long) LONG.get(array, offset);
     }

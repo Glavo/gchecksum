@@ -41,7 +41,6 @@ val executableJar by tasks.registering {
             output.write(tasks.jar.get().archiveFile.get().asFile.readBytes())
         }
         outputFile.setExecutable(true)
-
     }
 }
 
@@ -122,3 +121,33 @@ val buildNativeImage by tasks.registering {
 
 tasks.build.get().dependsOn(executableJar)
 tasks.build.get().dependsOn(nativeImageJar)
+
+repositories {
+    mavenCentral()
+}
+
+val osName = System.getProperty("os.name").lowercase()
+
+dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.3")
+
+    testImplementation("com.google.jimfs:jimfs:1.2")
+
+    val lwjglVersion = "3.3.2"
+    val lwjglPlatform = when {
+        osName.startsWith("win") -> "windows"
+        osName.startsWith("mac") -> "macos"
+        else -> "linux"
+    }
+//    testImplementation("org.lwjgl:lwjgl:$lwjglVersion")
+//    testImplementation("org.lwjgl:lwjgl:$lwjglVersion:natives-$lwjglPlatform")
+//    testImplementation("org.lwjgl:lwjgl-xxhash:$lwjglVersion")
+//    testImplementation("org.lwjgl:lwjgl-xxhash:$lwjglVersion:natives-$lwjglPlatform")
+    testImplementation("net.openhft:zero-allocation-hashing:0.16")
+}
+
+tasks.test {
+    useJUnitPlatform()
+    testLogging.showStandardStreams = true
+}

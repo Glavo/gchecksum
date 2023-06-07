@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 final class XxHash64Hasher extends Hasher {
     // Primes if treated as unsigned
@@ -128,22 +129,20 @@ final class XxHash64Hasher extends Hasher {
         }
 
         if (remaining >= 4) {
-            hash ^= LittleEndianByteArray.getInt(array, offset) * P1;
+            hash ^= LittleEndianByteArray.getUnsignedInt(array, offset) * P1;
             hash = Long.rotateLeft(hash, 23) * P2 + P3;
             offset += 4;
             remaining -= 4;
         }
 
         while (remaining != 0) {
-            hash ^= array[offset] * P5;
+            hash ^= (array[offset] & 0xff) * P5;
             hash = Long.rotateLeft(hash, 11) * P1;
             --remaining;
             ++offset;
         }
 
-        hash = finalize(hash);
-
-        return Utils.encodeHex64(hash);
+        return Utils.encodeHex64(finalize(hash));
     }
 
     private static long finalize(long hash) {
@@ -153,5 +152,14 @@ final class XxHash64Hasher extends Hasher {
         hash *= P3;
         hash ^= hash >>> 32;
         return hash;
+    }
+
+    public static void main(String[] args) throws IOException {
+        if (args.length != 1) {
+            System.err.println("Need input file");
+            System.exit(1);
+        }
+
+        System.out.println(DEFAULT.hashFile(Paths.get(args[0])) + "  " + args[0]);
     }
 }

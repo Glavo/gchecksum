@@ -13,6 +13,10 @@ public final class LittleEndianByteArray {
         return (b0 << 0) | (b1 << 8) | (b2 << 16) | (b3 << 24);
     }
 
+    public static long getUnsignedInt(byte[] array, int offset) {
+        return ((long) getInt(array, offset)) & 0xffffffffL;
+    }
+
     public static long getLong(byte[] array, int offset) {
         long b0 = array[offset + 0] & 0xffL;
         long b1 = array[offset + 1] & 0xffL;
