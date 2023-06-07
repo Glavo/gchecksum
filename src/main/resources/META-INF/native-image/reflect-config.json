@@ -57,6 +57,24 @@
     ]
   },
   {
+    "name": "sun.security.provider.SHA5$SHA512_224",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "sun.security.provider.SHA5$SHA512_256",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
     "name": "sun.security.provider.SHA3$SHA224",
     "methods": [
       {
