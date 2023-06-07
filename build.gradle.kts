@@ -140,10 +140,10 @@ dependencies {
         osName.startsWith("mac") -> "macos"
         else -> "linux"
     }
-//    testImplementation("org.lwjgl:lwjgl:$lwjglVersion")
-//    testImplementation("org.lwjgl:lwjgl:$lwjglVersion:natives-$lwjglPlatform")
-//    testImplementation("org.lwjgl:lwjgl-xxhash:$lwjglVersion")
-//    testImplementation("org.lwjgl:lwjgl-xxhash:$lwjglVersion:natives-$lwjglPlatform")
+    testImplementation("org.lwjgl:lwjgl:$lwjglVersion")
+    testImplementation("org.lwjgl:lwjgl:$lwjglVersion:natives-$lwjglPlatform")
+    testImplementation("org.lwjgl:lwjgl-xxhash:$lwjglVersion")
+    testImplementation("org.lwjgl:lwjgl-xxhash:$lwjglVersion:natives-$lwjglPlatform")
     testImplementation("net.openhft:zero-allocation-hashing:0.16")
 }
 

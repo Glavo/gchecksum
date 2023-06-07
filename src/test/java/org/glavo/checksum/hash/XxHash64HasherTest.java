@@ -7,6 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,7 +31,11 @@ public class XxHash64HasherTest {
         byte[] data = new byte[length];
         new Random(length).nextBytes(data);
 
-        String expected = Utils.encodeHex64(net.openhft.hashing.LongHashFunction.xx().hashBytes(data));
+        ByteBuffer nativeBuffer = ByteBuffer.allocateDirect(length);
+        nativeBuffer.put(data);
+        nativeBuffer.clear();
+
+        String expected = Utils.encodeHex64(org.lwjgl.util.xxhash.XXHash.XXH64(nativeBuffer, 0L));
 
         String actual;
         try (FileSystem fs = Jimfs.newFileSystem()) {
