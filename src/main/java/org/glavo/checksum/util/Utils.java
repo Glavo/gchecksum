@@ -17,6 +17,21 @@ public final class Utils {
         return new String(out, 0, outLength, StandardCharsets.US_ASCII);
     }
 
+    public static String encodeHex32(long data) {
+        byte[] out = new byte[8];
+
+        out[0] = DIGITS_LOWER[(int) ((data >>> 28) & 0x0f)];
+        out[1] = DIGITS_LOWER[(int) ((data >>> 24) & 0x0f)];
+        out[2] = DIGITS_LOWER[(int) ((data >>> 20) & 0x0f)];
+        out[3] = DIGITS_LOWER[(int) ((data >>> 16) & 0x0f)];
+        out[4] = DIGITS_LOWER[(int) ((data >>> 12) & 0x0f)];
+        out[5] = DIGITS_LOWER[(int) ((data >>> 8) & 0x0f)];
+        out[6] = DIGITS_LOWER[(int) ((data >>> 4) & 0x0f)];
+        out[7] = DIGITS_LOWER[(int) ((data >>> 0) & 0x0f)];
+
+        return new String(out, 0, 8, StandardCharsets.US_ASCII);
+    }
+
     public static Pair<String, String> spiltRecord(String r) {
         final int rLength = r.length();
 

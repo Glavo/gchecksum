@@ -22,7 +22,7 @@ public abstract class Hasher {
                 MessageDigestHasher.SHA_512
         };
 
-        for (HasherBase<?> hasher : defaultHashers) {
+        for (Hasher hasher : defaultHashers) {
             if (length == hasher.hashStringLength) {
                 return hasher;
             }
@@ -50,6 +50,10 @@ public abstract class Hasher {
             case "SHA512":
             case "SHA-512":
                 return MessageDigestHasher.SHA_512;
+            case "CRC32":
+                return ZipChecksumHasher.CRC32;
+            case "ADLER32":
+                return ZipChecksumHasher.ADLER32;
             default:
                 try {
                     // Check if the algorithm is available
