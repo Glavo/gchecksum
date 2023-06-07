@@ -8,30 +8,30 @@ import java.util.Locale;
 
 public abstract class Hasher {
 
-    public static MessageDigestHasher getDefault() {
+    public static Hasher getDefault() {
         return MessageDigestHasher.SHA_256;
     }
 
-    public static MessageDigestHasher ofHashStringLength(int length) {
-        switch (length) {
-            case 32:
-                return MessageDigestHasher.MD5;
-            case 40:
-                return MessageDigestHasher.SHA_1;
-            case 56:
-                return MessageDigestHasher.SHA_224;
-            case 64:
-                return MessageDigestHasher.SHA_256;
-            case 96:
-                return MessageDigestHasher.SHA_384;
-            case 128:
-                return MessageDigestHasher.SHA_512;
-            default:
-                return null;
+    public static Hasher ofHashStringLength(int length) {
+        HasherBase<?>[] defaultHashers = {
+                MessageDigestHasher.MD5,
+                MessageDigestHasher.SHA_1,
+                MessageDigestHasher.SHA_224,
+                MessageDigestHasher.SHA_256,
+                MessageDigestHasher.SHA_384,
+                MessageDigestHasher.SHA_512
+        };
+
+        for (HasherBase<?> hasher : defaultHashers) {
+            if (length == hasher.hashStringLength) {
+                return hasher;
+            }
         }
+
+        return null;
     }
 
-    public static MessageDigestHasher ofName(String name) {
+    public static Hasher ofName(String name) {
         switch (name.toUpperCase(Locale.ROOT)) {
             case "MD5":
                 return MessageDigestHasher.MD5;
@@ -54,7 +54,7 @@ public abstract class Hasher {
                 try {
                     // Check if the algorithm is available
                     MessageDigest md = MessageDigest.getInstance(name);
-                    return new MessageDigestHasher(name, md.getDigestLength() << 1);
+                    return new MessageDigestHasher(name, md.getDigestLength());
                 } catch (NoSuchAlgorithmException ignored) {
                     return null;
                 }
@@ -63,12 +63,12 @@ public abstract class Hasher {
 
     private final int hashStringLength;
 
-    protected Hasher(int hashStringLength) {
-        this.hashStringLength = hashStringLength;
+    Hasher(int digestLength) {
+        this.hashStringLength = digestLength << 1;
     }
 
-    public int getHashStringLength() {
-        return hashStringLength;
+    public final boolean isAcceptChecksum(String checksum) {
+        return checksum.length() == hashStringLength;
     }
 
     public abstract String hashFile(Path file) throws IOException;

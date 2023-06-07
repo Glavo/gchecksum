@@ -1,51 +1,56 @@
 package org.glavo.checksum.hash;
 
-import org.glavo.checksum.util.IOUtils;
 import org.glavo.checksum.util.Utils;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.ByteChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.MessageDigest;
-import java.util.Collections;
+import java.security.NoSuchAlgorithmException;
 
-final class MessageDigestHasher extends Hasher {
+final class MessageDigestHasher extends HasherBase<MessageDigestHasher.Context> {
 
-    static final MessageDigestHasher MD5 = new MessageDigestHasher("MD5", 32);
-    static final MessageDigestHasher SHA_1 = new MessageDigestHasher("SHA-1", 40);
-    static final MessageDigestHasher SHA_224 = new MessageDigestHasher("SHA-224", 56);
-    static final MessageDigestHasher SHA_256 = new MessageDigestHasher("SHA-256", 64);
-    static final MessageDigestHasher SHA_384 = new MessageDigestHasher("SHA-384", 96);
-    static final MessageDigestHasher SHA_512 = new MessageDigestHasher("SHA-512", 128);
+    static final MessageDigestHasher MD5 = new MessageDigestHasher("MD5", 16);
+    static final MessageDigestHasher SHA_1 = new MessageDigestHasher("SHA-1", 20);
+    static final MessageDigestHasher SHA_224 = new MessageDigestHasher("SHA-224", 28);
+    static final MessageDigestHasher SHA_256 = new MessageDigestHasher("SHA-256", 32);
+    static final MessageDigestHasher SHA_384 = new MessageDigestHasher("SHA-384", 48);
+    static final MessageDigestHasher SHA_512 = new MessageDigestHasher("SHA-512", 64);
 
-    private final String name;
+    private final String algorithm;
 
-    MessageDigestHasher(String name, int hashStringLength) {
-        super(hashStringLength);
-        this.name = name;
+    MessageDigestHasher(String algorithm, int digestLength) {
+        super(digestLength);
+        this.algorithm = algorithm;
     }
 
     @Override
-    public String hashFile(Path file) throws IOException {
-        HasherCache cache = HasherCache.getCache();
-
-        ByteBuffer buffer = cache.getBuffer();
-        final byte[] array = buffer.array();
-
-        MessageDigest md = cache.getMessageDigest(name);
-
-        int read;
-        try (ByteChannel channel = Files.newByteChannel(file, Collections.emptySet(), IOUtils.EMPTY_FILE_ATTRIBUTES)) {
-            do {
-                buffer.clear();
-                read = channel.read(buffer);
-                if (read > 0) {
-                    md.update(array, 0, read);
-                }
-            } while (read != -1);
+    protected Context createContext() {
+        try {
+            return new Context(MessageDigest.getInstance(algorithm));
+        } catch (NoSuchAlgorithmException e) {
+            throw new AssertionError(e.getMessage(), e);
         }
-        return Utils.encodeHex(md.digest());
+    }
+
+    static final class Context extends HasherBase.Context {
+        private final MessageDigest md;
+
+        Context(MessageDigest md) {
+            this.md = md;
+        }
+
+        @Override
+        protected void update(byte[] input, int offset, int len) {
+            md.update(input, offset, len);
+        }
+
+        @Override
+        protected String digest() {
+            return Utils.encodeHex(md.digest());
+        }
+
+        @Override
+        protected void reset() {
+            super.reset();
+            md.reset();
+        }
     }
 }
