@@ -30,14 +30,18 @@ public final class CreateOrUpdate {
             final int yLength = y.length;
 
             int length = Math.min(xLength, yLength);
-            for (int i = 0; i < length; i++) {
+            assert length > 0;
+            for (int i = 0; i < length - 1; i++) {
                 int v = x[i].compareTo(y[i]);
                 if (v != 0) {
                     return v;
                 }
             }
 
-            return xLength - yLength;
+            if (xLength == yLength)
+                return x[length - 1].compareTo(y[length - 1]);
+            else
+                return Integer.compare(xLength, yLength);
         });
 
         Files.walkFileTree(basePath, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new FileVisitor<Path>() {

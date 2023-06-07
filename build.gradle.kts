@@ -99,7 +99,6 @@ val buildNativeImage by tasks.registering {
                 if (Files.exists(it)) it else binPath.resolve("native-image")
             }.toAbsolutePath().toString()
 
-
             exec {
                 workingDir(file("$buildDir/libs"))
                 commandLine(
@@ -108,6 +107,35 @@ val buildNativeImage by tasks.registering {
                     tasks.jar.get().archiveFile.get().asFile
                 )
             }
+        }
+    }
+}
+
+val trackNativeImageConfiguration by tasks.registering {
+    dependsOn(tasks.jar)
+    doLast {
+        val home = System.getenv("GRAALVM_HOME")
+        if (home == null) {
+            System.err.println("Missing GRAALVM_HOME")
+        } else {
+            val binPath = Paths.get(home).resolve("bin")
+
+            val graalJava = binPath.resolve("java.exe").let {
+                if (Files.exists(it)) it else binPath.resolve("java")
+            }.toAbsolutePath().toString()
+
+            logger.quiet("Command: $graalJava -agentlib:native-image-agent=config-output-dir=${buildDir.resolve("native-image-config")} -jar ${tasks.jar.get().archiveFile.get().asFile}")
+
+//            exec {
+//                workingDir(buildDir)
+//
+//                commandLine(
+//                    graalJava,
+//                    "-agentlib:native-image-agent=config-output-dir=${buildDir.resolve("native-image-config")}",
+//                    "-jar",
+//                    tasks.jar.get().archiveFile.get().asFile
+//                )
+//            }
         }
     }
 }
