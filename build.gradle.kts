@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "org.glavo"
-version = "0.12.0" + "-SNAPSHOT"
+version = "0.12.0"// + "-SNAPSHOT"
 
 val mainName = "org.glavo.checksum.Main"
 
@@ -33,7 +33,7 @@ val executableJar by tasks.registering {
 
     doLast {
         outputDir.mkdirs()
-        val outputFile = file("$outputDir/gchecksum-${project.version}")
+        val outputFile = file("$outputDir/gchecksum-${project.version}.sh")
         outputFile.outputStream().use { output ->
             file("$rootDir/src/main/shell/header.sh").inputStream().use { input ->
                 output.write(input.readAllBytes())

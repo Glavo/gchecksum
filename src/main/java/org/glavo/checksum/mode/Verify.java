@@ -26,7 +26,7 @@ public final class Verify {
             }
 
             final String recordHashValue = r.component1;
-            if (hasher.isAcceptChecksum(recordHashValue)) {
+            if (!hasher.isAcceptChecksum(recordHashValue)) {
                 Logger.error(Lang.getInstance().getInvalidHashRecordMessage(), line);
                 return false;
             }

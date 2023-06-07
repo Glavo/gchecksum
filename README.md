@@ -165,6 +165,28 @@ gchecksum 生成时会按路径排序，但校验时不要求顺序。
 
 ## 性能
 
+### xxHash64 性能测试
+
+基于 gchecksum 0.12.0，OpenJDK 20 测试。
+
+#### 测试1
+
+三个压缩文件，总共 32.17GiB。
+
+默认参数（8 线程）：
+
+* 验证：13.249s
+
+参数 `-n 1`（单线程）：
+
+* 验证：26.692s
+
+（参照组）使用 xxh64sum 工具进行校验，命令 `xxh64sum --quiet -c checksums.txt`：
+
+* 验证：36.073s
+
+### SHA-256 性能测试
+
 基于 0.6.0 测试，使用 OpenJDK 默认 SHA-256 实现。
 
 使用 [Amazon Corretto Crypto Provider](https://github.com/corretto/amazon-corretto-crypto-provider) 替换 JDK 内置哈希算法实现
@@ -180,7 +202,7 @@ gchecksum 当前实现较为简略，未来会考虑更细致地优化性能。
 * Java：OpenJDK 16.0.1
 * 硬盘：SN750 500G
 
-### 测试1
+#### 测试1
 47 个压缩文件，共 188G。
 
 默认参数（8 线程）：
@@ -197,7 +219,7 @@ gchecksum 当前实现较为简略，未来会考虑更细致地优化性能。
 
 * 验证：11m53.429s
 
-### 测试2
+#### 测试2
 Minecraft 服务器文件夹，5604 个文件，7.2G。
 
 默认参数（8 线程）：
