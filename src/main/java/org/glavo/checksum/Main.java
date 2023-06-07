@@ -263,7 +263,7 @@ public final class Main {
                                 while ((line = r.readLine()) != null) {
                                     if (!line.isEmpty()) {
                                         final Pair<String, String> p = Utils.spiltRecord(line);
-                                        if (p == null || algorithm.isAcceptChecksum(p.component1)) {
+                                        if (p == null || !algorithm.isAcceptChecksum(p.component1)) {
                                             Logger.error(resources.getInvalidHashRecordMessage(), line);
                                         } else {
                                             old.put(p.component2, p.component1);// TODO
