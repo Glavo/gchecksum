@@ -62,33 +62,33 @@ gchecksum 同时会为常见平台提供 Native Image 构建，无需 JRE 环境
 在 Linux 上安装 Java 版本（需要 JRE 8 或更高版本）：
 
 ```shell
-sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.11.0/gchecksum-0.11.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
+sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.12.0/gchecksum-0.12.0.sh) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
 ```
 
 中国大陆用户如果访问 GitHub 缓慢，可以使用 [FastGit](https://doc.fastgit.org/) 加速：
 
 ```shell
-sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://download.fastgit.org/Glavo/gchecksum/releases/download/0.11.0/gchecksum-0.11.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
+sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://download.fastgit.org/Glavo/gchecksum/releases/download/0.12.0/gchecksum-0.12.0.sh) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
 ```
 
 （备选）安装 Native Image 版本（**无需 JRE 环境，但性能差于 Java 版本**）：
 
 ```shell
-sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.11.0/gchecksum-0.11.0-native-image) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
+sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.12.0/gchecksum-0.12.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
 ```
 
 使用 [FastGit](http://fastgit.org/) 镜像：
 
 ```shell
-sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://download.fastgit.org/Glavo/gchecksum/releases/download/0.11.0/gchecksum-0.11.0-native-image) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
+sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://download.fastgit.org/Glavo/gchecksum/releases/download/0.12.0/gchecksum-0.12.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
 ```
 
 ### Windows
 
 下载为 Windows 生成的 Native Image 镜像：
 
-* [gchecksum-0.11.0-native-image.exe](https://github.com/Glavo/gchecksum/releases/download/0.11.0/gchecksum-0.11.0-native-image.exe)
-* [gchecksum-0.11.0-native-image.exe](https://download.fastgit.org/Glavo/gchecksum/releases/download/0.11.0/gchecksum-0.11.0-native-image.exe)（FastGit 镜像链接）
+* [gchecksum-0.12.0-native-image.exe](https://github.com/Glavo/gchecksum/releases/download/0.12.0/gchecksum-0.12.0.exe)
+* [gchecksum-0.12.0-native-image.exe](https://download.fastgit.org/Glavo/gchecksum/releases/download/0.12.0/gchecksum-0.12.0.exe)（FastGit 镜像链接）
 
 ## 介绍
 
@@ -120,9 +120,24 @@ gchecksum 有三种模式：
 * SHA-256
 * SHA-384
 * SHA-512
+* SHA3-224 (Java 9+)
+* SHA3-256 (Java 9+)
+* SHA3-384 (Java 9+)
+* SHA3-512 (Java 9+)
+* xxHash64 (Experimental)
+* CRC32
+* Adler32
 
-**注意：** 校验模式自动选择算法通常很准确（因为当前哈希码位数与算法一一对应），
-但未来可能会引入其他冲突的算法（例如，SHA-512/256 算法的哈希码长度与 SHA-256 相同），这时就必须显式指定。
+校验模式下会自动检测的算法有：
+
+* MD5
+* SHA-1
+* SHA-224
+* SHA-256
+* SHA-384
+* SHA-512
+
+如果 `checksums.txt` 文件使用了不支持自动检测的算法，请使用 `-a` 选项显式指定要用的算法。
 
 `--num-threads`（`-n`） 选项用于指定并发计算哈希值的线程数，必须为正整数。
 默认值为运行平台逻辑处理器数的一半（`Runtime.getRuntime().availableProcessors() / 2`）
