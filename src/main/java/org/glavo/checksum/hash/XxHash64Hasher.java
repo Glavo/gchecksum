@@ -143,7 +143,7 @@ final class XxHash64Hasher extends Hasher {
             ++offset;
         }
 
-        return Utils.encodeHex64(finalize(hash));
+        return Utils.encodeHex(finalize(hash));
     }
 
     private static long finalize(long hash) {

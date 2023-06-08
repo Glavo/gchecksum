@@ -4,29 +4,43 @@ public final class LittleEndianByteArray {
     private LittleEndianByteArray() {
     }
 
-    public static int getInt(byte[] array, int offset) {
-        int b0 = array[offset + 0] & 0xff;
-        int b1 = array[offset + 1] & 0xff;
-        int b2 = array[offset + 2] & 0xff;
-        int b3 = array[offset + 3] & 0xff;
+    public static byte getByte(byte[] array, int offset) {
+        return array[offset];
+    }
 
-        return (b0 << 0) | (b1 << 8) | (b2 << 16) | (b3 << 24);
+    public static byte getByte(byte[] array, long offset) {
+        return array[(int) offset];
+    }
+
+    public static int getUnsignedByte(byte[] array, int offset) {
+        return array[offset] & 0xff;
+    }
+
+    public static int getUnsignedByte(byte[] array, long offset) {
+        return array[(int) offset] & 0xff;
+    }
+
+    public static int getInt(byte[] array, int offset) {
+        return ByteArrayImpl.getIntLE(array, offset);
+    }
+
+    public static int getInt(byte[] array, long offset) {
+        return ByteArrayImpl.getIntLE(array, (int) offset);
     }
 
     public static long getUnsignedInt(byte[] array, int offset) {
         return ((long) getInt(array, offset)) & 0xffffffffL;
     }
 
-    public static long getLong(byte[] array, int offset) {
-        long b0 = array[offset + 0] & 0xffL;
-        long b1 = array[offset + 1] & 0xffL;
-        long b2 = array[offset + 2] & 0xffL;
-        long b3 = array[offset + 3] & 0xffL;
-        long b4 = array[offset + 4] & 0xffL;
-        long b5 = array[offset + 5] & 0xffL;
-        long b6 = array[offset + 6] & 0xffL;
-        long b7 = array[offset + 7] & 0xffL;
+    public static long getUnsignedInt(byte[] array, long offset) {
+        return ((long) getInt(array, offset)) & 0xffffffffL;
+    }
 
-        return (b0 << 0) | (b1 << 8) | (b2 << 16) | (b3 << 24) | (b4 << 32) | (b5 << 40) | (b6 << 48) | (b7 << 56);
+    public static long getLong(byte[] array, int offset) {
+        return ByteArrayImpl.getLongLE(array, offset);
+    }
+
+    public static long getLong(byte[] array, long offset) {
+        return ByteArrayImpl.getLongLE(array, (int) offset);
     }
 }

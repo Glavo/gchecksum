@@ -32,7 +32,7 @@ public final class Utils {
         return new String(out, 0, 8, StandardCharsets.US_ASCII);
     }
 
-    public static String encodeHex64(long data) {
+    public static String encodeHex(long data) {
         byte[] out = new byte[16];
 
         out[0]  = DIGITS_LOWER[(int) ((data >>> 60) & 0x0f)];
@@ -53,6 +53,10 @@ public final class Utils {
         out[15] = DIGITS_LOWER[(int) ((data >>>  0) & 0x0f)];
 
         return new String(out, 0, 16, StandardCharsets.US_ASCII);
+    }
+
+    public static String encodeHex(long lo, long hi) {
+        return encodeHex(lo) + encodeHex(hi); // TODO?
     }
 
     public static Pair<String, String> spiltRecord(String r) {
