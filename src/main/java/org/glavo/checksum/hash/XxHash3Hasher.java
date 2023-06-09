@@ -9,6 +9,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.file.Path;
 
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
+
 // The implementation references https://github.com/OpenHFT/Zero-Allocation-Hashing
 abstract class XxHash3Hasher extends Hasher {
 
@@ -67,7 +69,7 @@ abstract class XxHash3Hasher extends Hasher {
         return h64 ^ (h64 >>> 28);
     }
 
-    protected static <T> long XXH3_mix16B(final long seed, final byte[] input, final int offIn, final int offSec) {
+    protected static long XXH3_mix16B(final long seed, final byte[] input, final long offIn, final long offSec) {
         final long input_lo = LittleEndianByteArray.getLong(input, offIn);
         final long input_hi = LittleEndianByteArray.getLong(input, offIn + 8);
         return Maths.unsignedLongMulXorFold(
@@ -79,24 +81,43 @@ abstract class XxHash3Hasher extends Hasher {
     /*
      * A bit slower than XXH3_mix16B, but handles multiply by zero better.
      */
-    protected static long XXH128_mix32B_once(final long seed, final int offSec, long acc, final long input0, final long input1, final long input2, final long input3) {
+    protected static long XXH128_mix32B_once(final long seed, final long offSec, long acc, final long input0, final long input1, final long input2, final long input3) {
         acc += Maths.unsignedLongMulXorFold(
                 input0 ^ (LittleEndianByteArray.getLong(XXH3_kSecret, offSec) + seed),
                 input1 ^ (LittleEndianByteArray.getLong(XXH3_kSecret, offSec + 8) - seed));
         return acc ^ (input2 + input3);
     }
 
-    protected static long XXH3_mix2Accs(final long acc_lh, final long acc_rh, final byte[] secret, final int offSec) {
+    protected static long XXH3_mix2Accs(final long acc_lh, final long acc_rh, final byte[] secret, final long offSec) {
         return Maths.unsignedLongMulXorFold(
                 acc_lh ^ LittleEndianByteArray.getLong(secret, offSec),
                 acc_rh ^ LittleEndianByteArray.getLong(secret, offSec + 8));
     }
 
+    private static void XXH3_initCustomSecret(final byte[] customSecret, final long seed64) {
+        final int nbRounds = 192 / 16;
+        final ByteBuffer bb = ByteBuffer.wrap(customSecret).order(LITTLE_ENDIAN);
+        for (int i = 0; i < nbRounds; i++) {
+            final long lo = LittleEndianByteArray.getLong(XXH3_kSecret, 16 * i) + seed64;
+            final long hi = LittleEndianByteArray.getLong(XXH3_kSecret, 16 * i + 8) - seed64;
+            bb.putLong(16 * i + 0, lo);
+            bb.putLong(16 * i + 8, hi);
+        }
+    }
+
     protected final long seed;
+    protected final byte[] secret;
 
     XxHash3Hasher(int digestLength, long seed) {
         super(digestLength);
         this.seed = seed;
+
+        if (seed == 0L) {
+            this.secret = XXH3_kSecret;
+        } else {
+            this.secret = new byte[192];
+            XXH3_initCustomSecret(this.secret, seed);
+        }
     }
 
     protected abstract String hashImpl(ByteChannel channel, ByteBuffer buffer, long firstRead) throws IOException;
@@ -106,6 +127,7 @@ abstract class XxHash3Hasher extends Hasher {
         final ByteBuffer buffer = threadLocalBuffer.get();
 
         try (ByteChannel channel = IOUtils.newByteChannel(file)) {
+            buffer.clear();
             int read = IOUtils.readAsPossible(channel, buffer);
             return hashImpl(channel, buffer, read);
         }

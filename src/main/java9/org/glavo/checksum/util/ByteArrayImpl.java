@@ -15,7 +15,16 @@ final class ByteArrayImpl {
         return (int) INT.get(array, offset);
     }
 
-    public static long getLongLE(byte[] array, int offset) {
+    static long getLongLE(byte[] array, int offset) {
         return (long) LONG.get(array, offset);
+    }
+
+
+    static void setIntLE(byte[] array, int offset, int value) {
+        INT.set(array, offset, value);
+    }
+
+    static void setLongLE(byte[] array, int offset, long value) {
+        LONG.set(array, offset, value);
     }
 }

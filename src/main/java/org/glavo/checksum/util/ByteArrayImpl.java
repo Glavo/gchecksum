@@ -20,7 +20,7 @@ final class ByteArrayImpl {
         return (b0 << 0) | (b1 << 8) | (b2 << 16) | (b3 << 24);
     }
 
-    public static long getLongLE(byte[] array, int offset) {
+    static long getLongLE(byte[] array, int offset) {
         long b0 = array[offset + 0] & 0xffL;
         long b1 = array[offset + 1] & 0xffL;
         long b2 = array[offset + 2] & 0xffL;
