@@ -30,11 +30,13 @@ public class XxHash3_128HasherTest {
     private static List<Arguments> testArguments() {
         int[] lengths = Stream.of(
                 IntStream.rangeClosed(0, 2048),
+                IntStream.rangeClosed(DEFAULT_BUFFER_SIZE / 2 - 2 * block_len - 1, DEFAULT_BUFFER_SIZE / 2 + 2 * block_len + 1),
                 IntStream.rangeClosed(DEFAULT_BUFFER_SIZE - 2 * block_len - 1, DEFAULT_BUFFER_SIZE + 2 * block_len + 1),
-                IntStream.rangeClosed(2 * DEFAULT_BUFFER_SIZE - 2 * block_len - 1, 2 * DEFAULT_BUFFER_SIZE + 2 * block_len + 1)
+                IntStream.rangeClosed(DEFAULT_BUFFER_SIZE * 2 - 2 * block_len - 1, DEFAULT_BUFFER_SIZE * 2 + 2 * block_len + 1),
+                IntStream.rangeClosed(DEFAULT_BUFFER_SIZE * 3 / 2 - 2 * block_len - 1, DEFAULT_BUFFER_SIZE * 3 / 2+ 2 * block_len + 1)
         ).flatMapToInt(Function.identity()).toArray();
 
-        int[] seeds = IntStream.rangeClosed(0, 3).toArray();
+        int[] seeds = IntStream.rangeClosed(0, 4).toArray();
 
         ArrayList<Arguments> res = new ArrayList<>();
         for (int length : lengths) {
@@ -57,7 +59,7 @@ public class XxHash3_128HasherTest {
 
         String expected;
         try (XXH128Hash result = XXH128Hash.malloc()) {
-            XXHash.XXH3_128bits_withSeed(nativeBuffer, 0L, result);
+            XXHash.XXH3_128bits(nativeBuffer, result);
             expected = Utils.encodeHex(result.low64(), result.high64());
         }
 

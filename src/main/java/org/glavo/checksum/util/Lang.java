@@ -136,6 +136,11 @@ public enum Lang {
         else return "error: file '%s' cannot be read";
     }
 
+    public String getNoMatchHasher() {
+        if (this == CHINESE) return "错误：无法自动选择哈希算法，请使用 --algorithm 选项指定算法";
+        else return "error: unable to automatically select hash algorithm, please use the --algorithm option to specify the algorithm";
+    }
+
     public String getInvalidHashRecordMessage() {
         if (this == CHINESE) return "错误：无效哈希记录 '%s'";
         else return "error: invalid hash record '%s'";

@@ -84,7 +84,7 @@ public final class Verify {
                 final int idx = line.indexOf(' ');
                 hasher = Hasher.ofHashStringLength(idx);
                 if (hasher == null) {
-                    Logger.logErrorAndExit(Lang.getInstance().getInvalidHashRecordMessage(), line);
+                    Logger.logErrorAndExit(Lang.getInstance().getNoMatchHasher());
                 }
                 pool.submit(verifyFileTask(successCount, failureCount, basePath, line, hasher));
             }
