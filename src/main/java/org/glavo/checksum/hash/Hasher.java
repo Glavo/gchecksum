@@ -63,6 +63,7 @@ public abstract class Hasher {
                 return XxHash64Hasher.DEFAULT;
             case "XX128":
             case "XXH128":
+            case "XXHASH128":
             case "XXH3_128":
             case "XXH3-128":
                 return XxHash3_128Hasher.DEFAULT;

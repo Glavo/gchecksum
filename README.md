@@ -125,6 +125,7 @@ gchecksum 有三种模式：
 * SHA3-384 (Java 9+)
 * SHA3-512 (Java 9+)
 * xxHash64 (Experimental)
+* xxHash128 (Experimental)
 * CRC32
 * Adler32
 
