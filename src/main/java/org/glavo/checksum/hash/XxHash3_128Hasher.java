@@ -7,7 +7,6 @@ import org.glavo.checksum.util.Utils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ByteChannel;
 import java.nio.channels.FileChannel;
 
 import static org.glavo.checksum.util.LittleEndianByteArray.*;
