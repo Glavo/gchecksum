@@ -180,11 +180,11 @@ gchecksum 生成时会按路径排序，但校验时不要求顺序。
 
 ## 性能
 
-### xxHash64 性能测试
+### xxHash6性能测试
+
+#### xxHash64
 
 基于 gchecksum 0.12.0，OpenJDK 20 测试。
-
-#### 测试1
 
 三个压缩文件，总共 32.17GiB。
 
@@ -199,6 +199,24 @@ gchecksum 生成时会按路径排序，但校验时不要求顺序。
 （参照组）使用 xxh64sum 工具进行校验，命令 `xxh64sum --quiet -c checksums.txt`：
 
 * 验证：36.073s
+
+#### xxHash128
+
+基于 gchecksum 0.13.0，OpenJDK 20 测试。
+
+三个压缩文件，总共 32.17GiB。
+
+默认参数（8 线程）：
+
+* 验证：14.453s
+
+参数 `-n 1`（单线程）：
+
+* 验证：29.571s
+
+（参照组）使用 xxh128sum 工具进行校验，命令 `xxh128sum --quiet -c checksums.txt`：
+
+* 验证：29.109s
 
 ### SHA-256 性能测试
 
