@@ -56,7 +56,43 @@ public final class Utils {
     }
 
     public static String encodeHex(long lo, long hi) {
-        return encodeHex(lo) + encodeHex(hi); // TODO?
+        byte[] out = new byte[32];
+
+        out[0]  = DIGITS_LOWER[(int) ((hi >>> 60) & 0x0f)];
+        out[1]  = DIGITS_LOWER[(int) ((hi >>> 56) & 0x0f)];
+        out[2]  = DIGITS_LOWER[(int) ((hi >>> 52) & 0x0f)];
+        out[3]  = DIGITS_LOWER[(int) ((hi >>> 48) & 0x0f)];
+        out[4]  = DIGITS_LOWER[(int) ((hi >>> 44) & 0x0f)];
+        out[5]  = DIGITS_LOWER[(int) ((hi >>> 40) & 0x0f)];
+        out[6]  = DIGITS_LOWER[(int) ((hi >>> 36) & 0x0f)];
+        out[7]  = DIGITS_LOWER[(int) ((hi >>> 32) & 0x0f)];
+        out[8]  = DIGITS_LOWER[(int) ((hi >>> 28) & 0x0f)];
+        out[9]  = DIGITS_LOWER[(int) ((hi >>> 24) & 0x0f)];
+        out[10] = DIGITS_LOWER[(int) ((hi >>> 20) & 0x0f)];
+        out[11] = DIGITS_LOWER[(int) ((hi >>> 16) & 0x0f)];
+        out[12] = DIGITS_LOWER[(int) ((hi >>> 12) & 0x0f)];
+        out[13] = DIGITS_LOWER[(int) ((hi >>>  8) & 0x0f)];
+        out[14] = DIGITS_LOWER[(int) ((hi >>>  4) & 0x0f)];
+        out[15] = DIGITS_LOWER[(int) ((hi >>>  0) & 0x0f)];
+
+        out[16] = DIGITS_LOWER[(int) ((lo >>> 60) & 0x0f)];
+        out[17] = DIGITS_LOWER[(int) ((lo >>> 56) & 0x0f)];
+        out[18] = DIGITS_LOWER[(int) ((lo >>> 52) & 0x0f)];
+        out[19] = DIGITS_LOWER[(int) ((lo >>> 48) & 0x0f)];
+        out[20] = DIGITS_LOWER[(int) ((lo >>> 44) & 0x0f)];
+        out[21] = DIGITS_LOWER[(int) ((lo >>> 40) & 0x0f)];
+        out[22] = DIGITS_LOWER[(int) ((lo >>> 36) & 0x0f)];
+        out[23] = DIGITS_LOWER[(int) ((lo >>> 32) & 0x0f)];
+        out[24] = DIGITS_LOWER[(int) ((lo >>> 28) & 0x0f)];
+        out[25] = DIGITS_LOWER[(int) ((lo >>> 24) & 0x0f)];
+        out[26] = DIGITS_LOWER[(int) ((lo >>> 20) & 0x0f)];
+        out[27] = DIGITS_LOWER[(int) ((lo >>> 16) & 0x0f)];
+        out[28] = DIGITS_LOWER[(int) ((lo >>> 12) & 0x0f)];
+        out[29] = DIGITS_LOWER[(int) ((lo >>>  8) & 0x0f)];
+        out[30] = DIGITS_LOWER[(int) ((lo >>>  4) & 0x0f)];
+        out[31] = DIGITS_LOWER[(int) ((lo >>>  0) & 0x0f)];
+
+        return new String(out);
     }
 
     public static Pair<String, String> spiltRecord(String r) {

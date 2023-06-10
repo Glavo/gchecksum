@@ -16,14 +16,25 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Function;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
+import static org.glavo.checksum.util.IOUtils.DEFAULT_BUFFER_SIZE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class XxHash3_128HasherTest {
+    private static final int block_len = 1024;
+    private static final int stripe_len = 64;
+
     private static List<Arguments> testArguments() {
-        int[] lengths = IntStream.rangeClosed(0, 240).toArray();
-        int[] seeds = IntStream.rangeClosed(0, 4).toArray();
+        int[] lengths = Stream.of(
+                IntStream.rangeClosed(0, 2048),
+                IntStream.rangeClosed(DEFAULT_BUFFER_SIZE - 2 * block_len - 1, DEFAULT_BUFFER_SIZE + 2 * block_len + 1),
+                IntStream.rangeClosed(2 * DEFAULT_BUFFER_SIZE - 2 * block_len - 1, 2 * DEFAULT_BUFFER_SIZE + 2 * block_len + 1)
+        ).flatMapToInt(Function.identity()).toArray();
+
+        int[] seeds = IntStream.rangeClosed(0, 3).toArray();
 
         ArrayList<Arguments> res = new ArrayList<>();
         for (int length : lengths) {

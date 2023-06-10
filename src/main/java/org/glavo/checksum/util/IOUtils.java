@@ -1,6 +1,7 @@
 package org.glavo.checksum.util;
 
 import java.io.BufferedReader;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
@@ -38,5 +39,20 @@ public final class IOUtils {
             read += readNow;
         }
         return read;
+    }
+
+    public static void readFully(ReadableByteChannel channel, ByteBuffer buffer) throws IOException {
+        final int expectedLength = buffer.remaining();
+        int read = 0;
+        while (read < expectedLength) {
+            final int readNow = channel.read(buffer);
+            if (readNow <= 0) {
+                break;
+            }
+            read += readNow;
+        }
+        if (read < expectedLength) {
+            throw new EOFException();
+        }
     }
 }

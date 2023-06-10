@@ -7,7 +7,13 @@ import org.glavo.checksum.util.Maths;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.nio.channels.FileChannel;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.FileAttribute;
+import java.util.Collections;
+import java.util.Set;
 
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 
@@ -105,6 +111,9 @@ abstract class XxHash3Hasher extends Hasher {
         }
     }
 
+    private static final Set<OpenOption> OPEN_OPTIONS = Collections.singleton(StandardOpenOption.READ);
+    private static final FileAttribute<?>[] NO_ATTRIBUTES = new FileAttribute<?>[0];
+
     protected final long seed;
     protected final byte[] secret;
 
@@ -120,16 +129,21 @@ abstract class XxHash3Hasher extends Hasher {
         }
     }
 
-    protected abstract String hashImpl(ByteChannel channel, ByteBuffer buffer, long firstRead) throws IOException;
+    protected abstract String hashImpl(FileChannel channel, ByteBuffer buffer, long length) throws IOException;
 
     @Override
     public final String hashFile(Path file) throws IOException {
         final ByteBuffer buffer = threadLocalBuffer.get();
 
-        try (ByteChannel channel = IOUtils.newByteChannel(file)) {
-            buffer.clear();
-            int read = IOUtils.readAsPossible(channel, buffer);
-            return hashImpl(channel, buffer, read);
+        try (FileChannel channel = FileChannel.open(file, OPEN_OPTIONS, NO_ATTRIBUTES)) {
+            long length = channel.size();
+
+            buffer.position(0);
+            buffer.limit((int) Math.min(length, IOUtils.DEFAULT_BUFFER_SIZE));
+
+            IOUtils.readFully(channel, buffer);
+
+            return hashImpl(channel, buffer, length);
         }
     }
 }
