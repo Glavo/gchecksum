@@ -65,22 +65,10 @@ gchecksum 同时会为常见平台提供 Native Image 构建，无需 JRE 环境
 sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.13.0/gchecksum-0.13.0.sh) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
 ```
 
-中国大陆用户如果访问 GitHub 缓慢，可以使用 [FastGit](https://doc.fastgit.org/) 加速：
-
-```shell
-sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://download.fastgit.org/Glavo/gchecksum/releases/download/0.13.0/gchecksum-0.13.0.sh) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
-```
-
 （备选）安装 Native Image 版本（**无需 JRE 环境，但性能差于 Java 版本**）：
 
 ```shell
 sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.13.0/gchecksum-0.13.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
-```
-
-使用 [FastGit](http://fastgit.org/) 镜像：
-
-```shell
-sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://download.fastgit.org/Glavo/gchecksum/releases/download/0.13.0/gchecksum-0.13.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
 ```
 
 ### Windows
@@ -88,7 +76,6 @@ sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://download.fastgit.org/Gl
 下载为 Windows 生成的 Native Image 镜像：
 
 * [gchecksum-0.13.0-native-image.exe](https://github.com/Glavo/gchecksum/releases/download/0.13.0/gchecksum-0.13.0.exe)
-* [gchecksum-0.13.0-native-image.exe](https://download.fastgit.org/Glavo/gchecksum/releases/download/0.13.0/gchecksum-0.13.0.exe)（FastGit 镜像链接）
 
 ## 介绍
 
