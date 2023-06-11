@@ -52,7 +52,7 @@ public enum Lang {
 
     public String getHelpMessage() {
         if (this == CHINESE) {
-            return getVersionInformation() + "\n" +
+            return getVersionInformation() + "\n\n" +
                     "用法: \n" +
                     "    gchecksum c(reate) [选项]     : 创建校验文件\n" +
                     "    gchecksum v(erify) [选项]     : 使用校验文件对文件进行验证\n" +
@@ -72,7 +72,7 @@ public enum Lang {
                     "    -n --num-threads <num threads>\n" +
                     "                            指定计算哈希值的并发线程数 (默认为当前逻辑处理器数的一半)";
         } else {
-            return getVersionInformation() + "\n" +
+            return getVersionInformation() + "\n\n" +
                     "Usage: \n" +
                     "    gchecksum c(reate) [options]    : Create checksums file\n" +
                     "    gchecksum v(erify) [options]    : Verify files using checksums file\n" +
