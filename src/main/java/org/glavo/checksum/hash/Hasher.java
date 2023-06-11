@@ -16,7 +16,7 @@ public abstract class Hasher {
     }
 
     public static Hasher ofHashStringLength(int length) {
-        HasherBase<?>[] defaultHashers = {
+        Hasher[] defaultHashers = {
                 MessageDigestHasher.MD5,
                 MessageDigestHasher.SHA_1,
                 MessageDigestHasher.SHA_224,

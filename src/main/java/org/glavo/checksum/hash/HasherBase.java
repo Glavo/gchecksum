@@ -7,18 +7,18 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.file.Path;
 
-abstract class HasherBase<C extends HasherBase.Context> extends Hasher {
-    private final ThreadLocal<C> threadLocalContext = ThreadLocal.withInitial(this::createContext);
+abstract class HasherBase extends Hasher {
+    private final ThreadLocal<Context> threadLocalContext = ThreadLocal.withInitial(this::createContext);
 
     HasherBase(int digestLength) {
         super(digestLength);
     }
 
-    protected abstract C createContext();
+    protected abstract Context createContext();
 
     @Override
     public final String hashFile(Path file) throws IOException {
-        final C context = threadLocalContext.get();
+        final Context context = threadLocalContext.get();
 
         final ByteBuffer buffer = context.buffer;
         final byte[] array = buffer.array();
@@ -45,7 +45,6 @@ abstract class HasherBase<C extends HasherBase.Context> extends Hasher {
 
         protected abstract String digest();
 
-        protected void reset() {
-        }
+        protected abstract void reset();
     }
 }

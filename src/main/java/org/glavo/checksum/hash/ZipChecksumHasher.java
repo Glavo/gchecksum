@@ -5,7 +5,7 @@ import org.glavo.checksum.util.Utils;
 import java.util.function.Supplier;
 import java.util.zip.Checksum;
 
-final class ZipChecksumHasher extends HasherBase<ZipChecksumHasher.Context> {
+final class ZipChecksumHasher extends HasherBase {
     static final ZipChecksumHasher CRC32 = new ZipChecksumHasher(java.util.zip.CRC32::new);
     static final ZipChecksumHasher ADLER32 = new ZipChecksumHasher(java.util.zip.Adler32::new);
 
@@ -21,7 +21,7 @@ final class ZipChecksumHasher extends HasherBase<ZipChecksumHasher.Context> {
         return new Context(supplier.get());
     }
 
-    static final class Context extends HasherBase.Context {
+    private static final class Context extends HasherBase.Context {
         private final Checksum checksum;
 
         Context(Checksum checksum) {
@@ -40,7 +40,6 @@ final class ZipChecksumHasher extends HasherBase<ZipChecksumHasher.Context> {
 
         @Override
         protected void reset() {
-            super.reset();
             checksum.reset();
         }
     }

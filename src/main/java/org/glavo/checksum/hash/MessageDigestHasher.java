@@ -5,7 +5,7 @@ import org.glavo.checksum.util.Utils;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-final class MessageDigestHasher extends HasherBase<MessageDigestHasher.Context> {
+final class MessageDigestHasher extends HasherBase {
 
     static final MessageDigestHasher MD5 = new MessageDigestHasher("MD5", 16);
     static final MessageDigestHasher SHA_1 = new MessageDigestHasher("SHA-1", 20);
@@ -30,7 +30,7 @@ final class MessageDigestHasher extends HasherBase<MessageDigestHasher.Context> 
         }
     }
 
-    static final class Context extends HasherBase.Context {
+    private static final class Context extends HasherBase.Context {
         private final MessageDigest md;
 
         Context(MessageDigest md) {
@@ -49,7 +49,6 @@ final class MessageDigestHasher extends HasherBase<MessageDigestHasher.Context> 
 
         @Override
         protected void reset() {
-            super.reset();
             md.reset();
         }
     }
