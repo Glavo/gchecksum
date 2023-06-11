@@ -19,12 +19,6 @@ tasks.compileJava {
     options.encoding = "UTF-8"
 }
 
-val generateVersionInfo by tasks.registering {
-    val baseDir = file("$buildDir/version")
-    baseDir.mkdirs()
-    file("$baseDir/Version.txt").writeText("gchecksum $version")
-}
-
 val executableJar by tasks.registering {
     group = "build"
 
@@ -45,18 +39,15 @@ val executableJar by tasks.registering {
 }
 
 tasks.withType(org.gradle.jvm.tasks.Jar::class) {
-    dependsOn(generateVersionInfo)
     manifest.attributes(
         mapOf(
             "Main-Class" to mainName,
             "Implementation-URL" to "https://github.com/Glavo/gchecksum",
             "Implementation-Vendor" to "Glavo",
-            "Multi-Release" to "true"
+            "Multi-Release" to "true",
+            "Program-Version" to project.version
         )
     )
-    into("org/glavo/checksum") {
-        from(file("$buildDir/version/Version.txt"))
-    }
 }
 
 for (multiVersion in 9..21) {

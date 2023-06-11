@@ -17,7 +17,10 @@
 package org.glavo.checksum.util;
 
 import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.jar.Manifest;
 
 public enum Lang {
     CHINESE,
@@ -49,7 +52,8 @@ public enum Lang {
 
     public String getHelpMessage() {
         if (this == CHINESE) {
-            return "用法: \n" +
+            return getVersionInformation() + "\n" +
+                    "用法: \n" +
                     "    gchecksum c(reate) [选项]     : 创建校验文件\n" +
                     "    gchecksum v(erify) [选项]     : 使用校验文件对文件进行验证\n" +
                     "    gchecksum u(pdate) [选项]     : 更新已存在的校验文件，打印目录发生的变更\n" +
@@ -68,7 +72,8 @@ public enum Lang {
                     "    -n --num-threads <num threads>\n" +
                     "                            指定计算哈希值的并发线程数 (默认为当前逻辑处理器数的一半)";
         } else {
-            return "Usage: \n" +
+            return getVersionInformation() + "\n" +
+                    "Usage: \n" +
                     "    gchecksum c(reate) [options]    : Create checksums file\n" +
                     "    gchecksum v(erify) [options]    : Verify files using checksums file\n" +
                     "    gchecksum u(pdate) [options]    : Update the existing checksums file and print the changes\n" +
@@ -90,14 +95,17 @@ public enum Lang {
     }
 
     public String getVersionInformation() {
-        //noinspection ConstantConditions
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(Lang.class.getResourceAsStream("Version.txt")))) {
-            return reader.readLine();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-            return null;
+        String version = null;
+
+        try (InputStream is = Lang.class.getResourceAsStream("/META-INF/MANIFEST.MF")) {
+            Manifest mf = new Manifest(is);
+            version = mf.getMainAttributes().getValue("Program-Version");
+        } catch (IOException ignored) {
         }
+
+        if (version == null) version = "unknown";
+
+        return "gchecksum " + version + " by Glavo";
     }
 
     // error messages
@@ -154,7 +162,8 @@ public enum Lang {
 
     public String getNoMatchHasher() {
         if (this == CHINESE) return "错误：无法自动选择哈希算法，请使用 --algorithm 选项指定算法";
-        else return "error: unable to automatically select hash algorithm, please use the --algorithm option to specify the algorithm";
+        else
+            return "error: unable to automatically select hash algorithm, please use the --algorithm option to specify the algorithm";
     }
 
     public String getInvalidHashRecordMessage() {
