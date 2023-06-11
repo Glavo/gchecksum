@@ -94,7 +94,6 @@ public abstract class Hasher {
             case "ADLER32":
                 return ZipChecksumHasher.ADLER32;
             // xxHash
-            case "XX":
             case "XX64":
             case "XXH64":
             case "XXHASH64":
