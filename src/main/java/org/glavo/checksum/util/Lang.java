@@ -108,6 +108,7 @@ public enum Lang {
         } catch (ClassNotFoundException ignored) {
         }
 
+        algorithms.add("MD2");
         algorithms.add("MD5");
         algorithms.add("SHA-1");
         // SHA-2
