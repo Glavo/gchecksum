@@ -16,10 +16,8 @@
 
 package org.glavo.checksum.util;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.jar.Manifest;
 
 public enum Lang {
@@ -48,12 +46,9 @@ public enum Lang {
         return INSTANCE;
     }
 
-    private final String[] messageTable = null;
-
-    public String getHelpMessage() {
+    private String getHelpMessageBase() {
         if (this == CHINESE) {
-            return getVersionInformation() + "\n\n" +
-                    "用法: \n" +
+            return "用法: \n" +
                     "    gchecksum c(reate) [选项]     : 创建校验文件\n" +
                     "    gchecksum v(erify) [选项]     : 使用校验文件对文件进行验证\n" +
                     "    gchecksum u(pdate) [选项]     : 更新已存在的校验文件，打印目录发生的变更\n" +
@@ -64,16 +59,12 @@ public enum Lang {
                     "    -f <checksums file>     指定校验文件路径 (默认为 checksums.txt, 使用 '-' 指定为标准输入/输出流，)\n" +
                     "    -d <directory>          指定要验证的文件夹 (默认值为当前工作路径)\n" +
                     "    -y --yes --assume-yes   静默覆盖已存在的 checksums 文件\n" +
-                    //"                          (与 -i 选项互斥)\n" +
-                    //"    -i <files>            指定要验证的文件列表\n" +
-                    //"                          (与 -d 选项互斥)\n" +
                     "    -a --algorithm   <algorithm>\n" +
                     "                            指定将使用的哈希算法 (创建和更新模式下默认为 SHA-256, 校验模式下默认根据哈希值长度自动选择)\n" +
                     "    -n --num-threads <num threads>\n" +
                     "                            指定计算哈希值的并发线程数 (默认为当前逻辑处理器数的一半)";
         } else {
-            return getVersionInformation() + "\n\n" +
-                    "Usage: \n" +
+            return "Usage: \n" +
                     "    gchecksum c(reate) [options]    : Create checksums file\n" +
                     "    gchecksum v(erify) [options]    : Verify files using checksums file\n" +
                     "    gchecksum u(pdate) [options]    : Update the existing checksums file and print the changes\n" +
@@ -84,14 +75,15 @@ public enum Lang {
                     "    -f <checksums file>     Specify the checksums file [default=checksums.txt]\n" +
                     "    -d <directory>          Specify the directory that will be validated [default=.] \n" +
                     "    -y --yes --assume-yes   Overwrite the existing checksums file silently\n" +
-                    //"                          (don't use both -d and -i)\n" +
-                    //"    -i <files>            Specify the files that will be validated \n" +
-                    //"                          (don't use both -d and -i)\n" +
                     "    -a --algorithm <algorithm>\n" +
                     "                            Specify the hash algorithm to be used [default=SHA-256]\n" +
                     "    -n --num-threads <num threads>\n" +
                     "                            Specify the number of threads used for validation";
         }
+    }
+
+    public String getHelpMessage() {
+        return getVersionInformation() + "\n\n" + getHelpMessageBase();
     }
 
     public String getVersionInformation() {
