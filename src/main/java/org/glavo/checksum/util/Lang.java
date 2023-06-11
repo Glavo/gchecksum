@@ -16,14 +16,18 @@
 
 package org.glavo.checksum.util;
 
-import java.io.IOException;
-import java.io.InputStream;
+import org.glavo.checksum.Main;
+
+import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.jar.Manifest;
 
 public enum Lang {
     CHINESE,
@@ -181,16 +185,25 @@ public enum Lang {
 
     public String getVersionInformation() {
         String version = null;
+        String provider = null;
 
-        try (InputStream is = Lang.class.getResourceAsStream("/META-INF/MANIFEST.MF")) {
-            Manifest mf = new Manifest(is);
-            version = mf.getMainAttributes().getValue("Program-Version");
-        } catch (IOException ignored) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(Main.class.getResourceAsStream("version.txt"), StandardCharsets.US_ASCII))) {
+            version = reader.readLine();
+        } catch (Throwable ignored) {
+        }
+        try {
+            provider = Cipher.getInstance("AES/GCM/NoPadding").getProvider().toString();
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | NullPointerException ignored) {
         }
 
         if (version == null) version = "unknown";
 
-        return "gchecksum " + version + " by Glavo";
+        StringBuilder builder = new StringBuilder();
+        builder.append("gchecksum ").append(version).append(" by Glavo");
+        if (provider != null) {
+            builder.append(" (").append(provider).append(")");
+        }
+        return builder.toString();
     }
 
     // error messages

@@ -1,4 +1,10 @@
 {
-  "resources": {},
+  "resources": {
+    "includes": [
+      {
+        "pattern": "\\Qorg/glavo/checksum/version.txt\\E"
+      }
+    ]
+  },
   "bundles": []
 }

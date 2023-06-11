@@ -19,15 +19,33 @@ tasks.compileJava {
     options.encoding = "UTF-8"
 }
 
+val versionFile = buildDir.resolve("version.txt")
+val createBuildProperties by tasks.registering {
+    group = "build"
+    outputs.file(versionFile)
+
+    doLast {
+        versionFile.writeText("$version")
+    }
+}
+
+tasks.processResources {
+    dependsOn(createBuildProperties)
+
+    into("org/glavo/checksum") {
+        from(versionFile)
+    }
+}
+
 val executableJar by tasks.registering {
     group = "build"
 
-    val outputDir = file("$buildDir/libs")
+    val outputFile = file("$buildDir/libs/gchecksum-${project.version}.sh")
+
     dependsOn(tasks.jar)
+    outputs.file(outputFile)
 
     doLast {
-        outputDir.mkdirs()
-        val outputFile = file("$outputDir/gchecksum-${project.version}.sh")
         outputFile.outputStream().use { output ->
             file("$rootDir/src/main/shell/header.sh").inputStream().use { input ->
                 output.write(input.readAllBytes())
@@ -44,8 +62,7 @@ tasks.withType(org.gradle.jvm.tasks.Jar::class) {
             "Main-Class" to mainName,
             "Implementation-URL" to "https://github.com/Glavo/gchecksum",
             "Implementation-Vendor" to "Glavo",
-            "Multi-Release" to "true",
-            "Program-Version" to project.version
+            "Multi-Release" to "true"
         )
     )
 }
