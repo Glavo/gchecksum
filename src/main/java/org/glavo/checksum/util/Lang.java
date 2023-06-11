@@ -161,6 +161,11 @@ public enum Lang {
         else return "error: invalid option: %s";
     }
 
+    public String getErrorOccurredMessage() {
+        if (this == CHINESE) return "错误：处理文件 '%s' 时发生异常";
+        else return "error: an error occurred while processing the file '%s'";
+    }
+
     // messages
 
     public String getVerificationCompletedMessage() {

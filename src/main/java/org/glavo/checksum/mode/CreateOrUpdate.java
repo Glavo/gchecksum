@@ -9,13 +9,132 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.*;
 
 public final class CreateOrUpdate {
+    private static final Comparator<String[]> PATH_COMPARATOR = (x, y) -> {
+        final int xLength = x.length;
+        final int yLength = y.length;
+
+        int length = Math.min(xLength, yLength);
+        assert length > 0;
+        for (int i = 0; i < length - 1; i++) {
+            int v = x[i].compareTo(y[i]);
+            if (v != 0) {
+                return v;
+            }
+        }
+
+        if (xLength == yLength)
+            return x[length - 1].compareTo(y[length - 1]);
+        else
+            return Integer.compare(xLength, yLength);
+    };
+
+    private static abstract class Visitor<T> implements FileVisitor<Path> {
+        private final String[] pathBuffer = new String[256]; // tmp
+        private int count = -1;
+
+        final TreeMap<String[], T> result = new TreeMap<>(PATH_COMPARATOR);
+
+        private final Path exclude;
+
+        Visitor(Path exclude) {
+            this.exclude = exclude;
+        }
+
+        protected abstract T submit(Path file) throws IOException;
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+            if (count >= 0) {
+                pathBuffer[count] = dir.getFileName().toString();
+            }
+            count++;
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+            if (!file.equals(exclude)) {
+                if (attrs.isRegularFile() && Files.isReadable(file)) {
+                    final int count = this.count;
+
+                    final String[] p = Arrays.copyOf(pathBuffer, count + 1);
+                    p[count] = file.getFileName().toString();
+                    result.put(p, submit(file));
+                } else {
+                    Logger.error(Lang.getInstance().getFileCannotBeReadMessage(), file);
+                }
+            }
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFileFailed(Path file, IOException exc) {
+            exc.printStackTrace();
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+            count--;
+            return FileVisitResult.CONTINUE;
+        }
+    }
+
+    private static void doCreate(String[] pathArray, String v, PrintWriter writer) {
+        try {
+            writer.print(v);
+            writer.print("  ");
+
+            final int length = pathArray.length;
+            if (length != 0) {
+                writer.print(pathArray[0]);
+                for (int i = 1; i < length; i++) {
+                    writer.print('/');
+                    writer.print(pathArray[i]);
+                }
+            }
+            writer.println();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void doUpdate(String[] pathArray, String newHash, PrintWriter writer, Map<String, String> old) {
+        try {
+            final String path;
+
+            final int length = pathArray.length;
+            if (length == 0) {
+                path = "";
+            } else {
+                final StringBuilder builder = new StringBuilder(80);
+                builder.append(pathArray[0]);
+                for (int i = 1; i < length; i++) {
+                    builder.append('/');
+                    builder.append(pathArray[i]);
+                }
+                path = builder.toString();
+            }
+
+
+            String oldHash = old.remove(path);
+            if (oldHash == null) {
+                Logger.info(Lang.getInstance().getNewFileBeRecordedMessage(), path);
+            } else if (!oldHash.equalsIgnoreCase(newHash)) {
+                Logger.info(Lang.getInstance().getFileHashUpdatedMessage(), path, oldHash, newHash);
+            }
+
+            writer.print(newHash);
+            writer.print("  ");
+            writer.println(path);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void update(
             Path basePath,
@@ -24,122 +143,55 @@ public final class CreateOrUpdate {
             Hasher hasher,
             int numThreads,
             Map<String, String> old) throws Exception {
-        final ExecutorService pool = Executors.newFixedThreadPool(numThreads, new ChecksumThreadFactory());
-        final TreeMap<String[], Future<String>> result = new TreeMap<>((x, y) -> {
-            final int xLength = x.length;
-            final int yLength = y.length;
 
-            int length = Math.min(xLength, yLength);
-            assert length > 0;
-            for (int i = 0; i < length - 1; i++) {
-                int v = x[i].compareTo(y[i]);
-                if (v != 0) {
-                    return v;
+        final Set<FileVisitOption> fileVisitOptions = Collections.singleton(FileVisitOption.FOLLOW_LINKS);
+
+        if (numThreads > 1) {
+            final ExecutorService pool = Executors.newFixedThreadPool(numThreads, new ChecksumThreadFactory());
+            final Visitor<Future<String>> visitor = new Visitor<Future<String>>(exclude) {
+                @Override
+                protected Future<String> submit(Path file) {
+                    return pool.submit(() -> hasher.hashFile(file));
                 }
+            };
+
+            try {
+                Files.walkFileTree(basePath, fileVisitOptions, Integer.MAX_VALUE, visitor);
+            } finally {
+                pool.shutdown();
             }
 
-            if (xLength == yLength)
-                return x[length - 1].compareTo(y[length - 1]);
-            else
-                return Integer.compare(xLength, yLength);
-        });
-
-        Files.walkFileTree(basePath, EnumSet.of(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE, new FileVisitor<Path>() {
-            private final String[] pathBuffer = new String[256]; // tmp
-            private int count = -1;
-
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                if (count >= 0) {
-                    pathBuffer[count] = dir.getFileName().toString();
-                }
-                count++;
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                if (!file.equals(exclude)) {
-                    if (attrs.isRegularFile() && Files.isReadable(file)) {
-                        final int count = this.count;
-
-                        final String[] p = Arrays.copyOf(pathBuffer, count + 1);
-                        p[count] = file.getFileName().toString();
-                        result.put(p, pool.submit(() -> hasher.hashFile(file)));
-                    } else {
-                        Logger.error(Lang.getInstance().getFileCannotBeReadMessage(), file);
+            if (old != null) {
+                visitor.result.forEach((pathArray, future) -> {
+                    try {
+                        doUpdate(pathArray, future.get(), writer, old);
+                    } catch (Throwable e) {
+                        e.printStackTrace();
                     }
-                }
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                exc.printStackTrace();
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
-                count--;
-                return FileVisitResult.CONTINUE;
-            }
-        });
-        pool.shutdown();
-
-        if (old == null) {
-            result.forEach((k, v) -> {
-                try {
-                    writer.print(v.get());
-                    writer.print("  ");
-
-                    final int length = k.length;
-                    if (length != 0) {
-                        writer.print(k[0]);
-                        for (int i = 1; i < length; i++) {
-                            writer.print('/');
-                            writer.print(k[i]);
-                        }
+                });
+            } else {
+                visitor.result.forEach((pathArray, future) -> {
+                    try {
+                        doCreate(pathArray, future.get(), writer);
+                    } catch (Throwable e) {
+                        e.printStackTrace();
                     }
-                    writer.println();
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                }
-            });
+                });
+            }
         } else {
-            result.forEach((k, v) -> {
-                try {
-                    final String newHash = v.get();
-                    final String path;
-
-                    final int length = k.length;
-                    if (length == 0) {
-                        path = "";
-                    } else {
-                        final StringBuilder builder = new StringBuilder(80);
-                        builder.append(k[0]);
-                        for (int i = 1; i < length; i++) {
-                            builder.append('/');
-                            builder.append(k[i]);
-                        }
-                        path = builder.toString();
-                    }
-
-
-                    String oldHash = old.remove(path);
-                    if (oldHash == null) {
-                        Logger.info(Lang.getInstance().getNewFileBeRecordedMessage(), path);
-                    } else if (!oldHash.equalsIgnoreCase(newHash)) {
-                        Logger.info(Lang.getInstance().getFileHashUpdatedMessage(), path, oldHash, newHash);
-                    }
-
-                    writer.print(newHash);
-                    writer.print("  ");
-                    writer.println(path);
-                } catch (Throwable e) {
-                    e.printStackTrace();
+            final Visitor<String> visitor = new Visitor<String>(exclude) {
+                @Override
+                protected String submit(Path file) throws IOException {
+                    return hasher.hashFile(file);
                 }
-            });
+            };
+            Files.walkFileTree(basePath, fileVisitOptions, Integer.MAX_VALUE, visitor);
+
+            if (old != null) {
+                visitor.result.forEach((pathArray, hash) -> doUpdate(pathArray, hash, writer, old));
+            } else {
+                visitor.result.forEach((pathArray, hash) -> doCreate(pathArray, hash, writer));
+            }
         }
 
         Logger.info(Lang.getInstance().getDoneMessage());

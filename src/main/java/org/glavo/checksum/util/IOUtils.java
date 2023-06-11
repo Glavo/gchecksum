@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
 import java.util.Collections;
@@ -15,7 +16,9 @@ import java.util.Collections;
 public final class IOUtils {
     public static final int DEFAULT_BUFFER_SIZE = 320 * 1024; // 320 KiB
 
-    private static final FileAttribute<?>[] EMPTY_FILE_ATTRIBUTES = new FileAttribute[0];
+    public static final FileAttribute<?>[] EMPTY_FILE_ATTRIBUTES = new FileAttribute[0];
+
+    public static final LinkOption[] EMPTY_LINK_OPTIONS = new LinkOption[0];
 
     public static ByteChannel newByteChannel(Path path) throws IOException {
         return Files.newByteChannel(path, Collections.emptySet(), IOUtils.EMPTY_FILE_ATTRIBUTES);
