@@ -101,20 +101,22 @@ gchecksum 有三种模式：
 
 当前支持的哈希算法有（需要运行时 Java 环境支持对应算法）：
 
+* CRC32
+* CRC32C (Java 9+)
+* Adler32
 * MD5
 * SHA-1
-* SHA-224
-* SHA-256
-* SHA-384
-* SHA-512
-* SHA3-224 (Java 9+)
-* SHA3-256 (Java 9+)
-* SHA3-384 (Java 9+)
-* SHA3-512 (Java 9+)
+* SHA-2 
+  * SHA-224
+  * SHA-256
+  * SHA-384
+  * SHA-512
+* SHA-3 (Java 9+)
+  * SHA3-224
+  * SHA3-256
+  * SHA3-512
 * xxHash64 (Experimental)
 * xxHash128 (Experimental)
-* CRC32
-* Adler32
 
 校验模式下会自动检测的算法有：
 

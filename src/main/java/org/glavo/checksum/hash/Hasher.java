@@ -1,6 +1,9 @@
 package org.glavo.checksum.hash;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -53,6 +56,25 @@ public abstract class Hasher {
             // java.util.zip.Checksum
             case "CRC32":
                 return ZipChecksumHasher.CRC32;
+            case "CRC32C":
+                ZipChecksumHasher crc32c = null;
+
+                try {
+                    Class<?> clazz = Class.forName("java.util.zip.CRC32C");
+                    MethodHandle constructor = MethodHandles.publicLookup()
+                            .findConstructor(clazz, MethodType.methodType(void.class));
+
+                    crc32c = new ZipChecksumHasher(() -> {
+                        try {
+                            return (java.util.zip.Checksum) constructor.invoke();
+                        } catch (Throwable e) {
+                            throw new InternalError(e);
+                        }
+                    });
+                } catch (Throwable ignored) {
+                }
+
+                return crc32c;
             case "ADLER32":
                 return ZipChecksumHasher.ADLER32;
             // xxHash
