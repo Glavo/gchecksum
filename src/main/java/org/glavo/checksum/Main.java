@@ -41,12 +41,7 @@ public final class Main {
 
     private static void printRuntimeInformation() {
         final String[] properties = {
-                "file.encoding",
-                "file.separator",
-                "java.class.path",
                 "java.home",
-                "java.io.tmpdir",
-                "java.library.path",
                 "java.runtime.name",
                 "java.runtime.version",
                 "java.vm.name",
@@ -59,14 +54,23 @@ public final class Main {
                 "path.separator",
                 "sun.boot.library.path",
                 "user.dir",
-                "user.language"
+                "user.language",
+                "file.encoding",
+                "file.separator",
+                "native.encoding"
         };
 
         System.out.println(Lang.getInstance().getVersionInformation());
+        System.out.println();
+
+        int maxLength = 0;
+        for (String property : properties) {
+            maxLength = Integer.max(property.length(), maxLength);
+        }
 
         System.out.println("Property settings:");
         for (String key : properties) {
-            System.out.println("    " + key + " = " + System.getProperty(key));
+            System.out.printf("    %-" + maxLength + "s = %s%n", key, System.getProperty(key));
         }
 
         System.out.println("Crypto settings:");
