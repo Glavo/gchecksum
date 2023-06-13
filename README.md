@@ -39,7 +39,7 @@ gchecksum update # 或者 gchecksum u
     -y --yes --assume-yes   静默覆盖已存在的 checksums 文件
     -d <directory>          指定要验证的文件夹（默认值为当前工作路径）
     -a --algorithm          指定将使用的哈希算法（create 模式下默认为 SHA-256，verify 模式下默认根据哈希值长度自动选择）
-    -n --num-threads        指定计算哈希值的并发线程数（默认为当前逻辑处理器数的一半）
+    -n --num-threads        指定计算哈希值的并发线程数（默认值为 4）
 ```
 
 ## 安装方法
@@ -129,8 +129,7 @@ gchecksum 有三种模式：
 
 如果 `checksums.txt` 文件使用了不支持自动检测的算法，请使用 `-a` 选项显式指定要用的算法。
 
-`--num-threads`（`-n`） 选项用于指定并发计算哈希值的线程数，必须为正整数。
-默认值为运行平台逻辑处理器数的一半（`Runtime.getRuntime().availableProcessors() / 2`）
+`--num-threads`（`-n`） 选项用于指定并发计算哈希值的线程数，必须为正整数。默认值为 4。
 
 ## checksums 文件
 
@@ -170,12 +169,16 @@ gchecksum 生成时会按路径排序，但校验时不要求顺序。
 
 ## Performance Benchmarking
 
-Platform:
+Test Platform:
 
 * CPU: AMD Ryzen 7 3700X 8-Core @ 16x 4.0GHz
 * Memory: DDR4 3200AA 32GiB
+* SATA SSD: ZHITAI SC001 256G
+* NVMe SSD: KIOXIA EXCERIA G2
+
+Environment:
+
 * System: Ubuntu 23.04 (Linux 6.2.0-20-generic)
-* Disk: ZHITAI SC001 256G
 * Java: LibericaJDK 20.0.1
 * gchecksum: 0.14.0
 * xxhsum: 0.8.1
@@ -198,13 +201,13 @@ When running on an SSD, I perform `sync && sudo bash -c "echo 3 > /proc/sys/vm/d
   * sha256sum :             7.36 secs
   * gchecksum (`-n 1`):     7.33 secs
   * gchecksum (`-n 4`):     3.20 secs
-  * gchecksum (default):    2.23 secs
+  * gchecksum (`-n 8`):     2.23 secs
 
 * Medium Files
   * sha256sum :            36.84 secs
   * gchecksum (`-n 1`):     6.91 secs
   * gchecksum (`-n 4`):     1.83 secs
-  * gchecksum (default):    1.01 secs
+  * gchecksum (`-n 8`):     1.01 secs
 
 #### On SATA SSD
 
@@ -212,20 +215,39 @@ When running on an SSD, I perform `sync && sudo bash -c "echo 3 > /proc/sys/vm/d
   * sha256sum :            79.89 secs 
   * gchecksum (`-n 1`):    81.69 secs
   * gchecksum (`-n 4`):    29.75 secs
-  * gchecksum (default):   20.85 secs
+  * gchecksum (`-n 8`):    20.85 secs
 
 * Medium Files
   * sha256sum :            44.57 secs
   * gchecksum (`-n 1`):    29.25 secs
   * gchecksum (`-n 4`):    19.74 secs 
-  * gchecksum (default):   19.75 secs 
+  * gchecksum (`-n 8`):    19.75 secs 
 
 * Large Files
   * sha256sum :           247.34 secs
   * gchecksum (`-n 1`):   193.12 secs
   * gchecksum (`-n 4`):   126.37 secs
-  * gchecksum (default):  126.36 secs
+  * gchecksum (`-n 8`):   126.36 secs
 
+#### On NVMe SSD
+
+* Small Files
+  * sha256sum :            41.70 secs
+  * gchecksum (`-n 1`):    42.12 secs
+  * gchecksum (`-n 4`):    20.77 secs
+  * gchecksum (`-n 8`):    30.75 secs
+
+* Medium Files
+  * sha256sum :            39.60 secs
+  * gchecksum (`-n 1`):    11.95 secs
+  * gchecksum (`-n 4`):     5.79 secs
+  * gchecksum (`-n 8`):     5.31 secs
+
+* Large Files
+  * sha256sum :           246.47 secs
+  * gchecksum (`-n 1`):    61.96 secs
+  * gchecksum (`-n 4`):    34.54 secs
+  * gchecksum (`-n 8`):    33.70 secs
 
 ### SHA-512
 
@@ -235,13 +257,13 @@ When running on an SSD, I perform `sync && sudo bash -c "echo 3 > /proc/sys/vm/d
   * sha512sum :            6.41 secs
   * gchecksum (`-n 1`):    8.52 secs
   * gchecksum (`-n 4`):    3.46 secs
-  * gchecksum (default):   2.37 secs
+  * gchecksum (`-n 8`):    2.37 secs
 
 * Medium Files
   * sha512sum :           25.48 secs
   * gchecksum (`-n 1`):   15.68 secs
   * gchecksum (`-n 4`):    4.05 secs
-  * gchecksum (default):   2.13 secs
+  * gchecksum (`-n 8`):    2.13 secs
 
 #### On SATA SSD
 
@@ -249,19 +271,39 @@ When running on an SSD, I perform `sync && sudo bash -c "echo 3 > /proc/sys/vm/d
   * sha512sum :           79.87 secs
   * gchecksum (`-n 1`):   83.46 secs
   * gchecksum (`-n 4`):   30.13 secs 
-  * gchecksum (default):  21.02 secs
+  * gchecksum (`-n 8`):   21.02 secs
 
 * Medium Files
   * sha512sum :           36.03 secs
   * gchecksum (`-n 1`):   33.94 secs
   * gchecksum (`-n 4`):   20.01 secs
-  * gchecksum (default):  19.83 secs
+  * gchecksum (`-n 8`):   19.83 secs
 
 * Large Files
   * sha512sum :          197.97 secs
   * gchecksum (`-n 1`):  213.30 secs
   * gchecksum (`-n 4`):  130.46 secs
-  * gchecksum (default): 131.00 secs  
+  * gchecksum (`-n 8`):  131.00 secs  
+
+#### On NVMe SSD
+
+* Small Files
+  * sha512sum :           41.57 secs
+  * gchecksum (`-n 1`):   44.34 secs
+  * gchecksum (`-n 4`):   25.73 secs
+  * gchecksum (`-n 8`):   29.18 secs
+
+* Medium Files
+  * sha512sum :           28.28 secs
+  * gchecksum (`-n 1`):   20.22 secs
+  * gchecksum (`-n 4`):    7.12 secs
+  * gchecksum (`-n 8`):    5.38 secs
+
+* Large Files
+  * sha512sum :          174.12 secs
+  * gchecksum (`-n 1`):  118.13 secs
+  * gchecksum (`-n 4`):   40.20 secs
+  * gchecksum (`-n 8`):   34.13 secs
 
 ### XXH64
 
@@ -271,13 +313,13 @@ When running on an SSD, I perform `sync && sudo bash -c "echo 3 > /proc/sys/vm/d
   * xxh64sum:              3.53 secs      
   * gchecksum (`-n 1`):    6.65 secs
   * gchecksum (`-n 4`):    3.05 secs
-  * gchecksum (default):   2.15 secs
+  * gchecksum (`-n 8`):    2.15 secs
 
 * Medium Files
   * xxh64sum:              1.50 secs    
   * gchecksum (`-n 1`):    2.27 secs
   * gchecksum (`-n 4`):    0.73 secs
-  * gchecksum (default):   0.60 secs
+  * gchecksum (`-n 8`):    0.60 secs
 
 #### On SATA SSD
 
@@ -285,19 +327,39 @@ When running on an SSD, I perform `sync && sudo bash -c "echo 3 > /proc/sys/vm/d
   * xxh64sum:             76.14 secs
   * gchecksum (`-n 1`):   79.76 secs
   * gchecksum (`-n 4`):   29.49 secs
-  * gchecksum (default):  20.53 secs
+  * gchecksum (`-n 8`):   20.53 secs
 
 * Medium Files
   * xxh64sum:             30.53 secs
   * gchecksum (`-n 1`):   28.81 secs
   * gchecksum (`-n 4`):   19.75 secs
-  * gchecksum (default):  19.72 secs
+  * gchecksum (`-n 8`):   19.72 secs
 
 * Large Files
   * xxh64sum:            212.45 secs
   * gchecksum (`-n 1`):  192.59 secs 
   * gchecksum (`-n 4`):  126.89 secs
-  * gchecksum (default): 126.45 secs 
+  * gchecksum (`-n 8`):  126.45 secs 
+
+#### On NVMe SSD
+
+* Small Files
+  * xxh64sum :           38.60 secs
+  * gchecksum (`-n 1`):  42.50 secs
+  * gchecksum (`-n 4`):  22.81 secs
+  * gchecksum (`-n 8`):  29.99 secs
+
+* Medium Files
+  * xxh64sum :            9.00 secs
+  * gchecksum (`-n 1`):   8.76 secs
+  * gchecksum (`-n 4`):   5.63 secs
+  * gchecksum (`-n 8`):   5.30 secs
+
+* Large Files
+  * xxh64sum :           51.87 secs
+  * gchecksum (`-n 1`):  56.08 secs
+  * gchecksum (`-n 4`):  34.13 secs
+  * gchecksum (`-n 8`):  33.73 secs
 
 ### XXH128
 
@@ -307,13 +369,13 @@ When running on an SSD, I perform `sync && sudo bash -c "echo 3 > /proc/sys/vm/d
   * xxh128sum:             3.63 secs
   * gchecksum (`-n 1`):    6.65 secs
   * gchecksum (`-n 4`):    2.82 secs
-  * gchecksum (default):   2.21 secs
+  * gchecksum (`-n 8`):    2.21 secs
 
 * Medium Files
   * xxh128sum:             1.01 secs 
   * gchecksum (`-n 1`):    2.97 secs
   * gchecksum (`-n 4`):    1.14 secs
-  * gchecksum (default):   0.83 secs
+  * gchecksum (`-n 8`):    0.83 secs
 
 #### On SATA SSD
 
@@ -321,16 +383,36 @@ When running on an SSD, I perform `sync && sudo bash -c "echo 3 > /proc/sys/vm/d
   * xxh128sum:            76.44 secs
   * gchecksum (`-n 1`):   79.39 secs
   * gchecksum (`-n 4`):   29.53 secs
-  * gchecksum (default):  20.57 secs
+  * gchecksum (`-n 8`):   20.57 secs
 
 * Medium Files
   * xxh128sum:            30.26 secs
   * gchecksum (`-n 1`):   28.85 secs
   * gchecksum (`-n 4`):   19.87 secs
-  * gchecksum (default):  19.88 secs
+  * gchecksum (`-n 8`):   19.88 secs
 
 * Large Files
   * xxh128sum:           208.19 secs 
   * gchecksum (`-n 1`):  192.99 secs
   * gchecksum (`-n 4`):  126.74 secs
-  * gchecksum (default): 126.60 secs
+  * gchecksum (`-n 8`):  126.60 secs
+
+#### On NVMe SSD
+
+* Small Files
+  * xxh128sum:            39.04 secs
+  * gchecksum (`-n 1`):   42.96 secs
+  * gchecksum (`-n 4`):   22.26 secs
+  * gchecksum (`-n 8`):   32.14 secs
+
+* Medium Files
+  * xxh128sum:             8.91 secs
+  * gchecksum (`-n 1`):    8.97 secs
+  * gchecksum (`-n 4`):    6.01 secs
+  * gchecksum (`-n 8`):    5.42 secs
+
+* Large Files
+  * xxh128sum :           51.80 secs
+  * gchecksum (`-n 1`):   54.69 secs
+  * gchecksum (`-n 4`):   34.19 secs
+  * gchecksum (`-n 8`):   33.79 secs

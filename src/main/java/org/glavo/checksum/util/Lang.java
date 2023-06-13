@@ -71,7 +71,7 @@ public enum Lang {
                     "    -a --algorithm   <algorithm>\n" +
                     "                            指定将使用的哈希算法 (创建和更新模式下默认为 SHA-256, 校验模式下默认根据哈希值长度自动选择)\n" +
                     "    -n --num-threads <num threads>\n" +
-                    "                            指定计算哈希值的并发线程数 (默认为当前逻辑处理器数的一半)";
+                    "                            指定计算哈希值的并发线程数 (默认值为 4)";
         } else {
             return "Usage:\n" +
                     "    gchecksum c(reate) [options]    : Create checksums file\n" +
@@ -87,7 +87,7 @@ public enum Lang {
                     "    -a --algorithm <algorithm>\n" +
                     "                            Specify the hash algorithm to be used [default=SHA-256]\n" +
                     "    -n --num-threads <num threads>\n" +
-                    "                            Specify the number of threads used for validation";
+                    "                            Specify the number of threads used for validation [default=4]";
         }
     }
 
