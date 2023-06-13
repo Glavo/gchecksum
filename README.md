@@ -7,6 +7,8 @@ gchecksum is an easy-to-use and high-performance file hashing tool.
 It can quickly calculate the hash value of all files in directories and generate a checksums file, 
 and it can also verify the entire directories based on the checksums file.
 
+[Click here](#Benchmark) to see the performance test results comparing gchecksum with shasum and xxhsum.
+
 Usage:
 ```
 # Create checksums file
@@ -108,8 +110,9 @@ Supported hash algorithms:
   * SHA3-224
   * SHA3-256
   * SHA3-512
-* xxHash64 (Experimental)
-* xxHash128 (Experimental)
+* xxHash (Experimental)
+  * xxHash64
+  * xxHash128
 
 The algorithms that can be automatically detected in the `verify` mode:
 
