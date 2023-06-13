@@ -2,104 +2,101 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-**Chinese** | English (TODO)
 
-English documents are not available, welcome to contribute.
 
-(English help is available, please execute `gchecksum --help` to view)
+
 
 一个高效的文件夹校验工具，用于为文件夹下所有文件生成哈希码并保存到文件，
 以及使用保存的哈希码对文件夹内容进行校验。
 
 默认使用并发校验，对于 SSD 硬盘有明显提速效果，而机械硬盘请使用参数 `-n 1` 限制为单线程。
 
-简单用法：
+Usage:
 ```
-# 创建校验文件
-gchecksum create # 或者 gchecksum c
+# Create checksums file
+gchecksum create # or 'gchecksum c'
 
-# 校验文件
-gchecksum verify # 或者 gchecksum v
+# Verify files by checksums file
+gchecksum verify # or 'gchecksum v'
 
-# 更新已存在的校验文件
-gchecksum update # 或者 gchecksum u
-```
-
-帮助（可以使用 `gchecksum --help` 查看）：
-```
-用法：
-    gchecksum c(reate) [选项]     : 创建校验文件
-    gchecksum v(erify) [选项]     : 使用校验文件对文件进行验证
-    gchecksum u(pdate) [选项]     : 更新已存在的校验文件，打印目录发生的变更
-
-选项：
-    -v --version            打印程序版本信息
-    -h -? --help            打印本帮助信息
-    -f <checksums file>     指定校验文件路径（默认值为 checksums.txt，使用 '-' 指定为标准输入/输出流）
-    -y --yes --assume-yes   静默覆盖已存在的 checksums 文件
-    -d <directory>          指定要验证的文件夹（默认值为当前工作路径）
-    -a --algorithm          指定将使用的哈希算法（create 模式下默认为 SHA-256，verify 模式下默认根据哈希值长度自动选择）
-    -n --num-threads        指定计算哈希值的并发线程数（默认值为 4）
+# Update the existing checksums file
+gchecksum update # or 'gchecksum u'
 ```
 
-## 安装方法
+Help message (`gchecksum --help`)：
+```
+Usage:
+    gchecksum c(reate) [options]    : Create checksums file
+    gchecksum v(erify) [options]    : Verify files using checksums file
+    gchecksum u(pdate) [options]    : Update the existing checksums file and print the changes
 
-gchecksum 工具使用 Java 编写，可以在任意拥有 JRE 8 或更高版本的环境下运行。
+Options:
+    -h -? --help            Print this help message
+    -v --version            Print version information
+    -f <checksums file>     Specify the checksums file [default=checksums.txt]
+    -d <directory>          Specify the directory that will be validated [default=.]
+    -y --yes --assume-yes   Overwrite the existing checksums file silently
+    -a --algorithm <algorithm>
+                            Specify the hash algorithm to be used
+    -n --num-threads <num threads>
+                            Specify the number of threads used for validation [default=4]
+```
 
-gchecksum 工具为 Linux 平台提供带 bash 头的特殊 JAR 分发：它们可以普通地用 `java -jar` 执行，也可以在 Linux 上如同脚本般直接运行！
+## Install
 
-gchecksum 同时会为常见平台提供 Native Image 构建，无需 JRE 环境，但性能会降低。目前 gchecksum 为这些平台提供 Native Image 构建：
-
-* Windows x86-64
-* Linux x86-64
-
-### 通用
-
-访问 [GitHub Release 页](https://github.com/Glavo/gchecksum/releases)下载 JAR 文件，并使用 `java -jar` 执行。
+gchecksum is written in Java 8, you can download the jar file from the [GitHub Release page](https://github.com/Glavo/gchecksum/releases)
+and execute `java -jar <jar-path>`.
 
 ### Linux
 
-在 Linux 上安装 Java 版本（需要 JRE 8 或更高版本）：
+gchecksum provides executable script for Linux, you can install it with the following command:
 
 ```shell
 sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.13.0/gchecksum-0.13.0.sh) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
 ```
 
-（备选）安装 Native Image 版本（**无需 JRE 环境，但性能差于 Java 版本**）：
+If you don't have Java installed, you can use the following native-image instead:
 
 ```shell
 sudo sh -c '(echo "#!/usr/bin/env sh" && curl -L https://github.com/Glavo/gchecksum/releases/download/0.13.0/gchecksum-0.13.0) > /usr/local/bin/gchecksum && chmod +x /usr/local/bin/gchecksum'
 ```
 
+Note: native-image only supports the x86-64 platform and is slower than the Java version. If you can install Java, don't use it.
+
+
 ### Windows
 
-下载为 Windows 生成的 Native Image 镜像：
+If you don't have Java installed, you can use the following native-image instead of jar:
 
-* [gchecksum-0.13.0-native-image.exe](https://github.com/Glavo/gchecksum/releases/download/0.13.0/gchecksum-0.13.0.exe)
+* [gchecksum-0.13.0.exe](https://github.com/Glavo/gchecksum/releases/download/0.13.0/gchecksum-0.13.0.exe)
 
-## 介绍
+Note: native-image only supports the x86-64 platform and is slower than the Java version. If you can install Java, don't use it.
 
-gchecksum 有三种模式：
+## Introduce
 
-* 创建（create）模式：创建记录文件与其哈希值的校验文件。
-* 校验（verify）模式：校验文件是否与记录中的哈希值所匹配。
-* 更新（update）模式：更新已存在的校验文件，打印发生变更的文件。
+gchecksum supports three modes:
 
-通过将 `create`（缩写为 `c`）、 `verify`（缩写为 `v`）或 `update`（缩写为 `u`） 作为第一个参数传递指定。
-不指定的情况下，默认为校验模式。
+* Create Mode: Create a checksums file, which records the hash values of all files;
+* Verify Mode: Checks that the hash of files matches the record in the checksums file;
+* Update Mode: Update the existing checksums file and print all changed files.
 
-默认情况下，创建模式覆盖已存在的校验文件前会询问用户是否想要覆盖。传入 `-y` 选项让工具静默覆盖已有校验文件。
+The mode name should be passed as the first option to gchecksum.
 
-`-f` 选项用于指定 checksums 文件的路径，默认为当前工作路径下的 `checksums.txt` 文件。
+If no mode is specified, gchecksum will choose the default mode: `verify`.
 
-可以用 `-` 代替文件名，指定工具使用标准输入/输出流代替 checksums 文件。
+The `-f` option is used to specify the path to the checksums file.
+The default is the `checksums.txt` file in the current directory.
+If the passed filename is `-`, then gchecksum will use the standard input/output stream instead of the checksums file.
 
-`-d` 选项用于指定处理的根路径，默认为当前工作路径。
+The `-d` option is used to specify the directory to process. The default is the current directory.
 
-`-a` 选项用于指定使用的哈希算法。
-未指定时，创建模式和更新模式会默认选择 SHA-256 算法生成校验文件，而校验模式会根据校验文件第一行中哈希码的长度来自动判断算法。
+The `-a` option is used to specify the hash algorithm to use.
+If this option is not present:
 
-当前支持的哈希算法有（需要运行时 Java 环境支持对应算法）：
+* In the `create` or `update` mode, gchecksum will choose SHA-256;
+* In the `verify` mode, gchecksum will guess the hash algorithm based on the first line of the checksums file.
+
+Supported hash algorithms:
 
 * CRC32
 * CRC32C (Java 9+)
@@ -118,7 +115,7 @@ gchecksum 有三种模式：
 * xxHash64 (Experimental)
 * xxHash128 (Experimental)
 
-校验模式下会自动检测的算法有：
+The algorithms that can be automatically detected in the `verify` mode:
 
 * MD5
 * SHA-1
@@ -127,13 +124,20 @@ gchecksum 有三种模式：
 * SHA-384
 * SHA-512
 
-如果 `checksums.txt` 文件使用了不支持自动检测的算法，请使用 `-a` 选项显式指定要用的算法。
+If the hashes in the checksums file are calculated with another algorithm, use the `-a` option to specify the algorithm.
 
-`--num-threads`（`-n`） 选项用于指定并发计算哈希值的线程数，必须为正整数。默认值为 4。
+The `--num-threads`(`-n`) option is used to specify the number of threads to read files.
+The default is 4, if you use gchecksum on hard disk drive, please specify it as 1.
 
-## checksums 文件
+## checksums file
 
-checksums 文件内容形式如下：
+gchecksum uses BSD-style checksums files, which is compatible with commands like `shasum`/`xxhsum` on Linux.
+
+For example, if you generated the checksums file using the `gchecksum create -a SHA-512 -f checksums.txt`, 
+then you can use `sha512sum -c checksums.txt` for validation.
+
+
+A sample checksums file:
 ```
 862b930590e9abbc9595179a62b3e640a4ecfd22b324f09843375412b9934cc5  Config.json
 5d7090789c8956083887f10bea8628a58c179b3422c7d53bff315e150a812b25  libs/aliyun-java-sdk-alidns-2.6.29.jar
@@ -157,15 +161,6 @@ aad60635eee567254ed29f18fb18c0f9e4c4dacf51c8229128203183bb35e2dd  libs/ini4j-0.5
 520c311f7684a81a6d8acdd92f416e8370700c23f1b669f8a7dfce60003f0119  logs/2021-03-11_120659.log
 8f9a12d9bee054d28fe40ae73e5cce128d8cd4c108ca75e7066d1f7f1edd981e  logs/2021-03-12_203327.log
 ```
-
-每行的内容为 哈希码-空格-文件相对路径。
-
-文件所有哈希码所用算法必须一致。文件不存储哈希码使用的算法。
-
-gchecksum 生成时会按路径排序，但校验时不要求顺序。
-
-哈希码与文件路径之间可以间隔任意个空格，而生成模式下默认生成为 BSD 风格的两空格，与 Linux 下 `shasum` 系工具兼容，
-可以使用 `shasum -c checksums.txt` 进行校验。
 
 ## Benchmark
 
