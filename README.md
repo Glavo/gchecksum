@@ -2,14 +2,10 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
+gchecksum is an easy-to-use and high-performance file hashing tool.
 
-
-
-
-一个高效的文件夹校验工具，用于为文件夹下所有文件生成哈希码并保存到文件，
-以及使用保存的哈希码对文件夹内容进行校验。
-
-默认使用并发校验，对于 SSD 硬盘有明显提速效果，而机械硬盘请使用参数 `-n 1` 限制为单线程。
+It can quickly calculate the hash value of all files in directories and generate a checksums file, 
+and it can also verify the entire directories based on the checksums file.
 
 Usage:
 ```
@@ -23,7 +19,7 @@ gchecksum verify # or 'gchecksum v'
 gchecksum update # or 'gchecksum u'
 ```
 
-Help message (`gchecksum --help`)：
+Help message:
 ```
 Usage:
     gchecksum c(reate) [options]    : Create checksums file
