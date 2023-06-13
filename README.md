@@ -215,9 +215,9 @@ SHA-512:
 |                               | SATA SSD          | NVMe SSD                     |
 |-------------------------------|-------------------|------------------------------|
 | sha512sum                     | 197.97s           | 174.12s                      |
-| gchecksum (`--num-threads 1`) | 213.30s (+ 7.74%) | 118.13s (-32.16%)            |
-| gchecksum (`--num-threads 4`) | 130.46s (-34.10%) | &nbsp;&nbsp;40.20s (-76.91%) |
-| gchecksum (`--num-threads 8`) | 131.00s (-33.83%) | &nbsp;&nbsp;34.13s (-80.40%) |
+| gchecksum (`--num-threads 1`) | 205.64s (+ 3.87%) | 118.13s (-32.16%)            |
+| gchecksum (`--num-threads 4`) | 127.03s (-35.83%) | &nbsp;&nbsp;40.20s (-76.91%) |
+| gchecksum (`--num-threads 8`) | 129.60s (-34.54%) | &nbsp;&nbsp;34.13s (-80.40%) |
 
 
 XXH64:
