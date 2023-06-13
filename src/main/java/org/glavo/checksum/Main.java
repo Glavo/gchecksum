@@ -217,7 +217,7 @@ public final class Main {
         //endregion
 
         if (numThreads == 0) {
-            numThreads = Integer.max(1, Runtime.getRuntime().availableProcessors() / 2);
+            numThreads = 4;
         }
 
         final Path basePath = Paths.get(directory == null ? "" : directory).toAbsolutePath();
