@@ -95,18 +95,20 @@ for (multiVersion in 9..21) {
     }
 }
 
+val graalHome: String
+    get() = properties["graalvm.home"]?.toString() ?: System.getenv("GRAALVM_HOME") ?: throw GradleException("Missing GRAALVM_HOME")
+
 val buildNativeImage by tasks.registering {
     group = "build"
     dependsOn(tasks.jar)
 
     doLast {
-        val home = System.getenv("GRAALVM_HOME") ?: throw GradleException("Missing GRAALVM_HOME")
         val os = DefaultNativePlatform.getCurrentOperatingSystem()
         val arch = DefaultNativePlatform.getCurrentArchitecture()
 
         val cmd: MutableList<String> = mutableListOf()
 
-        cmd += Paths.get(home).resolve("bin").resolve(if (os.isWindows) "native-image.cmd" else "native-image").absolutePathString()
+        cmd += Paths.get(graalHome, "bin", if (os.isWindows) "native-image.cmd" else "native-image").absolutePathString()
 
         if (arch.isAmd64) {
             cmd += "-march=x86-64-v2"
@@ -125,29 +127,19 @@ val buildNativeImage by tasks.registering {
 val trackNativeImageConfiguration by tasks.registering {
     dependsOn(tasks.jar)
     doLast {
-        val home = System.getenv("GRAALVM_HOME")
-        if (home == null) {
-            System.err.println("Missing GRAALVM_HOME")
-        } else {
-            val binPath = Paths.get(home).resolve("bin")
+        val cmd = listOf(
+            Paths.get(graalHome, "bin", "java").absolutePathString(),
+            "-agentlib:native-image-agent=config-output-dir=${buildDir.resolve("native-image-config")}",
+            "-jar",
+            tasks.jar.get().archiveFile.get().asFile.absolutePath
+        )
 
-            val graalJava = binPath.resolve("java.exe").let {
-                if (Files.exists(it)) it else binPath.resolve("java")
-            }.toAbsolutePath().toString()
+        logger.quiet(cmd.joinToString(" ") { if (it.contains(' ')) "'$it'" else it })
 
-            logger.quiet("Command: $graalJava -agentlib:native-image-agent=config-output-dir=${buildDir.resolve("native-image-config")} -jar ${tasks.jar.get().archiveFile.get().asFile}")
-
-//            exec {
-//                workingDir(buildDir)
-//
-//                commandLine(
-//                    graalJava,
-//                    "-agentlib:native-image-agent=config-output-dir=${buildDir.resolve("native-image-config")}",
-//                    "-jar",
-//                    tasks.jar.get().archiveFile.get().asFile
-//                )
-//            }
-        }
+//        exec {
+//            workingDir(buildDir)
+//            commandLine(cmd)
+//        }
     }
 }
 
