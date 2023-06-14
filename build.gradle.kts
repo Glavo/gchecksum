@@ -97,19 +97,21 @@ for (multiVersion in 9..21) {
 }
 
 val graalHome: String
-    get() = properties["graalvm.home"]?.toString() ?: System.getenv("GRAALVM_HOME") ?: throw GradleException("Missing GRAALVM_HOME")
+    get() = properties["graalvm.home"]?.toString() ?: System.getenv("GRAALVM_HOME")
+    ?: throw GradleException("Missing GRAALVM_HOME")
+
+val os = DefaultNativePlatform.getCurrentOperatingSystem()!!
+val arch = DefaultNativePlatform.getCurrentArchitecture()!!
 
 val buildNativeImage by tasks.registering {
     group = "build"
     dependsOn(tasks.jar)
 
     doLast {
-        val os = DefaultNativePlatform.getCurrentOperatingSystem()
-        val arch = DefaultNativePlatform.getCurrentArchitecture()
-
         val cmd: MutableList<String> = mutableListOf()
 
-        cmd += Paths.get(graalHome, "bin", if (os.isWindows) "native-image.cmd" else "native-image").absolutePathString()
+        cmd += Paths.get(graalHome, "bin", if (os.isWindows) "native-image.cmd" else "native-image")
+            .absolutePathString()
 
         if (os.isWindows && Locale.getDefault().language != "en") {
             cmd += "-H:-CheckToolchain"
@@ -154,8 +156,6 @@ repositories {
     mavenCentral()
 }
 
-val osName = System.getProperty("os.name").lowercase()
-
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.3")
@@ -164,8 +164,17 @@ dependencies {
 
     val lwjglVersion = "3.3.2"
     val lwjglPlatform = when {
-        osName.startsWith("win") -> "windows"
-        osName.startsWith("mac") -> "macos"
+        os.isWindows && arch.isAmd64 -> "windows"
+        os.isWindows && arch.isI386 -> "windows-x86"
+        os.isWindows && arch.isArm64 -> "windows-arm64"
+
+        os.isMacOsX && arch.isAmd64 -> "macos"
+        os.isMacOsX && arch.isArm64 -> "macos-arm64"
+
+        os.isLinux && arch.isAmd64 -> "linux"
+        os.isLinux && arch.isArm64 -> "linux-arm64"
+        os.isLinux && arch.isArm32 -> "linux-arm32"
+
         else -> "linux"
     }
     testImplementation("org.lwjgl:lwjgl:$lwjglVersion")
