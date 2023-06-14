@@ -97,8 +97,7 @@ for (multiVersion in 9..21) {
 }
 
 val graalHome: String
-    get() = properties["graalvm.home"]?.toString() ?: System.getenv("GRAALVM_HOME")
-    ?: throw GradleException("Missing GRAALVM_HOME")
+    get() = System.getenv("GRAALVM_HOME") ?: throw GradleException("Missing GRAALVM_HOME")
 
 val os = DefaultNativePlatform.getCurrentOperatingSystem()!!
 val arch = DefaultNativePlatform.getCurrentArchitecture()!!
