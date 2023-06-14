@@ -1,5 +1,6 @@
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import java.nio.file.*
+import java.util.*
 import kotlin.io.path.*
 
 
@@ -109,6 +110,10 @@ val buildNativeImage by tasks.registering {
         val cmd: MutableList<String> = mutableListOf()
 
         cmd += Paths.get(graalHome, "bin", if (os.isWindows) "native-image.cmd" else "native-image").absolutePathString()
+
+        if (os.isWindows && Locale.getDefault().language != "en") {
+            cmd += "-H:-CheckToolchain"
+        }
 
         if (arch.isAmd64) {
             cmd += "-march=x86-64-v2"
