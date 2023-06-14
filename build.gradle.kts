@@ -1,4 +1,7 @@
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import java.nio.file.*
+import kotlin.io.path.*
+
 
 plugins {
     java
@@ -97,24 +100,24 @@ val buildNativeImage by tasks.registering {
     dependsOn(tasks.jar)
 
     doLast {
-        val home = System.getenv("GRAALVM_HOME")
-        if (home == null) {
-            System.err.println("Missing GRAALVM_HOME")
-        } else {
-            val binPath = Paths.get(home).resolve("bin")
+        val home = System.getenv("GRAALVM_HOME") ?: throw GradleException("Missing GRAALVM_HOME")
+        val os = DefaultNativePlatform.getCurrentOperatingSystem()
+        val arch = DefaultNativePlatform.getCurrentArchitecture()
 
-            val ni = binPath.resolve("native-image.cmd").let {
-                if (Files.exists(it)) it else binPath.resolve("native-image")
-            }.toAbsolutePath().toString()
+        val cmd: MutableList<String> = mutableListOf()
 
-            exec {
-                workingDir(file("$buildDir/libs"))
-                commandLine(
-                    ni,
-                    "-jar",
-                    tasks.jar.get().archiveFile.get().asFile
-                )
-            }
+        cmd += Paths.get(home).resolve("bin").resolve(if (os.isWindows) "native-image.cmd" else "native-image").absolutePathString()
+
+        if (arch.isAmd64) {
+            cmd += "-march=x86-64-v2"
+        }
+
+        cmd += "-jar"
+        cmd += tasks.jar.get().archiveFile.get().asFile.absolutePath
+
+        exec {
+            workingDir(file("$buildDir/libs"))
+            commandLine(cmd)
         }
     }
 }
