@@ -16,7 +16,7 @@
 
 package org.glavo.checksum.util;
 
-import java.nio.charset.StandardCharsets;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 public final class Utils {
     private static final byte[] DIGITS_LOWER = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
@@ -30,7 +30,7 @@ public final class Utils {
             out[(j++)] = DIGITS_LOWER[((0xf0 & data[i]) >>> 4)];
             out[(j++)] = DIGITS_LOWER[(0x0f & data[i])];
         }
-        return new String(out, 0, outLength, StandardCharsets.US_ASCII);
+        return new String(out, 0, outLength, ISO_8859_1);
     }
 
     public static String encodeHex32(long data) {
@@ -45,7 +45,7 @@ public final class Utils {
         out[6] = DIGITS_LOWER[(int) ((data >>>  4) & 0x0f)];
         out[7] = DIGITS_LOWER[(int) ((data >>>  0) & 0x0f)];
 
-        return new String(out, 0, 8, StandardCharsets.US_ASCII);
+        return new String(out, 0, 8, ISO_8859_1);
     }
 
     public static String encodeHex(long data) {
@@ -68,7 +68,7 @@ public final class Utils {
         out[14] = DIGITS_LOWER[(int) ((data >>>  4) & 0x0f)];
         out[15] = DIGITS_LOWER[(int) ((data >>>  0) & 0x0f)];
 
-        return new String(out, 0, 16, StandardCharsets.US_ASCII);
+        return new String(out, 0, 16, ISO_8859_1);
     }
 
     public static String encodeHex(long lo, long hi) {
@@ -108,7 +108,7 @@ public final class Utils {
         out[30] = DIGITS_LOWER[(int) ((lo >>>  4) & 0x0f)];
         out[31] = DIGITS_LOWER[(int) ((lo >>>  0) & 0x0f)];
 
-        return new String(out);
+        return new String(out, 0, 32, ISO_8859_1);
     }
 
     public static Pair<String, String> spiltRecord(String r) {
