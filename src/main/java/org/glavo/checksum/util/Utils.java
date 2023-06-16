@@ -19,7 +19,9 @@ package org.glavo.checksum.util;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 public final class Utils {
-    private static final byte[] DIGITS_LOWER = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+    private static final byte[] DIGITS_LOWER = {
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+    };
 
     public static String encodeHex(byte[] data) {
         final int dataLength = data.length;
@@ -33,17 +35,17 @@ public final class Utils {
         return new String(out, 0, outLength, ISO_8859_1);
     }
 
-    public static String encodeHex32(long data) {
+    public static String encodeHex(int data) {
         byte[] out = new byte[8];
 
-        out[0] = DIGITS_LOWER[(int) ((data >>> 28) & 0x0f)];
-        out[1] = DIGITS_LOWER[(int) ((data >>> 24) & 0x0f)];
-        out[2] = DIGITS_LOWER[(int) ((data >>> 20) & 0x0f)];
-        out[3] = DIGITS_LOWER[(int) ((data >>> 16) & 0x0f)];
-        out[4] = DIGITS_LOWER[(int) ((data >>> 12) & 0x0f)];
-        out[5] = DIGITS_LOWER[(int) ((data >>>  8) & 0x0f)];
-        out[6] = DIGITS_LOWER[(int) ((data >>>  4) & 0x0f)];
-        out[7] = DIGITS_LOWER[(int) ((data >>>  0) & 0x0f)];
+        out[0] = DIGITS_LOWER[(data >>> 28) & 0x0f];
+        out[1] = DIGITS_LOWER[(data >>> 24) & 0x0f];
+        out[2] = DIGITS_LOWER[(data >>> 20) & 0x0f];
+        out[3] = DIGITS_LOWER[(data >>> 16) & 0x0f];
+        out[4] = DIGITS_LOWER[(data >>> 12) & 0x0f];
+        out[5] = DIGITS_LOWER[(data >>>  8) & 0x0f];
+        out[6] = DIGITS_LOWER[(data >>>  4) & 0x0f];
+        out[7] = DIGITS_LOWER[(data >>>  0) & 0x0f];
 
         return new String(out, 0, 8, ISO_8859_1);
     }

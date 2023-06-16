@@ -52,7 +52,7 @@ final class ZipChecksumHasher extends HasherBase {
 
         @Override
         protected String digest() {
-            return Utils.encodeHex32(checksum.getValue());
+            return Utils.encodeHex((int) checksum.getValue());
         }
 
         @Override
