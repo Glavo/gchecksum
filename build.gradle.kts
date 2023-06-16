@@ -168,6 +168,8 @@ fun downloadFile(url: String, file: File): File {
 }
 
 fun nativeImageCommand(
+    pgoInstrument: Boolean = false,
+    pgo: List<File>? = null,
     targetArch: Arch = arch
 ): List<String> {
     val cmd: MutableList<String> = mutableListOf()
@@ -225,6 +227,14 @@ fun nativeImageCommand(
         )
     }
 
+    if (pgoInstrument) {
+        cmd += "--pgo-instrument"
+    }
+
+    if (pgo != null) {
+        cmd += "--pbo=" + pgo.joinToString(",") { it.absolutePath }
+    }
+
     val targetFileNameBase = "${project.name}-${project.version}-${os.classifier}-${targetArch.classifier}"
     val targetFile = file("$buildDir/libs/$targetFileNameBase" + if (os == OS.Windows) ".exe" else "").absolutePath
 
@@ -245,19 +255,12 @@ val buildNativeImage by tasks.registering {
     doLast {
         exec {
             workingDir(file("$buildDir/libs"))
-            commandLine(nativeImageCommand())
-        }
-    }
-}
-
-val buildNativeImageRISCV by tasks.registering {
-    group = "build"
-    dependsOn(tasks.jar)
-
-    doLast {
-        exec {
-            workingDir(file("$buildDir/libs"))
-            commandLine(nativeImageCommand(targetArch = Arch.RISCV64))
+            commandLine(nativeImageCommand(
+                pgoInstrument = project.properties["graal.native.pgoInstrument"] == "true",
+                pgo = project.properties["graal.native.pgo"]?.let { paths ->
+                    paths.toString().split(File.pathSeparator).map { file(it) }
+                }
+            ))
         }
     }
 }
