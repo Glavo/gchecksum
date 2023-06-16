@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public abstract class Hasher {
@@ -93,6 +95,38 @@ public abstract class Hasher {
                     return null;
                 }
         }
+    }
+
+    public static List<String> getAlgorithms() {
+        ArrayList<String> algorithms = new ArrayList<>(16);
+
+        algorithms.add("Adler32");
+        algorithms.add("CRC32");
+        algorithms.add("CRC32C");
+
+        algorithms.add("MD2");
+        algorithms.add("MD5");
+        algorithms.add("SHA-1");
+
+        // SHA-2
+        algorithms.add("SHA-224");
+        algorithms.add("SHA-256");
+        algorithms.add("SHA-384");
+        algorithms.add("SHA-512");
+        algorithms.add("SHA-512/224");
+        algorithms.add("SHA-512/256");
+
+        // SHA-3
+        algorithms.add("SHA3-224");
+        algorithms.add("SHA3-256");
+        algorithms.add("SHA3-384");
+        algorithms.add("SHA3-512");
+
+        return algorithms;
+    }
+
+    public static List<String> getExperimentalAlgorithms() {
+        return List.of("XXH64", "XXH128");
     }
 
     private final int hashStringLength;

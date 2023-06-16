@@ -17,6 +17,7 @@
 package org.glavo.checksum.util;
 
 import org.glavo.checksum.Main;
+import org.glavo.checksum.hash.Hasher;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
@@ -99,38 +100,6 @@ public enum Lang {
         else return "Available Hash Algorithms (Experimental):";
     }
 
-    private static List<String> getAlgorithms() {
-        ArrayList<String> algorithms = new ArrayList<>();
-
-        algorithms.add("Adler32");
-        algorithms.add("CRC32");
-        algorithms.add("CRC32C");
-
-        algorithms.add("MD2");
-        algorithms.add("MD5");
-        algorithms.add("SHA-1");
-
-        // SHA-2
-        algorithms.add("SHA-224");
-        algorithms.add("SHA-256");
-        algorithms.add("SHA-384");
-        algorithms.add("SHA-512");
-        algorithms.add("SHA-512/224");
-        algorithms.add("SHA-512/256");
-
-        // SHA-3
-        algorithms.add("SHA3-224");
-        algorithms.add("SHA3-256");
-        algorithms.add("SHA3-384");
-        algorithms.add("SHA3-512");
-
-        return algorithms;
-    }
-
-    private static List<String> getExperimentalAlgorithms() {
-        return List.of("XXH64", "XXH128");
-    }
-
     private static void formatAlgorithms(StringBuilder builder, List<String> algorithms) {
         final int maxLength = 16;
 
@@ -153,8 +122,8 @@ public enum Lang {
     }
 
     public String getHelpMessage() {
-        List<String> algorithms = getAlgorithms();
-        List<String> experimentalAlgorithms = getExperimentalAlgorithms();
+        List<String> algorithms = Hasher.getAlgorithms();
+        List<String> experimentalAlgorithms = Hasher.getExperimentalAlgorithms();
 
         StringBuilder builder = new StringBuilder();
         builder.append(getVersionInformation()).append("\n\n");
