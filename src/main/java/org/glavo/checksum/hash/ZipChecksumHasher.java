@@ -23,11 +23,12 @@ import java.util.zip.Checksum;
 
 final class ZipChecksumHasher extends HasherBase {
     static final ZipChecksumHasher CRC32 = new ZipChecksumHasher(java.util.zip.CRC32::new);
+    static final ZipChecksumHasher CRC32C = new ZipChecksumHasher(java.util.zip.CRC32C::new);
     static final ZipChecksumHasher ADLER32 = new ZipChecksumHasher(java.util.zip.Adler32::new);
 
     private final Supplier<Checksum> supplier;
 
-    ZipChecksumHasher(Supplier<Checksum> supplier) {
+    private ZipChecksumHasher(Supplier<Checksum> supplier) {
         super(4);
         this.supplier = supplier;
     }

@@ -23,10 +23,8 @@ import javax.crypto.NoSuchPaddingException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public enum Lang {
@@ -106,15 +104,12 @@ public enum Lang {
 
         algorithms.add("Adler32");
         algorithms.add("CRC32");
-        try {
-            Class.forName("java.util.zip.CRC32C");
-            algorithms.add("CRC32C");
-        } catch (ClassNotFoundException ignored) {
-        }
+        algorithms.add("CRC32C");
 
         algorithms.add("MD2");
         algorithms.add("MD5");
         algorithms.add("SHA-1");
+
         // SHA-2
         algorithms.add("SHA-224");
         algorithms.add("SHA-256");
@@ -122,22 +117,18 @@ public enum Lang {
         algorithms.add("SHA-512");
         algorithms.add("SHA-512/224");
         algorithms.add("SHA-512/256");
-        // SHA-3
-        try {
-            MessageDigest.getInstance("SHA3-512");
 
-            algorithms.add("SHA3-224");
-            algorithms.add("SHA3-256");
-            algorithms.add("SHA3-384");
-            algorithms.add("SHA3-512");
-        } catch (NoSuchAlgorithmException ignored) {
-        }
+        // SHA-3
+        algorithms.add("SHA3-224");
+        algorithms.add("SHA3-256");
+        algorithms.add("SHA3-384");
+        algorithms.add("SHA3-512");
 
         return algorithms;
     }
 
     private static List<String> getExperimentalAlgorithms() {
-        return Arrays.asList("XXH64", "XXH128");
+        return List.of("XXH64", "XXH128");
     }
 
     private static void formatAlgorithms(StringBuilder builder, List<String> algorithms) {
