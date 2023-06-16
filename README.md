@@ -42,7 +42,7 @@ Options:
 
 ## Install
 
-gchecksum is written in Java 8, you can download the jar file from the [GitHub Release page](https://github.com/Glavo/gchecksum/releases)
+gchecksum is written in Java 11, you can download the jar file from the [GitHub Release page](https://github.com/Glavo/gchecksum/releases)
 and execute `java -jar <jar-path>`.
 
 ### Linux

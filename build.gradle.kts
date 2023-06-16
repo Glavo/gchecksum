@@ -19,7 +19,7 @@ application {
 }
 
 tasks.compileJava {
-    options.release.set(8)
+    options.release.set(11)
     options.encoding = "UTF-8"
 }
 
@@ -66,7 +66,7 @@ tasks.withType(org.gradle.jvm.tasks.Jar::class) {
             "Main-Class" to mainName,
             "Implementation-URL" to "https://github.com/Glavo/gchecksum",
             "Implementation-Vendor" to "Glavo",
-            "Multi-Release" to "true"
+            // "Multi-Release" to "true"
         )
     )
 }
