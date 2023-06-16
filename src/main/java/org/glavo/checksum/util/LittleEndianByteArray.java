@@ -18,14 +18,15 @@ package org.glavo.checksum.util;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
-import java.nio.ByteOrder;
+
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
 
 public final class LittleEndianByteArray {
     private LittleEndianByteArray() {
     }
 
-    private static final VarHandle INT = MethodHandles.byteArrayViewVarHandle(int[].class, ByteOrder.LITTLE_ENDIAN);
-    private static final VarHandle LONG = MethodHandles.byteArrayViewVarHandle(long[].class, ByteOrder.LITTLE_ENDIAN);
+    private static final VarHandle INT = MethodHandles.byteArrayViewVarHandle(int[].class, LITTLE_ENDIAN);
+    private static final VarHandle LONG = MethodHandles.byteArrayViewVarHandle(long[].class, LITTLE_ENDIAN);
 
     public static byte getByte(byte[] array, int offset) {
         return array[offset];
@@ -48,7 +49,7 @@ public final class LittleEndianByteArray {
     }
 
     public static int getInt(byte[] array, long offset) {
-        return (int) INT.get(array, (int) offset);
+        return getInt(array, (int) offset);
     }
 
     public static long getUnsignedInt(byte[] array, int offset) {
@@ -64,6 +65,6 @@ public final class LittleEndianByteArray {
     }
 
     public static long getLong(byte[] array, long offset) {
-        return (long) LONG.get(array, (int) offset);
+        return getLong(array, (int) offset);
     }
 }

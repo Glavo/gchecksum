@@ -29,11 +29,11 @@ import java.nio.file.Paths;
 // The implementation references https://github.com/OpenHFT/Zero-Allocation-Hashing
 final class XxHash64Hasher extends Hasher {
     // Primes if treated as unsigned
-    private static final long P1 = -7046029288634856825L;
-    private static final long P2 = -4417276706812531889L;
-    private static final long P3 = 1609587929392839161L;
-    private static final long P4 = -8796714831421723037L;
-    private static final long P5 = 2870177450012600261L;
+    private static final long P1 = 0x9e3779b185ebca87L;
+    private static final long P2 = 0xc2b2ae3d27d4eb4fL;
+    private static final long P3 = 0x165667b19e3779f9L;
+    private static final long P4 = 0x85ebca77c2b2ae63L;
+    private static final long P5 = 0x27d4eb2f165667c5L;
 
     private static final ThreadLocal<ByteBuffer> threadLocalBuffer = ThreadLocal.withInitial(() -> ByteBuffer.allocate(IOUtils.DEFAULT_BUFFER_SIZE));
 
