@@ -1,7 +1,6 @@
-import java.nio.file.Paths
-import java.util.*
-import kotlin.io.path.absolutePathString
-
+import org.gradle.internal.impldep.org.apache.http.HttpConnection
+import java.io.IOException
+import java.net.*
 
 plugins {
     java
@@ -99,11 +98,15 @@ val graalHome: String
     get() = System.getenv("GRAALVM_HOME") ?: throw GradleException("Missing GRAALVM_HOME")
 
 enum class OS {
-    Linux, Windows, MacOS, Unknown
+    Linux, Windows, MacOS, Unknown;
+
+    val classifier: String = name.lowercase()
 }
 
 enum class Arch {
-    X86, X86_64, ARM32, ARM64, RISCV64, Unknown
+    X86, X86_64, ARM32, ARM64, RISCV64, Unknown;
+
+    val classifier: String = name.lowercase()
 }
 
 val os = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.getCurrentOperatingSystem()!!.let {
@@ -128,22 +131,105 @@ val arch = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.get
     }
 }
 
+fun downloadFile(url: String, file: File): File {
+    try {
+        file.parentFile.mkdirs()
+
+        val connection = URL(url).openConnection()
+        connection.connect()
+
+        val length = connection.contentLengthLong
+
+        if (connection is HttpURLConnection && file.exists()
+            && length == file.length()
+            && connection.lastModified == file.lastModified()
+        ) {
+            logger.info("$url has not changed")
+            connection.disconnect()
+            return file
+        }
+
+        logger.info("Download $url to $file")
+
+        file.outputStream().use { output ->
+            connection.getInputStream().use { input ->
+                input.transferTo(output)
+            }
+        }
+
+        if (connection is HttpURLConnection && connection.lastModified > 0) {
+            file.setLastModified(connection.lastModified)
+        }
+
+        return file
+    } catch (e: Throwable) {
+        throw IOException("Failed to download from $url to $file ", e)
+    }
+}
+
 fun nativeImageCommand(
     targetArch: Arch = arch
 ): List<String> {
     val cmd: MutableList<String> = mutableListOf()
 
-    cmd += Paths.get(graalHome, "bin", if (os == OS.Windows) "native-image.cmd" else "native-image")
-        .absolutePathString()
+    cmd += file("$graalHome/bin/" + if (os == OS.Windows) "native-image.cmd" else "native-image").absolutePath
 
-    if (os == OS.Windows && Locale.getDefault().language != "en") {
+    if (os == OS.Windows && System.getProperty("user.language") != "en") {
         cmd += "-H:-CheckToolchain"
     }
 
-    if (arch == Arch.X86_64) {
+    if (targetArch == Arch.X86_64) {
         cmd += "-march=x86-64-v2"
     }
 
+    // not working yet
+    if (targetArch != arch && targetArch == Arch.RISCV64) {
+        val dir = file("$buildDir/graal-external-deps").absoluteFile
+
+        val capcacheDir = dir.resolve("riscv-capcache-1.0")
+        val staticLibraryDir = dir.resolve("riscv-static-libraries-1.0")
+
+        val capcache = downloadFile(
+            "https://lafo.ssw.uni-linz.ac.at/pub/graal-external-deps/riscv-capcache-1.0.tar.gz",
+            dir.resolve("riscv-capcache-1.0.tar.gz")
+        )
+        val staticLibrary = downloadFile(
+            "https://lafo.ssw.uni-linz.ac.at/pub/graal-external-deps/riscv-static-libraries-1.0.tar.gz",
+            dir.resolve("riscv-static-libraries-1.0.tar.gz")
+        )
+
+        if (capcacheDir.exists()) {
+            capcacheDir.deleteRecursively()
+        }
+        if (staticLibrary.exists()) {
+            staticLibraryDir.deleteRecursively()
+        }
+
+        capcacheDir.mkdirs()
+        staticLibraryDir.mkdirs()
+
+        exec { commandLine("tar", "-xf", capcache, "-C", capcacheDir) }.assertNormalExitValue()
+        exec { commandLine("tar", "-xf", staticLibrary, "-C", staticLibraryDir) }.assertNormalExitValue()
+
+
+        // ---
+
+        cmd += listOf(
+            "-H:CompilerBackend=llvm",
+            "-Dsvm.targetPlatformArch=riscv64",
+            "-H:CAPCacheDir=${capcacheDir.resolve("capcache")}",
+            "-H:CCompilerPath=/usr/bin/riscv64-linux-gnu-gcc",
+            "-H:CustomLD=/usr/bin/riscv64-linux-gnu-ld",
+            "-H:CLibraryPath=${staticLibraryDir.resolve("riscv-static-libraries")}",
+            "--add-exports=jdk.internal.vm.ci/jdk.vm.ci.riscv64=org.graalvm.nativeimage.builder"
+        )
+    }
+
+    val targetFileNameBase = "${project.name}-${project.version}-${os.classifier}-${targetArch.classifier}"
+    val targetFile = file("$buildDir/libs/$targetFileNameBase" + if (os == OS.Windows) ".exe" else "").absolutePath
+
+    cmd += "-o"
+    cmd += targetFile
 
     cmd += "-jar"
     cmd += tasks.jar.get().archiveFile.get().asFile.absolutePath
@@ -164,11 +250,23 @@ val buildNativeImage by tasks.registering {
     }
 }
 
+val buildNativeImageRISCV by tasks.registering {
+    group = "build"
+    dependsOn(tasks.jar)
+
+    doLast {
+        exec {
+            workingDir(file("$buildDir/libs"))
+            commandLine(nativeImageCommand(targetArch = Arch.RISCV64))
+        }
+    }
+}
+
 val trackNativeImageConfiguration by tasks.registering {
     dependsOn(tasks.jar)
     doLast {
         val cmd = listOf(
-            Paths.get(graalHome, "bin", "java").absolutePathString(),
+            file("$graalHome/bin/java").absolutePath,
             "-agentlib:native-image-agent=config-output-dir=${buildDir.resolve("native-image-config")}",
             "-jar",
             tasks.jar.get().archiveFile.get().asFile.absolutePath
