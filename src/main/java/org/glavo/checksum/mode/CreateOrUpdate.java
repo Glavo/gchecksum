@@ -17,6 +17,7 @@
 package org.glavo.checksum.mode;
 
 import org.glavo.checksum.hash.Hasher;
+import org.glavo.checksum.path.ArrayPathComparator;
 import org.glavo.checksum.util.ChecksumThreadFactory;
 import org.glavo.checksum.util.Logger;
 import org.glavo.checksum.util.Lang;
@@ -29,30 +30,11 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public final class CreateOrUpdate {
-    private static final Comparator<String[]> PATH_COMPARATOR = (x, y) -> {
-        final int xLength = x.length;
-        final int yLength = y.length;
-
-        int length = Math.min(xLength, yLength);
-        assert length > 0;
-        for (int i = 0; i < length - 1; i++) {
-            int v = x[i].compareTo(y[i]);
-            if (v != 0) {
-                return v;
-            }
-        }
-
-        if (xLength == yLength)
-            return x[length - 1].compareTo(y[length - 1]);
-        else
-            return Integer.compare(xLength, yLength);
-    };
-
     private static abstract class Visitor<T> implements FileVisitor<Path> {
         private final String[] pathBuffer = new String[256]; // tmp
         private int count = -1;
 
-        final TreeMap<String[], T> result = new TreeMap<>(PATH_COMPARATOR);
+        final TreeMap<String[], T> result = new TreeMap<>(ArrayPathComparator.INSTANCE);
 
         private final Path exclude;
 

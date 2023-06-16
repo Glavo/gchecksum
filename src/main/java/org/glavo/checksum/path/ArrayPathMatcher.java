@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.glavo.checksum.util;
+package org.glavo.checksum.path;
 
 @FunctionalInterface
 public interface ArrayPathMatcher {
