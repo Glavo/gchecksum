@@ -1,7 +1,6 @@
-import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
-import java.nio.file.*
+import java.nio.file.Paths
 import java.util.*
-import kotlin.io.path.*
+import kotlin.io.path.absolutePathString
 
 
 plugins {
@@ -99,33 +98,68 @@ for (multiVersion in 9..21) {
 val graalHome: String
     get() = System.getenv("GRAALVM_HOME") ?: throw GradleException("Missing GRAALVM_HOME")
 
-val os = DefaultNativePlatform.getCurrentOperatingSystem()!!
-val arch = DefaultNativePlatform.getCurrentArchitecture()!!
+enum class OS {
+    Linux, Windows, MacOS, Unknown
+}
+
+enum class Arch {
+    X86, X86_64, ARM32, ARM64, RISCV64, Unknown
+}
+
+val os = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.getCurrentOperatingSystem()!!.let {
+    when {
+        it.isLinux -> OS.Linux
+        it.isWindows -> OS.Windows
+        it.isMacOsX -> OS.MacOS
+        else -> OS.Unknown
+    }
+}
+
+val arch = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.getCurrentArchitecture()!!.let {
+    val osArch = System.getProperty("os.arch").lowercase()
+
+    when {
+        it.isI386 -> Arch.X86
+        it.isAmd64 -> Arch.X86_64
+        it.isArm32 -> Arch.ARM32
+        it.isArm64 -> Arch.ARM64
+        osArch == "riscv64" -> Arch.RISCV64
+        else -> Arch.Unknown
+    }
+}
+
+fun nativeImageCommand(
+    targetArch: Arch = arch
+): List<String> {
+    val cmd: MutableList<String> = mutableListOf()
+
+    cmd += Paths.get(graalHome, "bin", if (os == OS.Windows) "native-image.cmd" else "native-image")
+        .absolutePathString()
+
+    if (os == OS.Windows && Locale.getDefault().language != "en") {
+        cmd += "-H:-CheckToolchain"
+    }
+
+    if (arch == Arch.X86_64) {
+        cmd += "-march=x86-64-v2"
+    }
+
+
+    cmd += "-jar"
+    cmd += tasks.jar.get().archiveFile.get().asFile.absolutePath
+
+
+    return cmd
+}
 
 val buildNativeImage by tasks.registering {
     group = "build"
     dependsOn(tasks.jar)
 
     doLast {
-        val cmd: MutableList<String> = mutableListOf()
-
-        cmd += Paths.get(graalHome, "bin", if (os.isWindows) "native-image.cmd" else "native-image")
-            .absolutePathString()
-
-        if (os.isWindows && Locale.getDefault().language != "en") {
-            cmd += "-H:-CheckToolchain"
-        }
-
-        if (arch.isAmd64) {
-            cmd += "-march=x86-64-v2"
-        }
-
-        cmd += "-jar"
-        cmd += tasks.jar.get().archiveFile.get().asFile.absolutePath
-
         exec {
             workingDir(file("$buildDir/libs"))
-            commandLine(cmd)
+            commandLine(nativeImageCommand())
         }
     }
 }
@@ -162,17 +196,18 @@ dependencies {
     testImplementation("com.google.jimfs:jimfs:1.2")
 
     val lwjglVersion = "3.3.2"
-    val lwjglPlatform = when {
-        os.isWindows && arch.isAmd64 -> "windows"
-        os.isWindows && arch.isI386 -> "windows-x86"
-        os.isWindows && arch.isArm64 -> "windows-arm64"
+    val lwjglPlatform = when (os to arch) {
+        Pair(OS.Windows, Arch.X86_64) -> "windows"
+        Pair(OS.Windows, Arch.X86) -> "windows-x86"
+        Pair(OS.Windows, Arch.ARM64) -> "windows-arm64"
 
-        os.isMacOsX && arch.isAmd64 -> "macos"
-        os.isMacOsX && arch.isArm64 -> "macos-arm64"
+        Pair(OS.MacOS, Arch.X86_64) -> "macos"
+        Pair(OS.MacOS, Arch.ARM64) -> "macos-arm64"
 
-        os.isLinux && arch.isAmd64 -> "linux"
-        os.isLinux && arch.isArm64 -> "linux-arm64"
-        os.isLinux && arch.isArm32 -> "linux-arm32"
+        Pair(OS.Linux, Arch.X86_64) -> "linux"
+        Pair(OS.Linux, Arch.X86) -> "linux-x86"
+        Pair(OS.Linux, Arch.ARM64) -> "linux-arm64"
+        Pair(OS.Linux, Arch.ARM32) -> "linux-arm32"
 
         else -> "linux"
     }
