@@ -1,7 +1,3 @@
-import java.io.RandomAccessFile
-import java.net.*
-import kotlin.random.Random
-
 plugins {
     java
     application
@@ -77,97 +73,7 @@ val generateSampleFiles by tasks.registering {
     outputs.dir(sampleFilesDir)
 
     doLast {
-        sampleFilesDir.deleteRecursively()
-
-        sampleFilesDir.resolve("zero").also { dir ->
-            dir.mkdirs()
-            for (size in 0..2048) {
-                RandomAccessFile(dir.resolve("size-%04d.bin".format(size)), "rw").use { it.setLength(size.toLong()) }
-            }
-        }
-
-        for (seed in 0..4) {
-            val dir = sampleFilesDir.resolve("small-$seed")
-            dir.mkdirs()
-
-            for (size in 1..4096) {
-                dir.resolve("size-%04d.bin".format(size)).writeBytes(Random(seed).nextBytes(size))
-            }
-        }
-
-        sampleFilesDir.resolve("large").also { dir ->
-            dir.mkdirs()
-
-            fun sizesOf(vararg baseSizes: Int): IntArray {
-                val n = 9
-                val arr = IntArray(baseSizes.size * n)
-                for ((index, baseSize) in baseSizes.withIndex()) {
-                    arr[index * n + 0] = baseSize - 64 - 1
-                    arr[index * n + 1] = baseSize - 64
-                    arr[index * n + 2] = baseSize - 64 + 1
-
-                    arr[index * n + 3] = baseSize - 1
-                    arr[index * n + 4] = baseSize
-                    arr[index * n + 5] = baseSize + 1
-
-                    arr[index * n + 6] = baseSize + 64 - 1
-                    arr[index * n + 7] = baseSize + 64
-                    arr[index * n + 8] = baseSize + 64 + 1
-                }
-                return arr
-            }
-
-            val bufferSize = 320 * 1024
-
-            val sizes = sizesOf(
-                bufferSize / 4 * 1,
-                bufferSize / 4 * 2,
-                bufferSize / 4 * 3,
-                bufferSize / 4 * 4,
-                bufferSize / 4 * 5,
-                bufferSize / 4 * 6,
-                bufferSize / 4 * 7,
-                bufferSize / 4 * 8,
-            )
-
-            for (size in sizes) {
-                dir.resolve("size-$size.bin").writeBytes(Random(0).nextBytes(size))
-            }
-        }
-    }
-}
-
-enum class OS {
-    Linux, Windows, MacOS, Unknown;
-
-    val classifier: String = name.lowercase()
-}
-
-enum class Arch {
-    X86, X86_64, ARM32, ARM64, RISCV64, Unknown;
-
-    val classifier: String = name.lowercase()
-}
-
-val os: OS = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.getCurrentOperatingSystem()!!.let {
-    when {
-        it.isLinux -> OS.Linux
-        it.isWindows -> OS.Windows
-        it.isMacOsX -> OS.MacOS
-        else -> OS.Unknown
-    }
-}
-
-val arch = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.getCurrentArchitecture()!!.let {
-    val osArch = System.getProperty("os.arch").lowercase()
-
-    when {
-        it.isI386 -> Arch.X86
-        it.isAmd64 -> Arch.X86_64
-        it.isArm32 -> Arch.ARM32
-        it.isArm64 -> Arch.ARM64
-        osArch == "riscv64" -> Arch.RISCV64
-        else -> Arch.Unknown
+        SampleFileGenerator(sampleFilesDir).generate()
     }
 }
 
@@ -212,42 +118,6 @@ tasks.test {
 
 val graalHome: String
     get() = System.getenv("GRAALVM_HOME") ?: throw GradleException("Missing GRAALVM_HOME")
-
-fun downloadFile(url: String, file: File): File {
-    try {
-        file.parentFile.mkdirs()
-
-        val connection = URL(url).openConnection()
-        connection.connect()
-
-        val length = connection.contentLengthLong
-
-        if (connection is HttpURLConnection && file.exists()
-            && length == file.length()
-            && connection.lastModified == file.lastModified()
-        ) {
-            logger.info("$url has not changed")
-            connection.disconnect()
-            return file
-        }
-
-        logger.info("Download $url to $file")
-
-        file.outputStream().use { output ->
-            connection.getInputStream().use { input ->
-                input.transferTo(output)
-            }
-        }
-
-        if (connection is HttpURLConnection && connection.lastModified > 0) {
-            file.setLastModified(connection.lastModified)
-        }
-
-        return file
-    } catch (e: Throwable) {
-        throw GradleException("Failed to download from $url to $file ", e)
-    }
-}
 
 fun nativeImageCommand(
     pgoInstrument: Boolean = false,
