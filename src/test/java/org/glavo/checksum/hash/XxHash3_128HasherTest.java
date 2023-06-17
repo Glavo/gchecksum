@@ -27,7 +27,10 @@ public class XxHash3_128HasherTest {
     private static final int block_len = 1024;
     private static final int stripe_len = 64;
 
+    private static final int i = DEFAULT_BUFFER_SIZE / 2 + 2 * block_len + 1;
+
     private static List<Arguments> testArguments() {
+
         int[] lengths = Stream.of(
                 IntStream.rangeClosed(0, 2048),
                 IntStream.rangeClosed(DEFAULT_BUFFER_SIZE / 2 - 2 * block_len - 1, DEFAULT_BUFFER_SIZE / 2 + 2 * block_len + 1),

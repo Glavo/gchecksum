@@ -1,6 +1,6 @@
-import org.gradle.internal.impldep.org.apache.http.HttpConnection
-import java.io.IOException
+import java.io.RandomAccessFile
 import java.net.*
+import kotlin.random.Random
 
 plugins {
     java
@@ -58,6 +58,8 @@ val executableJar by tasks.registering {
     }
 }
 
+tasks.build { dependsOn(executableJar) }
+
 tasks.withType(org.gradle.jvm.tasks.Jar::class) {
     manifest.attributes(
         mapOf(
@@ -69,33 +71,71 @@ tasks.withType(org.gradle.jvm.tasks.Jar::class) {
     )
 }
 
-for (multiVersion in 9..21) {
-    if (!project.file("src/main/java$multiVersion").exists()) {
-        continue
-    }
+val sampleFilesDir = file("$buildDir/sample")
 
-    val multiSourceSet = sourceSets.create("java$multiVersion") {
-        java.srcDir("src/main/java$multiVersion")
-    }
+val generateSampleFiles by tasks.registering {
+    outputs.dir(sampleFilesDir)
 
-    tasks.named<JavaCompile>("compileJava${multiVersion}Java") {
-        sourceCompatibility = "$multiVersion"
-        targetCompatibility = "$multiVersion"
-    }
+    doLast {
+        sampleFilesDir.deleteRecursively()
 
-    dependencies {
-        "java${multiVersion}Implementation"(sourceSets.main.get().output.classesDirs)
-    }
+        sampleFilesDir.resolve("zero").also { dir ->
+            dir.mkdirs()
+            for (size in 0..2048) {
+                RandomAccessFile(dir.resolve("size-%04d.bin".format(size)), "rw").use { it.setLength(size.toLong()) }
+            }
+        }
 
-    tasks.withType(org.gradle.jvm.tasks.Jar::class) {
-        into("META-INF/versions/${multiVersion}") {
-            from(multiSourceSet.output)
+        for (seed in 0..4) {
+            val dir = sampleFilesDir.resolve("small-$seed")
+            dir.mkdirs()
+
+            for (size in 1..4096) {
+                dir.resolve("size-%04d.bin".format(size)).writeBytes(Random(seed).nextBytes(size))
+            }
+        }
+
+        sampleFilesDir.resolve("large").also { dir ->
+            dir.mkdirs()
+
+            fun sizesOf(vararg baseSizes: Int): IntArray {
+                val n = 9
+                val arr = IntArray(baseSizes.size * n)
+                for ((index, baseSize) in baseSizes.withIndex()) {
+                    arr[index * n + 0] = baseSize - 64 - 1
+                    arr[index * n + 1] = baseSize - 64
+                    arr[index * n + 2] = baseSize - 64 + 1
+
+                    arr[index * n + 3] = baseSize - 1
+                    arr[index * n + 4] = baseSize
+                    arr[index * n + 5] = baseSize + 1
+
+                    arr[index * n + 6] = baseSize + 64 - 1
+                    arr[index * n + 7] = baseSize + 64
+                    arr[index * n + 8] = baseSize + 64 + 1
+                }
+                return arr
+            }
+
+            val bufferSize = 320 * 1024
+
+            val sizes = sizesOf(
+                bufferSize / 4 * 1,
+                bufferSize / 4 * 2,
+                bufferSize / 4 * 3,
+                bufferSize / 4 * 4,
+                bufferSize / 4 * 5,
+                bufferSize / 4 * 6,
+                bufferSize / 4 * 7,
+                bufferSize / 4 * 8,
+            )
+
+            for (size in sizes) {
+                dir.resolve("size-$size.bin").writeBytes(Random(0).nextBytes(size))
+            }
         }
     }
 }
-
-val graalHome: String
-    get() = System.getenv("GRAALVM_HOME") ?: throw GradleException("Missing GRAALVM_HOME")
 
 enum class OS {
     Linux, Windows, MacOS, Unknown;
@@ -109,7 +149,7 @@ enum class Arch {
     val classifier: String = name.lowercase()
 }
 
-val os = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.getCurrentOperatingSystem()!!.let {
+val os: OS = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.getCurrentOperatingSystem()!!.let {
     when {
         it.isLinux -> OS.Linux
         it.isWindows -> OS.Windows
@@ -130,6 +170,48 @@ val arch = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.get
         else -> Arch.Unknown
     }
 }
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.3")
+
+    testImplementation("com.google.jimfs:jimfs:1.2")
+
+    val lwjglVersion = "3.3.2"
+    val lwjglPlatform = when (os) {
+        OS.Windows -> "windows"
+        OS.MacOS -> "macos"
+        else -> "linux" // OS.Linux -> "linux"
+    } + when (arch) {
+        Arch.X86_64 -> ""
+        Arch.X86 -> "-x86"
+        Arch.ARM64 -> "-arm64"
+        Arch.ARM32 -> "-arm32"
+        Arch.RISCV64 -> "-riscv64"
+        else -> ""
+    }
+
+    testImplementation("org.lwjgl:lwjgl:$lwjglVersion")
+    testImplementation("org.lwjgl:lwjgl:$lwjglVersion:natives-$lwjglPlatform")
+    testImplementation("org.lwjgl:lwjgl-xxhash:$lwjglVersion")
+    testImplementation("org.lwjgl:lwjgl-xxhash:$lwjglVersion:natives-$lwjglPlatform")
+    testImplementation("net.openhft:zero-allocation-hashing:0.16")
+}
+
+tasks.test {
+    useJUnitPlatform()
+    testLogging.showStandardStreams = true
+}
+
+
+//region native-image
+
+val graalHome: String
+    get() = System.getenv("GRAALVM_HOME") ?: throw GradleException("Missing GRAALVM_HOME")
 
 fun downloadFile(url: String, file: File): File {
     try {
@@ -163,7 +245,7 @@ fun downloadFile(url: String, file: File): File {
 
         return file
     } catch (e: Throwable) {
-        throw IOException("Failed to download from $url to $file ", e)
+        throw GradleException("Failed to download from $url to $file ", e)
     }
 }
 
@@ -284,42 +366,4 @@ val trackNativeImageConfiguration by tasks.registering {
     }
 }
 
-tasks.build.get().dependsOn(executableJar)
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.3")
-
-    testImplementation("com.google.jimfs:jimfs:1.2")
-
-    val lwjglVersion = "3.3.2"
-    val lwjglPlatform = when (os to arch) {
-        Pair(OS.Windows, Arch.X86_64) -> "windows"
-        Pair(OS.Windows, Arch.X86) -> "windows-x86"
-        Pair(OS.Windows, Arch.ARM64) -> "windows-arm64"
-
-        Pair(OS.MacOS, Arch.X86_64) -> "macos"
-        Pair(OS.MacOS, Arch.ARM64) -> "macos-arm64"
-
-        Pair(OS.Linux, Arch.X86_64) -> "linux"
-        Pair(OS.Linux, Arch.X86) -> "linux-x86"
-        Pair(OS.Linux, Arch.ARM64) -> "linux-arm64"
-        Pair(OS.Linux, Arch.ARM32) -> "linux-arm32"
-
-        else -> "linux"
-    }
-    testImplementation("org.lwjgl:lwjgl:$lwjglVersion")
-    testImplementation("org.lwjgl:lwjgl:$lwjglVersion:natives-$lwjglPlatform")
-    testImplementation("org.lwjgl:lwjgl-xxhash:$lwjglVersion")
-    testImplementation("org.lwjgl:lwjgl-xxhash:$lwjglVersion:natives-$lwjglPlatform")
-    testImplementation("net.openhft:zero-allocation-hashing:0.16")
-}
-
-tasks.test {
-    useJUnitPlatform()
-    testLogging.showStandardStreams = true
-}
+//endregion
