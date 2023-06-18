@@ -97,7 +97,7 @@ If this option is not present:
 Supported hash algorithms:
 
 * CRC32
-* CRC32C (Java 9+)
+* CRC32C
 * Adler32
 * MD5
 * SHA-1
@@ -106,7 +106,7 @@ Supported hash algorithms:
   * SHA-256
   * SHA-384
   * SHA-512
-* SHA-3 (Java 9+)
+* SHA-3
   * SHA3-224
   * SHA3-256
   * SHA3-512
