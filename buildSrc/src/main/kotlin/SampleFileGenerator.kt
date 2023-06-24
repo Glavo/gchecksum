@@ -77,5 +77,20 @@ class SampleFileGenerator(private val sampleFilesDir: File) {
                 dir.resolve("size-$size.bin").writeBytes(Random(0).nextBytes(size))
             }
         }
+
+        sampleFilesDir.resolve("nesting").also { dir ->
+            var currentDir = dir
+
+            for (level in 1..9) {
+                currentDir = currentDir.resolve("level$level")
+                currentDir.mkdirs()
+
+                for (i in 1..level) {
+                    currentDir.resolve("file-$i.bin").writeBytes(Random(level xor i).nextBytes(64))
+                }
+            }
+
+            currentDir.resolve("empty").mkdirs()
+        }
     }
 }
