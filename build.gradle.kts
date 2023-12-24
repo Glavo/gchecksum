@@ -140,49 +140,6 @@ fun nativeImageCommand(
         cmd += "-march=x86-64-v2"
     }
 
-    // not working yet
-    if (targetArch != arch && targetArch == Arch.RISCV64) {
-        val dir = file("$buildDir/graal-external-deps").absoluteFile
-
-        val capcacheDir = dir.resolve("riscv-capcache-1.0")
-        val staticLibraryDir = dir.resolve("riscv-static-libraries-1.0")
-
-        val capcache = downloadFile(
-            "https://lafo.ssw.uni-linz.ac.at/pub/graal-external-deps/riscv-capcache-1.0.tar.gz",
-            dir.resolve("riscv-capcache-1.0.tar.gz")
-        )
-        val staticLibrary = downloadFile(
-            "https://lafo.ssw.uni-linz.ac.at/pub/graal-external-deps/riscv-static-libraries-1.0.tar.gz",
-            dir.resolve("riscv-static-libraries-1.0.tar.gz")
-        )
-
-        if (capcacheDir.exists()) {
-            capcacheDir.deleteRecursively()
-        }
-        if (staticLibrary.exists()) {
-            staticLibraryDir.deleteRecursively()
-        }
-
-        capcacheDir.mkdirs()
-        staticLibraryDir.mkdirs()
-
-        exec { commandLine("tar", "-xf", capcache, "-C", capcacheDir) }.assertNormalExitValue()
-        exec { commandLine("tar", "-xf", staticLibrary, "-C", staticLibraryDir) }.assertNormalExitValue()
-
-
-        // ---
-
-        cmd += listOf(
-            "-H:CompilerBackend=llvm",
-            "-Dsvm.targetPlatformArch=riscv64",
-            "-H:CAPCacheDir=${capcacheDir.resolve("capcache")}",
-            "-H:CCompilerPath=/usr/bin/riscv64-linux-gnu-gcc",
-            "-H:CustomLD=/usr/bin/riscv64-linux-gnu-ld",
-            "-H:CLibraryPath=${staticLibraryDir.resolve("riscv-static-libraries")}",
-            "--add-exports=jdk.internal.vm.ci/jdk.vm.ci.riscv64=org.graalvm.nativeimage.builder"
-        )
-    }
-
     if (pgoInstrument) {
         cmd += "--pgo-instrument"
     }
