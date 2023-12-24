@@ -84,12 +84,14 @@ repositories {
 }
 
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.3")
+    val junitVersion = "5.10.1"
 
-    testImplementation("com.google.jimfs:jimfs:1.2")
+    testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
 
-    val lwjglVersion = "3.3.2"
+    testImplementation("com.google.jimfs:jimfs:1.3.0")
+
+    val lwjglVersion = "3.3.3"
     val lwjglPlatform = when (os) {
         OS.Windows -> "windows"
         OS.MacOS -> "macos"
