@@ -23,7 +23,7 @@ fun Project.downloadFile(url: String, file: File): File {
     try {
         file.parentFile.mkdirs()
 
-        val connection = URL(url).openConnection()
+        val connection = URI(url).toURL().openConnection()
         connection.connect()
 
         val length = connection.contentLengthLong

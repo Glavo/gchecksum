@@ -17,6 +17,8 @@ tasks.compileJava {
     options.encoding = "UTF-8"
 }
 
+val buildDir = layout.buildDirectory.asFile.get()
+
 val versionFile = buildDir.resolve("version.txt")
 val createBuildProperties by tasks.registering {
     group = "build"
