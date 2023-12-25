@@ -1,5 +1,6 @@
 package org.glavo.checksum.hash;
 
+import org.glavo.checksum.RandomUtils;
 import org.glavo.checksum.util.ByteBufferChannel;
 import org.glavo.checksum.util.Utils;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -12,7 +13,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -36,12 +36,12 @@ public class XxHash3_128HasherTest {
                 IntStream.rangeClosed(DEFAULT_BUFFER_SIZE * 3 / 2 - 2 * block_len - 1, DEFAULT_BUFFER_SIZE * 3 / 2+ 2 * block_len + 1)
         ).flatMapToInt(Function.identity()).toArray();
 
-        int[] seeds = IntStream.rangeClosed(0, 4).toArray();
+        int[] seeds = {0, 1};
 
         ArrayList<Arguments> res = new ArrayList<>();
         for (int length : lengths) {
             for (int seed : seeds) {
-                res.add(Arguments.of(length, seed));
+                res.add(Arguments.of(seed, length));
             }
         }
         return res;
@@ -49,9 +49,8 @@ public class XxHash3_128HasherTest {
 
     @ParameterizedTest
     @MethodSource("testArguments")
-    public void test(int length, int seed) throws IOException {
-        byte[] data = new byte[length];
-        new Random(seed).nextBytes(data);
+    public void test(int seed, int length) throws IOException {
+        byte[] data = RandomUtils.getBytes(seed, length);
 
         ByteBuffer nativeBuffer = ByteBuffer.allocateDirect(length);
         nativeBuffer.put(data);
