@@ -147,7 +147,7 @@ public abstract class Hasher {
     public abstract String hash(SeekableByteChannel channel) throws IOException;
 
     public String hashFile(Path file) throws IOException {
-        try (SeekableByteChannel channel = Files.newByteChannel(file, Collections.emptySet(), IOUtils.EMPTY_FILE_ATTRIBUTES);) {
+        try (SeekableByteChannel channel = Files.newByteChannel(file, Collections.emptySet(), IOUtils.EMPTY_FILE_ATTRIBUTES)) {
             return hash(channel);
         }
     }
