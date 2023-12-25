@@ -84,37 +84,18 @@ repositories {
 }
 
 dependencies {
-    val junitVersion = "5.10.1"
-
-    testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
-
-    val lwjglVersion = "3.3.3"
-    val lwjglPlatform = when (os) {
-        OS.Windows -> "windows"
-        OS.MacOS -> "macos"
-        else -> "linux" // OS.Linux -> "linux"
-    } + when (arch) {
-        Arch.X86_64 -> ""
-        Arch.X86 -> "-x86"
-        Arch.ARM64 -> "-arm64"
-        Arch.ARM32 -> "-arm32"
-        Arch.RISCV64 -> "-riscv64"
-        else -> ""
-    }
-
-    testImplementation("org.lwjgl:lwjgl:$lwjglVersion")
-    testImplementation("org.lwjgl:lwjgl:$lwjglVersion:natives-$lwjglPlatform")
-    testImplementation("org.lwjgl:lwjgl-xxhash:$lwjglVersion")
-    testImplementation("org.lwjgl:lwjgl-xxhash:$lwjglVersion:natives-$lwjglPlatform")
-    testImplementation("net.openhft:zero-allocation-hashing:0.16")
+    testImplementation(Deps.junit("junit-jupiter"))
+    testImplementation(Deps.junit("junit-jupiter-params"))
+    testImplementation(Deps.lwjgl("lwjgl"))
+    testImplementation(Deps.lwjglNatives("lwjgl"))
+    testImplementation(Deps.lwjgl("lwjgl-xxhash"))
+    testImplementation(Deps.lwjglNatives("lwjgl-xxhash"))
 }
 
 tasks.test {
     useJUnitPlatform()
     testLogging.showStandardStreams = true
 }
-
 
 //region native-image
 

@@ -47,3 +47,4 @@ val arch = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.get
         else -> Arch.Unknown
     }
 }
+

@@ -18,7 +18,6 @@ package org.glavo.checksum.hash;
 
 import org.glavo.checksum.util.IOUtils;
 import org.glavo.checksum.util.Maths;
-import org.glavo.checksum.util.Primitives;
 import org.glavo.checksum.util.Utils;
 
 import java.io.IOException;
@@ -51,7 +50,7 @@ final class XxHash3_128Hasher extends XxHash3Hasher {
                 long m128_hi = Maths.unsignedLongMulHigh(input_lo, XXH_PRIME64_1);
                 m128_lo += (length - 1) << 54;
                 input_hi ^= bitfliph;
-                m128_hi += input_hi + Primitives.unsignedInt((int) input_hi) * (XXH_PRIME32_2 - 1);
+                m128_hi += input_hi + Integer.toUnsignedLong((int) input_hi) * (XXH_PRIME32_2 - 1);
                 m128_lo ^= Long.reverseBytes(m128_hi);
 
                 final long low = XXH3_avalanche(m128_lo * XXH_PRIME64_2);
@@ -86,11 +85,13 @@ final class XxHash3_128Hasher extends XxHash3Hasher {
                 final int c3 = getUnsignedByte(array, length - 1);
                 final int combinedl = (c1 << 16) | (c2 << 24) | c3 | ((int) length << 8);
                 final int combinedh = Integer.rotateLeft(Integer.reverseBytes(combinedl), 13);
-                final long bitflipl = Primitives.unsignedInt(getInt(XXH3_kSecret, 0) ^ getInt(XXH3_kSecret, 4)) + seed;
-                final long bitfliph = Primitives.unsignedInt(getInt(XXH3_kSecret, 8) ^ getInt(XXH3_kSecret, 12)) - seed;
+                int i1 = getInt(XXH3_kSecret, 0) ^ getInt(XXH3_kSecret, 4);
+                final long bitflipl = Integer.toUnsignedLong(i1) + seed;
+                int i = getInt(XXH3_kSecret, 8) ^ getInt(XXH3_kSecret, 12);
+                final long bitfliph = Integer.toUnsignedLong(i) - seed;
 
-                final long low = XXH64_avalanche(Primitives.unsignedInt(combinedl) ^ bitflipl);
-                final long high = XXH64_avalanche(Primitives.unsignedInt(combinedh) ^ bitfliph);
+                final long low = XXH64_avalanche(Integer.toUnsignedLong(combinedl) ^ bitflipl);
+                final long high = XXH64_avalanche(Integer.toUnsignedLong(combinedh) ^ bitfliph);
 
                 return Utils.encodeHex(low, high);
             }
