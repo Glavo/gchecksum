@@ -25,6 +25,10 @@ import java.nio.channels.SeekableByteChannel;
 public final class ByteBufferChannel implements SeekableByteChannel {
     private ByteBuffer buffer;
 
+    public ByteBufferChannel(byte[] array) {
+        this.buffer = ByteBuffer.wrap(array);
+    }
+
     public ByteBufferChannel(ByteBuffer buffer) {
         this.buffer = buffer;
     }

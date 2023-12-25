@@ -89,8 +89,6 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter:$junitVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$junitVersion")
 
-    testImplementation("com.google.jimfs:jimfs:1.3.0")
-
     val lwjglVersion = "3.3.3"
     val lwjglPlatform = when (os) {
         OS.Windows -> "windows"

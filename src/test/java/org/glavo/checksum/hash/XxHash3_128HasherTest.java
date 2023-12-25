@@ -1,6 +1,6 @@
 package org.glavo.checksum.hash;
 
-import com.google.common.jimfs.Jimfs;
+import org.glavo.checksum.util.ByteBufferChannel;
 import org.glavo.checksum.util.Utils;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -10,9 +10,6 @@ import org.lwjgl.util.xxhash.XXHash;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -65,14 +62,7 @@ public class XxHash3_128HasherTest {
             XXHash.XXH3_128bits(nativeBuffer, result);
             expected = Utils.encodeHex(result.low64(), result.high64());
         }
-
-        String actual;
-        try (FileSystem fs = Jimfs.newFileSystem()) {
-            Path path = fs.getPath("test.dat");
-            Files.write(path, data);
-
-            actual = XxHash3_128Hasher.DEFAULT.hashFile(path);
-        }
+        String actual = XxHash3_128Hasher.DEFAULT.hash(new ByteBufferChannel(data));;
 
         assertEquals(expected, actual, () -> Utils.encodeHex(data));
     }
