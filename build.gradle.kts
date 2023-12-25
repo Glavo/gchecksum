@@ -17,6 +17,10 @@ tasks.compileJava {
     options.encoding = "UTF-8"
 }
 
+tasks.compileTestJava {
+    options.release.set(17)
+}
+
 val buildDir = layout.buildDirectory.asFile.get()
 
 val versionFile = buildDir.resolve("version.txt")
