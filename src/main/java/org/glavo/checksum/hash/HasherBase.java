@@ -20,8 +20,7 @@ import org.glavo.checksum.util.IOUtils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ByteChannel;
-import java.nio.file.Path;
+import java.nio.channels.SeekableByteChannel;
 
 abstract class HasherBase extends Hasher {
     private final ThreadLocal<Context> threadLocalContext = ThreadLocal.withInitial(this::createContext);
@@ -33,22 +32,20 @@ abstract class HasherBase extends Hasher {
     protected abstract Context createContext();
 
     @Override
-    public final String hashFile(Path file) throws IOException {
+    public final String hash(SeekableByteChannel channel) throws IOException {
         final Context context = threadLocalContext.get();
 
         final ByteBuffer buffer = context.buffer;
         final byte[] array = buffer.array();
 
         int read;
-        try (ByteChannel channel = IOUtils.newByteChannel(file)) {
-            do {
-                buffer.clear();
-                read = channel.read(buffer);
-                if (read > 0) {
-                    context.update(array, 0, read);
-                }
-            } while (read != -1);
-        }
+        do {
+            buffer.clear();
+            read = channel.read(buffer);
+            if (read > 0) {
+                context.update(array, 0, read);
+            }
+        } while (read != -1);
         String res = context.digest();
         context.reset();
         return res;

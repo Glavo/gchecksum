@@ -16,11 +16,16 @@
 
 package org.glavo.checksum.hash;
 
+import org.glavo.checksum.util.IOUtils;
+
 import java.io.IOException;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -139,5 +144,11 @@ public abstract class Hasher {
         return checksum.length() == hashStringLength;
     }
 
-    public abstract String hashFile(Path file) throws IOException;
+    public abstract String hash(SeekableByteChannel channel) throws IOException;
+
+    public String hashFile(Path file) throws IOException {
+        try (SeekableByteChannel channel = Files.newByteChannel(file, Collections.emptySet(), IOUtils.EMPTY_FILE_ATTRIBUTES);) {
+            return hash(channel);
+        }
+    }
 }

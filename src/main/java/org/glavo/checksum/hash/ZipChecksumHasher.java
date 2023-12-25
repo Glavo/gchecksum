@@ -34,7 +34,7 @@ final class ZipChecksumHasher extends HasherBase {
     }
 
     @Override
-    protected Context createContext() {
+    protected HasherBase.Context createContext() {
         return new Context(supplier.get());
     }
 

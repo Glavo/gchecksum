@@ -23,7 +23,7 @@ import org.glavo.checksum.util.Utils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
+import java.nio.channels.SeekableByteChannel;
 
 import static org.glavo.checksum.util.LittleEndianByteArray.*;
 
@@ -36,7 +36,7 @@ final class XxHash3_128Hasher extends XxHash3Hasher {
     }
 
     @Override
-    protected String hashImpl(FileChannel channel, ByteBuffer buffer, long length) throws IOException {
+    protected String hashImpl(SeekableByteChannel channel, ByteBuffer buffer, long length) throws IOException {
         final byte[] array = buffer.array();
 
         if (length <= 16) {
@@ -181,7 +181,7 @@ final class XxHash3_128Hasher extends XxHash3Hasher {
         return hashLong128b(channel, buffer, length);
     }
 
-    private String hashLong128b(FileChannel channel, ByteBuffer buffer, long length) throws IOException {
+    private String hashLong128b(SeekableByteChannel channel, ByteBuffer buffer, long length) throws IOException {
         final byte[] array = buffer.array();
         int offBlock = 0;
 

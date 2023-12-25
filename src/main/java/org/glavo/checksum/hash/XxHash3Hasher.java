@@ -22,9 +22,8 @@ import org.glavo.checksum.util.Maths;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.OpenOption;
-import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileAttribute;
 import java.util.Collections;
@@ -144,21 +143,19 @@ abstract class XxHash3Hasher extends Hasher {
         }
     }
 
-    protected abstract String hashImpl(FileChannel channel, ByteBuffer buffer, long length) throws IOException;
+    protected abstract String hashImpl(SeekableByteChannel channel, ByteBuffer buffer, long length) throws IOException;
 
     @Override
-    public final String hashFile(Path file) throws IOException {
+    public final String hash(SeekableByteChannel channel) throws IOException {
         final ByteBuffer buffer = threadLocalBuffer.get();
 
-        try (FileChannel channel = FileChannel.open(file, OPEN_OPTIONS, NO_ATTRIBUTES)) {
-            long length = channel.size();
+        long length = channel.size();
 
-            buffer.position(0);
-            buffer.limit((int) Math.min(length, IOUtils.DEFAULT_BUFFER_SIZE));
+        buffer.position(0);
+        buffer.limit((int) Math.min(length, IOUtils.DEFAULT_BUFFER_SIZE));
 
-            IOUtils.readFully(channel, buffer);
+        IOUtils.readFully(channel, buffer);
 
-            return hashImpl(channel, buffer, length);
-        }
+        return hashImpl(channel, buffer, length);
     }
 }

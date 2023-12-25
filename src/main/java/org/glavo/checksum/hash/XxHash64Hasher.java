@@ -22,8 +22,7 @@ import org.glavo.checksum.util.Utils;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ByteChannel;
-import java.nio.file.Path;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Paths;
 
 // The implementation references https://github.com/OpenHFT/Zero-Allocation-Hashing
@@ -47,7 +46,7 @@ final class XxHash64Hasher extends Hasher {
     }
 
     @Override
-    public String hashFile(Path file) throws IOException {
+    public String hash(SeekableByteChannel channel) throws IOException {
         final ByteBuffer buffer = threadLocalBuffer.get();
         final byte[] array = buffer.array();
 
@@ -61,7 +60,6 @@ final class XxHash64Hasher extends Hasher {
         int offset = 0;
 
         int read;
-        try (ByteChannel channel = IOUtils.newByteChannel(file)) {
             do {
                 buffer.clear();
                 read = IOUtils.readAsPossible(channel, buffer);
@@ -95,7 +93,6 @@ final class XxHash64Hasher extends Hasher {
                     remaining -= 32;
                 }
             } while (read == IOUtils.DEFAULT_BUFFER_SIZE);
-        }
 
         long hash;
 
