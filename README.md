@@ -320,3 +320,11 @@ XXH128:
 | gchecksum (`--num-threads 1`) | 79.39s (+ 3.86%) | 42.96s (+10.04%) | 6.65s (+83.20%) |
 | gchecksum (`--num-threads 4`) | 29.53s (-61.37%) | 22.26s (-42.98%) | 2.82s (-22.31%) |
 | gchecksum (`--num-threads 8`) | 20.57s (-73.09%) | 32.14s (-17.67%) | 2.21s (-39.12%) |
+
+## Thanks
+
+Thanks to [PLCT Lab](https://plctlab.github.io/) for supporting me.
+
+<img src="https://resources.jetbrains.com/storage/products/company/brand/logos/IntelliJ_IDEA.svg" alt="IntelliJ IDEA logo.">
+
+This project is developed using JetBrains IDEA. Thanks to JetBrains for providing me with a free license.

@@ -97,6 +97,8 @@ dependencies {
 }
 
 tasks.test {
+    dependsOn(generateSampleFiles)
+
     useJUnitPlatform()
     testLogging.showStandardStreams = true
 }
