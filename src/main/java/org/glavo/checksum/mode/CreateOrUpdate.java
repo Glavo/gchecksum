@@ -23,6 +23,7 @@ import org.glavo.checksum.path.ArrayPathComparator;
 import org.glavo.checksum.util.*;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
@@ -209,9 +210,17 @@ public final class CreateOrUpdate {
         if ("-".equals(options.checksumsFile)) {
             if (update) {
                 Logger.error(Lang.getInstance().getInvalidOptionValueMessage("-f", "-"));
-                throw Exit.error();
+                throw Exit.success();
             }
-            writer = new BufferedWriter(new OutputStreamWriter(System.out));
+
+            String stdoutEncoding = System.getProperty("stdout.encoding", System.getProperty("sun.stdout.encoding", System.getProperty("native.encoding")));
+            Charset charset;
+            if (stdoutEncoding != null) {
+                charset = Charset.forName(stdoutEncoding);
+            } else {
+                charset = Charset.defaultCharset();
+            }
+            writer = new BufferedWriter(new OutputStreamWriter(System.out, charset));
         } else {
             final Path cf = Paths.get(options.checksumsFile).toAbsolutePath();
             if (Files.isDirectory(cf)) {

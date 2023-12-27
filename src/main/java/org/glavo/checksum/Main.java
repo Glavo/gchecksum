@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 public final class Main {
-
     public static void main(String[] args)  {
         final Lang resources = Lang.getInstance();
 
