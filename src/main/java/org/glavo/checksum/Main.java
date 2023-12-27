@@ -22,81 +22,24 @@ import org.glavo.checksum.mode.Mode;
 import org.glavo.checksum.mode.Verify;
 import org.glavo.checksum.util.*;
 
-import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
 import java.io.*;
-import java.nio.file.*;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public final class Main {
-
-    private static void reportMissArg(String opt) {
-        Logger.logErrorAndExit(Lang.getInstance().getMissArgMessage(), opt);
-    }
-
-    private static void reportParamRespecified(String opt) {
-        Logger.logErrorAndExit(Lang.getInstance().getParamRespecifiedMessage(), opt);
-    }
-
-    private static void printRuntimeInformation() {
-        final String[] properties = {
-                "java.home",
-                "java.runtime.name",
-                "java.runtime.version",
-                "java.vm.name",
-                "java.vm.info",
-                "java.vm.vendor",
-                "java.vm.version",
-                "os.name",
-                "os.arch",
-                "os.version",
-                "path.separator",
-                "sun.boot.library.path",
-                "user.dir",
-                "user.language",
-                "file.encoding",
-                "file.separator",
-                "native.encoding"
-        };
-
-        System.out.println(Lang.getInstance().getVersionInformation());
-        System.out.println();
-
-        int maxLength = 0;
-        for (String property : properties) {
-            maxLength = Integer.max(property.length(), maxLength);
-        }
-
-        System.out.println("Property settings:");
-        for (String key : properties) {
-            System.out.printf("    %-" + maxLength + "s = %s%n", key, System.getProperty(key));
-        }
-
-        System.out.println("Crypto settings:");
-        try {
-            System.out.println("    provider = " + Cipher.getInstance("AES/GCM/NoPadding").getProvider());
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static void main(String[] args) throws Exception {
         final Lang resources = Lang.getInstance();
 
         Mode mode = Mode.Verify;
-        boolean assumeYes = false;
-        String checksumsFile = null;
-        String directory = null;
-        String inputs = null;
-        Hasher algorithm = null;
-        int numThreads = 0;
 
+        Iterator<String> iterator = Arrays.asList(args).iterator();
 
-        //region Parse Args
-        boolean skipFirst = true;
-        final int argsLength = args.length;
-        if (argsLength != 0) {
+        if (args.length != 0) {
             String firstArg = args[0];
             switch (firstArg) {
                 case "v":
@@ -113,131 +56,39 @@ public final class Main {
                     break;
                 default:
                     if (firstArg.startsWith("-")) {
-                        skipFirst = false;
+                        iterator.next();
                     } else {
                         Logger.logErrorAndExit(Lang.getInstance().getUnknownModeMessage(), firstArg);
+                        return;
                     }
             }
         }
-        for (int i = skipFirst ? 1 : 0; i < argsLength; i++) {
-            final String currentArg = args[i];
-            switch (currentArg) {
-                case "-?":
-                case "-h":
-                case "--help":
-                    System.out.println(Lang.getInstance().getHelpMessage());
-                    return;
-                case "-v":
-                case "--version":
-                    System.out.println(resources.getVersionInformation());
-                    return;
-                case "--print-runtime-information":
-                    printRuntimeInformation();
-                    return;
-                case "-f":
-                    if (i == argsLength - 1) {
-                        reportMissArg(currentArg);
-                    }
-                    if (checksumsFile != null) {
-                        reportParamRespecified(currentArg);
-                    }
-                    checksumsFile = args[++i];
-                    break;
-                case "-d":
-                    if (i == argsLength - 1) {
-                        reportMissArg(currentArg);
-                    }
-                    if (directory != null) {
-                        reportParamRespecified(currentArg);
-                    }
-                    if (inputs != null) {
-                        Logger.logErrorAndExit(resources.getOptionMixedMessage(), "-d", "-i");
-                    }
-                    directory = args[++i];
-                    break;
-                case "-i":
-                    if (i == argsLength - 1) {
-                        reportMissArg(currentArg);
-                    }
-                    if (inputs != null) {
-                        reportParamRespecified(currentArg);
-                    }
-                    if (directory != null) {
-                        Logger.logErrorAndExit(resources.getOptionMixedMessage(), "-d", "-i");
-                    }
-                    inputs = args[++i];
-                    Logger.logErrorAndExit("error: -i option is not yet supported");
-                    break;
-                case "-a":
-                case "--algorithm":
-                    if (i == argsLength - 1) {
-                        reportMissArg(currentArg);
-                    }
-                    if (algorithm != null) {
-                        reportParamRespecified(currentArg);
-                    }
-                    String algoName = args[++i];
-                    algorithm = Hasher.ofName(algoName);
-                    if (algorithm == null) {
-                        Logger.logErrorAndExit(resources.getUnsupportedAlgorithmMessage(), algoName);
-                    }
-                    break;
-                case "-n":
-                case "--num-threads":
-                    if (i == argsLength - 1) {
-                        reportMissArg(currentArg);
-                    }
-                    if (numThreads != 0) {
-                        reportParamRespecified(currentArg);
-                    }
-                    String nt = args[++i];
-                    int n = 0;
-                    try {
-                        n = Integer.parseInt(nt);
-                    } catch (NumberFormatException ignored) {
-                    }
-                    if (n <= 0) {
-                        Logger.logErrorAndExit(resources.getInvalidOptionValueMessage(), nt);
-                    }
-                    numThreads = n;
-                    break;
-                case "-y":
-                case "--yes":
-                case "--assume-yes":
-                    if (assumeYes) {
-                        reportParamRespecified(currentArg);
-                    }
-                    assumeYes = true;
-                    break;
-                default:
-                    Logger.logErrorAndExit(resources.getInvalidOptionMessage(), currentArg);
-                    break;
-            }
-        }
-        //endregion
 
-        if (numThreads == 0) {
-            numThreads = 4;
+        OptionParser options = new OptionParser(iterator);
+        options.parse();
+
+        if (options.numThreads == 0) {
+            options.numThreads = 4;
         }
 
-        final Path basePath = Paths.get(directory == null ? "" : directory).toAbsolutePath();
+        final Path basePath = Paths.get(options.directory == null ? "" : options.directory).toAbsolutePath();
         if (Files.notExists(basePath)) {
             Logger.logErrorAndExit(resources.getPathNotExistMessage(), basePath);
         } else if (!Files.isDirectory(basePath)) {
             Logger.logErrorAndExit(resources.getPathIsAFileMessage(), basePath);
         }
 
-        if (checksumsFile == null) {
-            checksumsFile = "checksums.txt";
+        if (options.checksumsFile == null) {
+            options.checksumsFile = "checksums.txt";
         }
 
         switch (mode) {
             case Verify: {
                 BufferedReader reader;
-                if ("-".equals(checksumsFile)) {
+                if ("-".equals(options.checksumsFile)) {
                     reader = new BufferedReader(new InputStreamReader(System.in));
                 } else {
-                    final Path cf = Paths.get(checksumsFile).toAbsolutePath();
+                    final Path cf = Paths.get(options.checksumsFile).toAbsolutePath();
                     if (Files.notExists(cf)) {
                         if (args.length == 0) {
                             System.out.println(Lang.getInstance().getHelpMessage());
@@ -251,7 +102,7 @@ public final class Main {
                     reader = Files.newBufferedReader(cf);
                 }
                 try {
-                    Verify.verify(basePath, reader, algorithm, numThreads);
+                    Verify.verify(basePath, reader, options.algorithm, options.numThreads);
                 } finally {
                     reader.close();
                 }
@@ -259,19 +110,19 @@ public final class Main {
             }
             case Update:
             case Create: {
-                if (algorithm == null) {
-                    algorithm = Hasher.getDefault();
+                if (options.algorithm == null) {
+                    options.algorithm = Hasher.getDefault();
                 }
                 Map<String, String> old = null;
                 PrintWriter writer;
                 Path exclude = null;
-                if ("-".equals(checksumsFile)) {
+                if ("-".equals(options.checksumsFile)) {
                     if (mode == Mode.Update) {
                         Logger.logErrorAndExit(resources.getInvalidOptionValueMessage(), "-f");
                     }
                     writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
                 } else {
-                    final Path cf = Paths.get(checksumsFile).toAbsolutePath();
+                    final Path cf = Paths.get(options.checksumsFile).toAbsolutePath();
                     if (Files.isDirectory(cf)) {
                         Logger.logErrorAndExit(resources.getPathIsDirMessage(), cf);
                     }
@@ -283,7 +134,7 @@ public final class Main {
                                 while ((line = r.readLine()) != null) {
                                     if (!line.isEmpty()) {
                                         final Pair<String, String> p = Utils.spiltRecord(line);
-                                        if (p == null || !algorithm.isAcceptChecksum(p.component1)) {
+                                        if (p == null || !options.algorithm.isAcceptChecksum(p.component1)) {
                                             Logger.error(resources.getInvalidHashRecordMessage(), line);
                                         } else {
                                             old.put(p.component2, p.component1);// TODO
@@ -291,13 +142,13 @@ public final class Main {
                                     }
                                 }
                             }
-                        } else if (!assumeYes) {
+                        } else if (!options.assumeYes) {
                             Logger.error(resources.getOverwriteFileMessage(), cf);
                             if (!IOUtils.readChoice()) {
                                 return;
                             }
                         }
-                    } else if (mode == Mode.Update && !assumeYes) {
+                    } else if (mode == Mode.Update && !options.assumeYes) {
                         Logger.error(resources.getCreateFileMessage(), cf);
                         if (!IOUtils.readChoice()) {
                             return;
@@ -308,7 +159,7 @@ public final class Main {
                 }
 
                 try {
-                    CreateOrUpdate.update(basePath, writer, exclude, algorithm, numThreads, old);
+                    CreateOrUpdate.update(basePath, writer, exclude, options.algorithm, options.numThreads, old);
                 } finally {
                     writer.close();
                 }
@@ -317,5 +168,4 @@ public final class Main {
         }
 
     }
-
 }
