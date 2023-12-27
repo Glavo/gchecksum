@@ -42,12 +42,12 @@ public class OptionParser {
     }
 
     protected static void reportMissArg(String opt) throws Exit {
-        Logger.error(Lang.getInstance().getMissArgMessage(), opt);
+        Logger.error(Lang.getInstance().getMissArgMessage(opt));
         throw Exit.error();
     }
 
     protected static void reportParamRespecified(String opt) throws Exit {
-        Logger.error(Lang.getInstance().getParamRespecifiedMessage(), opt);
+        Logger.error(Lang.getInstance().getParamRespecifiedMessage(opt));
         throw Exit.error();
     }
 
@@ -126,7 +126,7 @@ public class OptionParser {
                         reportParamRespecified(arg);
                     }
                     if (inputs != null) {
-                        Logger.error(lang.getOptionMixedMessage(), "-d", "-i");
+                        Logger.error(lang.getOptionMixedMessage("-d", "-i"));
                         throw Exit.error();
                     }
                     directory = iterator.next();
@@ -139,7 +139,7 @@ public class OptionParser {
                         reportParamRespecified(arg);
                     }
                     if (directory != null) {
-                        Logger.error(lang.getOptionMixedMessage(), "-d", "-i");
+                        Logger.error(lang.getOptionMixedMessage("-d", "-i"));
                         throw Exit.error();
                     }
                     inputs = iterator.next();
@@ -156,7 +156,7 @@ public class OptionParser {
                     String algoName = iterator.next();
                     algorithm = Hasher.ofName(algoName);
                     if (algorithm == null) {
-                        Logger.error(lang.getUnsupportedAlgorithmMessage(), algoName);
+                        Logger.error(lang.getUnsupportedAlgorithmMessage(algoName));
                         throw Exit.error();
                     }
                     break;
@@ -175,7 +175,7 @@ public class OptionParser {
                     } catch (NumberFormatException ignored) {
                     }
                     if (n <= 0) {
-                        Logger.error(lang.getInvalidOptionValueMessage(), nt);
+                        Logger.error(lang.getInvalidOptionValueMessage(arg, nt));
                         throw Exit.error();
                     }
                     numThreads = n;
@@ -193,7 +193,7 @@ public class OptionParser {
     }
 
     protected void parseOption(String option) throws Exit {
-        Logger.error(lang.getInvalidOptionMessage(), option);
+        Logger.error(lang.getInvalidOptionMessage(option));
         throw Exit.error();
     }
 }

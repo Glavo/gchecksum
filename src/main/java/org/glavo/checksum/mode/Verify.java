@@ -33,25 +33,25 @@ public final class Verify {
     private static boolean verifyFile(Path basePath, String line, Hasher hasher) {
         final Pair<String, String> r = Utils.spiltRecord(line);
         if (r == null) {
-            Logger.error(Lang.getInstance().getInvalidHashRecordMessage(), line);
+            Logger.error(Lang.getInstance().getInvalidHashRecordMessage(line));
             return false;
         }
 
         final String recordHashValue = r.component1;
         if (!hasher.isAcceptChecksum(recordHashValue)) {
-            Logger.error(Lang.getInstance().getInvalidHashRecordMessage(), line);
+            Logger.error(Lang.getInstance().getInvalidHashRecordMessage(line));
             return false;
         }
 
         final Path file = basePath.resolve(r.component2).toAbsolutePath();
         if (Files.notExists(file)) {
-            Logger.error(Lang.getInstance().getFileNotExistMessage(), file);
+            Logger.error(Lang.getInstance().getFileNotExistMessage(file));
             return false;
         } else if (Files.isDirectory(file)) {
-            Logger.error(Lang.getInstance().getPathIsDirMessage(), file);
+            Logger.error(Lang.getInstance().getPathIsDirMessage(file));
             return false;
         } else if (!Files.isReadable(file)) {
-            Logger.error(Lang.getInstance().getFileCannotBeReadMessage(), file);
+            Logger.error(Lang.getInstance().getFileCannotBeReadMessage(file));
             return false;
         }
 
@@ -60,14 +60,14 @@ public final class Verify {
             fileHash = hasher.hashFile(file);
         } catch (IOException e) {
             synchronized (System.err) {
-                Logger.error(Lang.getInstance().getErrorOccurredMessage(), file);
+                Logger.error(Lang.getInstance().getErrorOccurredMessage(file));
                 e.printStackTrace();
             }
             return false;
         }
 
         if (!recordHashValue.equalsIgnoreCase(fileHash)) {
-            Logger.error(Lang.getInstance().getHashNotMatchMessage(), file, fileHash, recordHashValue);
+            Logger.error(Lang.getInstance().getHashNotMatchMessage(file, fileHash, recordHashValue));
             return false;
         }
         return true;
@@ -139,6 +139,6 @@ public final class Verify {
             failureCount = counters[1];
         }
 
-        Logger.info(Lang.getInstance().getVerificationCompletedMessage(), successCount, failureCount);
+        Logger.info(Lang.getInstance().getVerificationCompletedMessage(successCount, failureCount));
     }
 }

@@ -59,7 +59,7 @@ public final class Main {
                     if (firstArg.startsWith("-")) {
                         iterator.next();
                     } else {
-                        Logger.error(Lang.getInstance().getUnknownModeMessage(), firstArg);
+                        Logger.error(Lang.getInstance().getUnknownModeMessage(firstArg));
                         System.exit(1);
                         return;
                     }
@@ -79,10 +79,10 @@ public final class Main {
 
         final Path basePath = Paths.get(options.directory == null ? "" : options.directory).toAbsolutePath();
         if (Files.notExists(basePath)) {
-            Logger.error(resources.getPathNotExistMessage(), basePath);
+            Logger.error(resources.getPathNotExistMessage(basePath));
             System.exit(1);
         } else if (!Files.isDirectory(basePath)) {
-            Logger.error(resources.getPathIsAFileMessage(), basePath);
+            Logger.error(resources.getPathIsAFileMessage(basePath));
             System.exit(1);
         }
 
@@ -102,11 +102,11 @@ public final class Main {
                             System.out.println(Lang.getInstance().getHelpMessage());
                             System.exit(1);
                         } else {
-                            Logger.error(resources.getFileNotExistMessage(), cf);
+                            Logger.error(resources.getFileNotExistMessage(cf));
                             System.exit(1);
                         }
                     } else if (!Files.isReadable(cf)) {
-                        Logger.error(resources.getFileCannotBeReadMessage(), cf);
+                        Logger.error(resources.getFileCannotBeReadMessage(cf));
                         System.exit(1);
                     }
                     reader = Files.newBufferedReader(cf);
@@ -128,14 +128,14 @@ public final class Main {
                 Path exclude = null;
                 if ("-".equals(options.checksumsFile)) {
                     if (mode == Mode.Update) {
-                        Logger.error(resources.getInvalidOptionValueMessage(), "-f");
+                        Logger.error(resources.getInvalidOptionValueMessage("-f", "-"));
                         System.exit(1);
                     }
                     writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
                 } else {
                     final Path cf = Paths.get(options.checksumsFile).toAbsolutePath();
                     if (Files.isDirectory(cf)) {
-                        Logger.error(resources.getPathIsDirMessage(), cf);
+                        Logger.error(resources.getPathIsDirMessage(cf));
                         System.exit(1);
                     }
                     if (Files.exists(cf)) {
@@ -147,7 +147,7 @@ public final class Main {
                                     if (!line.isEmpty()) {
                                         final Pair<String, String> p = Utils.spiltRecord(line);
                                         if (p == null || !options.algorithm.isAcceptChecksum(p.component1)) {
-                                            Logger.error(resources.getInvalidHashRecordMessage(), line);
+                                            Logger.error(resources.getInvalidHashRecordMessage(line));
                                         } else {
                                             old.put(p.component2, p.component1);// TODO
                                         }
@@ -155,13 +155,13 @@ public final class Main {
                                 }
                             }
                         } else if (!options.assumeYes) {
-                            Logger.error(resources.getOverwriteFileMessage(), cf);
+                            Logger.error(resources.getOverwriteFileMessage(cf));
                             if (!IOUtils.readChoice()) {
                                 return;
                             }
                         }
                     } else if (mode == Mode.Update && !options.assumeYes) {
-                        Logger.error(resources.getCreateFileMessage(), cf);
+                        Logger.error(resources.getCreateFileMessage(cf));
                         if (!IOUtils.readChoice()) {
                             return;
                         }

@@ -63,7 +63,7 @@ public final class CreateOrUpdate {
                     p[count] = file.getFileName().toString();
                     result.put(p, submit(file));
                 } else {
-                    Logger.error(Lang.getInstance().getFileCannotBeReadMessage(), file);
+                    Logger.error(Lang.getInstance().getFileCannotBeReadMessage(file));
                 }
             }
             return FileVisitResult.CONTINUE;
@@ -121,9 +121,9 @@ public final class CreateOrUpdate {
 
             String oldHash = old.remove(path);
             if (oldHash == null) {
-                Logger.info(Lang.getInstance().getNewFileBeRecordedMessage(), path);
+                Logger.info(Lang.getInstance().getNewFileBeRecordedMessage(path));
             } else if (!oldHash.equalsIgnoreCase(newHash)) {
-                Logger.info(Lang.getInstance().getFileHashUpdatedMessage(), path, oldHash, newHash);
+                Logger.info(Lang.getInstance().getFileHashUpdatedMessage(path, newHash, oldHash));
             }
 
             writer.print(newHash);
@@ -146,7 +146,7 @@ public final class CreateOrUpdate {
 
         if (numThreads > 1) {
             final ExecutorService pool = Executors.newFixedThreadPool(numThreads, new ChecksumThreadFactory());
-            final Visitor<Future<String>> visitor = new Visitor<Future<String>>(exclude) {
+            final Visitor<Future<String>> visitor = new Visitor<>(exclude) {
                 @Override
                 protected Future<String> submit(Path file) {
                     return pool.submit(() -> hasher.hashFile(file));
@@ -177,7 +177,7 @@ public final class CreateOrUpdate {
                 });
             }
         } else {
-            final Visitor<String> visitor = new Visitor<String>(exclude) {
+            final Visitor<String> visitor = new Visitor<>(exclude) {
                 @Override
                 protected String submit(Path file) throws IOException {
                     return hasher.hashFile(file);
