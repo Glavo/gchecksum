@@ -23,7 +23,7 @@ import org.glavo.checksum.util.Logger;
 import org.glavo.checksum.util.Lang;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.Writer;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
@@ -82,61 +82,54 @@ public final class CreateOrUpdate {
         }
     }
 
-    private static void doCreate(String[] pathArray, String v, PrintWriter writer) {
-        try {
-            writer.print(v);
-            writer.print("  ");
+    private static void doCreate(String[] pathArray, String v, Writer writer) throws IOException {
+        writer.write(v);
+        writer.write("  ");
 
-            final int length = pathArray.length;
-            if (length != 0) {
-                writer.print(pathArray[0]);
-                for (int i = 1; i < length; i++) {
-                    writer.print('/');
-                    writer.print(pathArray[i]);
-                }
+        final int length = pathArray.length;
+        if (length != 0) {
+            writer.write(pathArray[0]);
+            for (int i = 1; i < length; i++) {
+                writer.write('/');
+                writer.write(pathArray[i]);
             }
-            writer.println();
-        } catch (Throwable e) {
-            e.printStackTrace();
         }
+        writer.write('\n');
     }
 
-    private static void doUpdate(String[] pathArray, String newHash, PrintWriter writer, Map<String, String> old) {
-        try {
-            final String path;
+    private static void doUpdate(String[] pathArray, String newHash, Writer writer, Map<String, String> old) throws IOException {
+        final String path;
 
-            final int length = pathArray.length;
-            if (length == 0) {
-                path = "";
-            } else {
-                final StringBuilder builder = new StringBuilder(80);
-                builder.append(pathArray[0]);
-                for (int i = 1; i < length; i++) {
-                    builder.append('/');
-                    builder.append(pathArray[i]);
-                }
-                path = builder.toString();
+        final int length = pathArray.length;
+        if (length == 0) {
+            path = "";
+        } else {
+            final StringBuilder builder = new StringBuilder(80);
+            builder.append(pathArray[0]);
+            for (int i = 1; i < length; i++) {
+                builder.append('/');
+                builder.append(pathArray[i]);
             }
-
-
-            String oldHash = old.remove(path);
-            if (oldHash == null) {
-                Logger.info(Lang.getInstance().getNewFileBeRecordedMessage(path));
-            } else if (!oldHash.equalsIgnoreCase(newHash)) {
-                Logger.info(Lang.getInstance().getFileHashUpdatedMessage(path, newHash, oldHash));
-            }
-
-            writer.print(newHash);
-            writer.print("  ");
-            writer.println(path);
-        } catch (Throwable e) {
-            e.printStackTrace();
+            path = builder.toString();
         }
+
+
+        String oldHash = old.remove(path);
+        if (oldHash == null) {
+            Logger.info(Lang.getInstance().getNewFileBeRecordedMessage(path));
+        } else if (!oldHash.equalsIgnoreCase(newHash)) {
+            Logger.info(Lang.getInstance().getFileHashUpdatedMessage(path, newHash, oldHash));
+        }
+
+        writer.write(newHash);
+        writer.write("  ");
+        writer.write(path);
+        writer.write('\n');
     }
 
     public static void update(
             Path basePath,
-            PrintWriter writer,
+            Writer writer,
             Path exclude,
             Hasher hasher,
             int numThreads,
@@ -186,9 +179,21 @@ public final class CreateOrUpdate {
             Files.walkFileTree(basePath, fileVisitOptions, Integer.MAX_VALUE, visitor);
 
             if (old != null) {
-                visitor.result.forEach((pathArray, hash) -> doUpdate(pathArray, hash, writer, old));
+                visitor.result.forEach((pathArray, hash) -> {
+                    try {
+                        doUpdate(pathArray, hash, writer, old);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
             } else {
-                visitor.result.forEach((pathArray, hash) -> doCreate(pathArray, hash, writer));
+                visitor.result.forEach((pathArray, hash) -> {
+                    try {
+                        doCreate(pathArray, hash, writer);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
             }
         }
 

@@ -22,7 +22,11 @@ import org.glavo.checksum.mode.Mode;
 import org.glavo.checksum.mode.Verify;
 import org.glavo.checksum.util.*;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -124,14 +128,14 @@ public final class Main {
                     options.algorithm = Hasher.getDefault();
                 }
                 Map<String, String> old = null;
-                PrintWriter writer;
+                Writer writer;
                 Path exclude = null;
                 if ("-".equals(options.checksumsFile)) {
                     if (mode == Mode.Update) {
                         Logger.error(resources.getInvalidOptionValueMessage("-f", "-"));
                         System.exit(1);
                     }
-                    writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
+                    writer = new BufferedWriter(new OutputStreamWriter(System.out));
                 } else {
                     final Path cf = Paths.get(options.checksumsFile).toAbsolutePath();
                     if (Files.isDirectory(cf)) {
@@ -167,7 +171,7 @@ public final class Main {
                         }
                     }
                     exclude = cf;
-                    writer = new PrintWriter(Files.newBufferedWriter(cf));
+                    writer = Files.newBufferedWriter(cf);
                 }
 
                 try {
