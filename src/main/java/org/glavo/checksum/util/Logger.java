@@ -43,27 +43,11 @@ public final class Logger {
         }
     }
 
-    public static void info(String format, Object... args) {
-        if (colored) {
-            System.out.println(GREEN + String.format(format, args) + RESET);
-        } else {
-            System.out.printf(format + "%n", args);
-        }
-    }
-
     public static void error(String message) {
         if (colored) {
             System.err.println(RED + message + RESET);
         } else {
             System.err.println(message);
-        }
-    }
-
-    public static void error(String format, Object... args) {
-        if (colored) {
-            System.err.println(RED + String.format(format, args) + RESET);
-        } else {
-            System.err.printf(format + "%n", args);
         }
     }
 }
