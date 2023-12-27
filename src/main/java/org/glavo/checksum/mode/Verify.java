@@ -16,13 +16,17 @@
 
 package org.glavo.checksum.mode;
 
+import org.glavo.checksum.Exit;
+import org.glavo.checksum.Options;
 import org.glavo.checksum.hash.Hasher;
 import org.glavo.checksum.util.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -73,7 +77,7 @@ public final class Verify {
         return true;
     }
 
-    private static void verify(BufferedReader reader, Hasher hasher, BiConsumer<String, Hasher> action) throws IOException {
+    private static void verify(BufferedReader reader, Hasher hasher, BiConsumer<String, Hasher> action) throws IOException, Exit {
         String line;
         if (hasher == null) {
             line = reader.readLine();
@@ -87,7 +91,7 @@ public final class Verify {
             hasher = Hasher.ofHashStringLength(idx);
             if (hasher == null) {
                 Logger.error(Lang.getInstance().getNoMatchHasher());
-                System.exit(1);
+                throw Exit.error();
             }
 
             action.accept(line, hasher);
@@ -97,8 +101,7 @@ public final class Verify {
         }
     }
 
-    public static void verify(Path basePath, BufferedReader reader, Hasher hasher, int numThreads)
-            throws Exception {
+    public static void verify(Path basePath, BufferedReader reader, Hasher hasher, int numThreads) throws IOException, Exit {
 
         long successCount;
         long failureCount;
@@ -120,8 +123,12 @@ public final class Verify {
                 pool.shutdown();
             }
 
-            if (!pool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS)) {
-                throw new AssertionError();
+            try {
+                if (!pool.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS)) {
+                    throw new AssertionError();
+                }
+            } catch (InterruptedException e) {
+                throw new AssertionError(e);
             }
 
             successCount = successCounter.sum();
@@ -140,5 +147,32 @@ public final class Verify {
         }
 
         Logger.info(Lang.getInstance().getVerificationCompletedMessage(successCount, failureCount));
+    }
+
+    public static void verify(Options options, boolean argsIsEmpty) throws IOException, Exit {
+        BufferedReader reader;
+        if ("-".equals(options.checksumsFile)) {
+            reader = new BufferedReader(new InputStreamReader(System.in));
+        } else {
+            final Path cf = Paths.get(options.checksumsFile).toAbsolutePath();
+            if (Files.notExists(cf)) {
+                if (argsIsEmpty) {
+                    System.out.println(Lang.getInstance().getHelpMessage());
+                    throw Exit.error();
+                } else {
+                    Logger.error(Lang.getInstance().getFileNotExistMessage(cf));
+                    throw Exit.error();
+                }
+            } else if (!Files.isReadable(cf)) {
+                Logger.error(Lang.getInstance().getFileCannotBeReadMessage(cf));
+                throw Exit.error();
+            }
+            reader = Files.newBufferedReader(cf);
+        }
+        try {
+            Verify.verify(options.basePath, reader, options.algorithm, options.numThreads);
+        } finally {
+            reader.close();
+        }
     }
 }

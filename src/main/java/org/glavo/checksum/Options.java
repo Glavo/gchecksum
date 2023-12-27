@@ -22,10 +22,13 @@ import org.glavo.checksum.util.Logger;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 
-public class OptionParser {
+public class Options {
     protected final Lang lang = Lang.getInstance();
 
     protected final Iterator<String> iterator;
@@ -37,63 +40,11 @@ public class OptionParser {
     public Hasher algorithm;
     public Integer numThreads;
 
-    public OptionParser(Iterator<String> iterator) {
+    public final Path basePath;
+
+    public Options(Iterator<String> iterator) throws Exit {
         this.iterator = iterator;
-    }
 
-    protected static void reportMissArg(String opt) throws Exit {
-        Logger.error(Lang.getInstance().getMissArgMessage(opt));
-        throw Exit.error();
-    }
-
-    protected static void reportParamRespecified(String opt) throws Exit {
-        Logger.error(Lang.getInstance().getParamRespecifiedMessage(opt));
-        throw Exit.error();
-    }
-
-    private static void printRuntimeInformation() {
-        final String[] properties = {
-                "java.home",
-                "java.runtime.name",
-                "java.runtime.version",
-                "java.vm.name",
-                "java.vm.info",
-                "java.vm.vendor",
-                "java.vm.version",
-                "os.name",
-                "os.arch",
-                "os.version",
-                "path.separator",
-                "sun.boot.library.path",
-                "user.dir",
-                "user.language",
-                "file.encoding",
-                "file.separator",
-                "native.encoding"
-        };
-
-        System.out.println(Lang.getInstance().getVersionInformation());
-        System.out.println();
-
-        int maxLength = 0;
-        for (String property : properties) {
-            maxLength = Integer.max(property.length(), maxLength);
-        }
-
-        System.out.println("Property settings:");
-        for (String key : properties) {
-            System.out.printf("    %-" + maxLength + "s = %s%n", key, System.getProperty(key));
-        }
-
-        System.out.println("Crypto settings:");
-        try {
-            System.out.println("    provider = " + Cipher.getInstance("AES/GCM/NoPadding").getProvider());
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void parse() throws Exit {
         while (iterator.hasNext()) {
             String arg = iterator.next();
             switch (arg) {
@@ -165,7 +116,7 @@ public class OptionParser {
                     if (!iterator.hasNext()) {
                         reportMissArg(arg);
                     }
-                    if (numThreads != 0) {
+                    if (numThreads != null) {
                         reportParamRespecified(arg);
                     }
                     String nt = iterator.next();
@@ -189,6 +140,75 @@ public class OptionParser {
                     assumeYes = true;
                     break;
             }
+        }
+
+        if (numThreads == null) {
+            numThreads = 4;
+        }
+
+        basePath = Paths.get(directory == null ? "" : directory).toAbsolutePath();
+        if (Files.notExists(basePath)) {
+            Logger.error(lang.getPathNotExistMessage(basePath));
+            throw Exit.error();
+        } else if (!Files.isDirectory(basePath)) {
+            Logger.error(lang.getPathIsAFileMessage(basePath));
+            throw Exit.error();
+        }
+
+        if (checksumsFile == null) {
+            checksumsFile = "checksums.txt";
+        }
+    }
+
+    protected static void reportMissArg(String opt) throws Exit {
+        Logger.error(Lang.getInstance().getMissArgMessage(opt));
+        throw Exit.error();
+    }
+
+    protected static void reportParamRespecified(String opt) throws Exit {
+        Logger.error(Lang.getInstance().getParamRespecifiedMessage(opt));
+        throw Exit.error();
+    }
+
+    private static void printRuntimeInformation() {
+        final String[] properties = {
+                "java.home",
+                "java.runtime.name",
+                "java.runtime.version",
+                "java.vm.name",
+                "java.vm.info",
+                "java.vm.vendor",
+                "java.vm.version",
+                "os.name",
+                "os.arch",
+                "os.version",
+                "path.separator",
+                "sun.boot.library.path",
+                "user.dir",
+                "user.language",
+                "file.encoding",
+                "file.separator",
+                "native.encoding"
+        };
+
+        System.out.println(Lang.getInstance().getVersionInformation());
+        System.out.println();
+
+        int maxLength = 0;
+        for (String property : properties) {
+            maxLength = Integer.max(property.length(), maxLength);
+        }
+
+        System.out.println("Property settings:");
+        for (String key : properties) {
+            System.out.printf("    %-" + maxLength + "s = %s%n", key, System.getProperty(key));
+        }
+
+        System.out.println("Crypto settings:");
+        try {
+            System.out.println("    provider = " + Cipher.getInstance("AES/GCM/NoPadding").getProvider());
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+            e.printStackTrace();
         }
     }
 

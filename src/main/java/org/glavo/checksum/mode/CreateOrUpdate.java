@@ -16,14 +16,13 @@
 
 package org.glavo.checksum.mode;
 
+import org.glavo.checksum.Exit;
+import org.glavo.checksum.Options;
 import org.glavo.checksum.hash.Hasher;
 import org.glavo.checksum.path.ArrayPathComparator;
-import org.glavo.checksum.util.ChecksumThreadFactory;
-import org.glavo.checksum.util.Logger;
-import org.glavo.checksum.util.Lang;
+import org.glavo.checksum.util.*;
 
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
@@ -127,13 +126,13 @@ public final class CreateOrUpdate {
         writer.write('\n');
     }
 
-    public static void update(
+    public static void createOrUpdate(
             Path basePath,
             Writer writer,
             Path exclude,
             Hasher hasher,
             int numThreads,
-            Map<String, String> old) throws Exception {
+            Map<String, String> old) throws IOException {
 
         final Set<FileVisitOption> fileVisitOptions = Collections.singleton(FileVisitOption.FOLLOW_LINKS);
 
@@ -198,5 +197,63 @@ public final class CreateOrUpdate {
         }
 
         Logger.info(Lang.getInstance().getDoneMessage());
+    }
+
+    public static void createOrUpdate(Options options, boolean update) throws IOException, Exit {
+        if (options.algorithm == null) {
+            options.algorithm = Hasher.getDefault();
+        }
+        Map<String, String> old = null;
+        Writer writer;
+        Path exclude = null;
+        if ("-".equals(options.checksumsFile)) {
+            if (update) {
+                Logger.error(Lang.getInstance().getInvalidOptionValueMessage("-f", "-"));
+                throw Exit.error();
+            }
+            writer = new BufferedWriter(new OutputStreamWriter(System.out));
+        } else {
+            final Path cf = Paths.get(options.checksumsFile).toAbsolutePath();
+            if (Files.isDirectory(cf)) {
+                Logger.error(Lang.getInstance().getPathIsDirMessage(cf));
+                throw Exit.error();
+            }
+            if (Files.exists(cf)) {
+                if (update) {
+                    old = new HashMap<>();
+                    try (BufferedReader r = Files.newBufferedReader(cf)) {
+                        String line;
+                        while ((line = r.readLine()) != null) {
+                            if (!line.isEmpty()) {
+                                final Pair<String, String> p = Utils.spiltRecord(line);
+                                if (p == null || !options.algorithm.isAcceptChecksum(p.component1)) {
+                                    Logger.error(Lang.getInstance().getInvalidHashRecordMessage(line));
+                                } else {
+                                    old.put(p.component2, p.component1);// TODO
+                                }
+                            }
+                        }
+                    }
+                } else if (!options.assumeYes) {
+                    Logger.error(Lang.getInstance().getOverwriteFileMessage(cf));
+                    if (!IOUtils.readChoice()) {
+                        return;
+                    }
+                }
+            } else if (update && !options.assumeYes) {
+                Logger.error(Lang.getInstance().getCreateFileMessage(cf));
+                if (!IOUtils.readChoice()) {
+                    return;
+                }
+            }
+            exclude = cf;
+            writer = Files.newBufferedWriter(cf);
+        }
+
+        try {
+            CreateOrUpdate.createOrUpdate(options.basePath, writer, exclude, options.algorithm, options.numThreads, old);
+        } finally {
+            writer.close();
+        }
     }
 }

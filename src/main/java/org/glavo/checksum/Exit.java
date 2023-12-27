@@ -33,7 +33,7 @@ public final class Exit extends Exception {
         this.exitCode = exitCode;
     }
 
-    public void doExit() {
-        System.exit(exitCode);
+    public int getExitCode() {
+        return exitCode;
     }
 }
