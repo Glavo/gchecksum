@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public final class Main {
+
     public static void main(String[] args) throws Exception {
         final Lang resources = Lang.getInstance();
 
@@ -58,14 +59,19 @@ public final class Main {
                     if (firstArg.startsWith("-")) {
                         iterator.next();
                     } else {
-                        Logger.logErrorAndExit(Lang.getInstance().getUnknownModeMessage(), firstArg);
+                        Logger.error(Lang.getInstance().getUnknownModeMessage(), firstArg);
+                        System.exit(1);
                         return;
                     }
             }
         }
 
         OptionParser options = new OptionParser(iterator);
-        options.parse();
+        try {
+            options.parse();
+        } catch (Exit exit) {
+            exit.doExit();
+        }
 
         if (options.numThreads == 0) {
             options.numThreads = 4;
@@ -73,9 +79,11 @@ public final class Main {
 
         final Path basePath = Paths.get(options.directory == null ? "" : options.directory).toAbsolutePath();
         if (Files.notExists(basePath)) {
-            Logger.logErrorAndExit(resources.getPathNotExistMessage(), basePath);
+            Logger.error(resources.getPathNotExistMessage(), basePath);
+            System.exit(1);
         } else if (!Files.isDirectory(basePath)) {
-            Logger.logErrorAndExit(resources.getPathIsAFileMessage(), basePath);
+            Logger.error(resources.getPathIsAFileMessage(), basePath);
+            System.exit(1);
         }
 
         if (options.checksumsFile == null) {
@@ -94,10 +102,12 @@ public final class Main {
                             System.out.println(Lang.getInstance().getHelpMessage());
                             System.exit(1);
                         } else {
-                            Logger.logErrorAndExit(resources.getFileNotExistMessage(), cf);
+                            Logger.error(resources.getFileNotExistMessage(), cf);
+                            System.exit(1);
                         }
                     } else if (!Files.isReadable(cf)) {
-                        Logger.logErrorAndExit(resources.getFileCannotBeReadMessage(), cf);
+                        Logger.error(resources.getFileCannotBeReadMessage(), cf);
+                        System.exit(1);
                     }
                     reader = Files.newBufferedReader(cf);
                 }
@@ -118,13 +128,15 @@ public final class Main {
                 Path exclude = null;
                 if ("-".equals(options.checksumsFile)) {
                     if (mode == Mode.Update) {
-                        Logger.logErrorAndExit(resources.getInvalidOptionValueMessage(), "-f");
+                        Logger.error(resources.getInvalidOptionValueMessage(), "-f");
+                        System.exit(1);
                     }
                     writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
                 } else {
                     final Path cf = Paths.get(options.checksumsFile).toAbsolutePath();
                     if (Files.isDirectory(cf)) {
-                        Logger.logErrorAndExit(resources.getPathIsDirMessage(), cf);
+                        Logger.error(resources.getPathIsDirMessage(), cf);
+                        System.exit(1);
                     }
                     if (Files.exists(cf)) {
                         if (mode == Mode.Update) {

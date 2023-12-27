@@ -66,15 +66,4 @@ public final class Logger {
             System.err.printf(format + "%n", args);
         }
     }
-
-    public static void logErrorAndExit(String message) {
-        error(message);
-        System.exit(1);
-    }
-
-    public static void logErrorAndExit(String format, Object... args) {
-        error(format, args);
-        System.exit(1);
-    }
-
 }

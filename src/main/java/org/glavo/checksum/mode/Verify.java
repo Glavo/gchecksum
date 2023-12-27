@@ -86,7 +86,8 @@ public final class Verify {
             final int idx = line.indexOf(' ');
             hasher = Hasher.ofHashStringLength(idx);
             if (hasher == null) {
-                Logger.logErrorAndExit(Lang.getInstance().getNoMatchHasher());
+                Logger.error(Lang.getInstance().getNoMatchHasher());
+                System.exit(1);
             }
 
             action.accept(line, hasher);

@@ -41,12 +41,14 @@ public class OptionParser {
         this.iterator = iterator;
     }
 
-    protected static void reportMissArg(String opt) {
-        Logger.logErrorAndExit(Lang.getInstance().getMissArgMessage(), opt);
+    protected static void reportMissArg(String opt) throws Exit {
+        Logger.error(Lang.getInstance().getMissArgMessage(), opt);
+        throw Exit.error();
     }
 
-    protected static void reportParamRespecified(String opt) {
-        Logger.logErrorAndExit(Lang.getInstance().getParamRespecifiedMessage(), opt);
+    protected static void reportParamRespecified(String opt) throws Exit {
+        Logger.error(Lang.getInstance().getParamRespecifiedMessage(), opt);
+        throw Exit.error();
     }
 
     private static void printRuntimeInformation() {
@@ -91,7 +93,7 @@ public class OptionParser {
         }
     }
 
-    public void parse() {
+    public void parse() throws Exit {
         while (iterator.hasNext()) {
             String arg = iterator.next();
             switch (arg) {
@@ -99,14 +101,14 @@ public class OptionParser {
                 case "-h":
                 case "--help":
                     System.out.println(Lang.getInstance().getHelpMessage());
-                    return;
+                    throw Exit.success();
                 case "-v":
                 case "--version":
                     System.out.println(lang.getVersionInformation());
-                    return;
+                    throw Exit.success();
                 case "--print-runtime-information":
                     printRuntimeInformation();
-                    return;
+                    throw Exit.success();
                 case "-f":
                     if (!iterator.hasNext()) {
                         reportMissArg(arg);
@@ -124,7 +126,8 @@ public class OptionParser {
                         reportParamRespecified(arg);
                     }
                     if (inputs != null) {
-                        Logger.logErrorAndExit(lang.getOptionMixedMessage(), "-d", "-i");
+                        Logger.error(lang.getOptionMixedMessage(), "-d", "-i");
+                        throw Exit.error();
                     }
                     directory = iterator.next();
                     break;
@@ -136,11 +139,12 @@ public class OptionParser {
                         reportParamRespecified(arg);
                     }
                     if (directory != null) {
-                        Logger.logErrorAndExit(lang.getOptionMixedMessage(), "-d", "-i");
+                        Logger.error(lang.getOptionMixedMessage(), "-d", "-i");
+                        throw Exit.error();
                     }
                     inputs = iterator.next();
-                    Logger.logErrorAndExit("error: -i option is not yet supported");
-                    break;
+                    Logger.error("error: -i option is not yet supported");
+                    throw Exit.error();
                 case "-a":
                 case "--algorithm":
                     if (!iterator.hasNext()) {
@@ -152,7 +156,8 @@ public class OptionParser {
                     String algoName = iterator.next();
                     algorithm = Hasher.ofName(algoName);
                     if (algorithm == null) {
-                        Logger.logErrorAndExit(lang.getUnsupportedAlgorithmMessage(), algoName);
+                        Logger.error(lang.getUnsupportedAlgorithmMessage(), algoName);
+                        throw Exit.error();
                     }
                     break;
                 case "-n":
@@ -170,7 +175,8 @@ public class OptionParser {
                     } catch (NumberFormatException ignored) {
                     }
                     if (n <= 0) {
-                        Logger.logErrorAndExit(lang.getInvalidOptionValueMessage(), nt);
+                        Logger.error(lang.getInvalidOptionValueMessage(), nt);
+                        throw Exit.error();
                     }
                     numThreads = n;
                     break;
@@ -186,7 +192,8 @@ public class OptionParser {
         }
     }
 
-    protected void parseOption(String option) {
-        Logger.logErrorAndExit(lang.getInvalidOptionMessage(), option);
+    protected void parseOption(String option) throws Exit {
+        Logger.error(lang.getInvalidOptionMessage(), option);
+        throw Exit.error();
     }
 }
