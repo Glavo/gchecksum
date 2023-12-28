@@ -81,7 +81,7 @@ public final class Verify {
         String line;
         if (hasher == null) {
             line = reader.readLine();
-            while (line != null && line.isEmpty()) {
+            while (line != null && line.isBlank()) {
                 line = reader.readLine();
             }
             if (line == null) {
@@ -97,7 +97,9 @@ public final class Verify {
             action.accept(line, hasher);
         }
         while ((line = reader.readLine()) != null) {
-            action.accept(line, hasher);
+            if (!line.isBlank()) {
+                action.accept(line, hasher);
+            }
         }
     }
 
