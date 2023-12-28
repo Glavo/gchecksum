@@ -21,8 +21,7 @@ import org.glavo.checksum.hash.Hasher;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
@@ -147,10 +146,13 @@ public enum Lang {
         String version = null;
         String provider = null;
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(Main.class.getResourceAsStream("version.txt"), StandardCharsets.US_ASCII))) {
-            version = reader.readLine();
+        try (InputStream inputStream = Main.class.getResourceAsStream("version.txt")) {
+            if (inputStream != null) {
+                version = new String(inputStream.readAllBytes(), StandardCharsets.US_ASCII);
+            }
         } catch (Throwable ignored) {
         }
+
         try {
             provider = Cipher.getInstance("AES/GCM/NoPadding").getProvider().toString();
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | NullPointerException ignored) {
