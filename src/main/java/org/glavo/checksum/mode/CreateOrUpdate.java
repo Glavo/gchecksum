@@ -113,7 +113,6 @@ public final class CreateOrUpdate {
             path = builder.toString();
         }
 
-
         String oldHash = old.remove(path);
         if (oldHash == null) {
             Logger.info(Lang.getInstance().getNewFileBeRecordedMessage(path));
@@ -230,6 +229,7 @@ public final class CreateOrUpdate {
             if (Files.exists(cf)) {
                 if (update) {
                     old = new HashMap<>();
+                    boolean hasError = false;
                     try (BufferedReader r = Files.newBufferedReader(cf)) {
                         String line;
                         while ((line = r.readLine()) != null) {
@@ -237,10 +237,22 @@ public final class CreateOrUpdate {
                                 final Pair<String, String> p = Utils.spiltRecord(line);
                                 if (p == null || !options.algorithm.isAcceptChecksum(p.component1)) {
                                     Logger.error(Lang.getInstance().getInvalidHashRecordMessage(line));
+                                    hasError = true;
                                 } else {
-                                    old.put(p.component2, p.component1);// TODO
+                                    String oldHash = old.put(p.component2, p.component1);
+                                    if (oldHash != null) {
+                                        Logger.error(Lang.getInstance().getDuplicateHashRecordMessage(p.component2));
+                                        hasError = true;
+                                    }
                                 }
                             }
+                        }
+                    }
+
+                    if (hasError && !options.assumeYes) {
+                        Logger.error(Lang.getInstance().getHasErrorMessage(cf));
+                        if (!IOUtils.readChoice()) {
+                            return;
                         }
                     }
                 } else if (!options.assumeYes) {

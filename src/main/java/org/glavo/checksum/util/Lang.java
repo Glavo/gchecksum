@@ -231,6 +231,11 @@ public enum Lang {
         else return "error: invalid hash record '" + record + "'";
     }
 
+    public String getDuplicateHashRecordMessage(String file) {
+        if (this == CHINESE) return "错误: 文件 " + file + " 具有重复的哈希记录";
+        else return "error: file " + file + " has duplicate hash records";
+    }
+
     public String getPathIsDirMessage(Path path) {
         if (this == CHINESE) return "错误: 路径 '" + path + "' 是一个目录";
         else return "error: path '" + path + "' is a directory";
@@ -265,13 +270,18 @@ public enum Lang {
     }
 
     public String getOverwriteFileMessage(Path file) {
-        if (this == CHINESE) return "已存在的文件 '" + file + "' 将被覆盖, 是否继续?[y/n]";
+        if (this == CHINESE) return "已存在的文件 '" + file + "' 将被覆盖, 是否继续? [y/n]";
         else return "The existing file '" + file + "' will be overwritten, do you want to continue? [y/n]";
     }
 
     public String getCreateFileMessage(Path file) {
-        if (this == CHINESE) return "文件 '" + file + "' 尚不存在, 是否想要创建它?[y/n]";
+        if (this == CHINESE) return "文件 '" + file + "' 尚不存在, 是否想要创建它? [y/n]";
         else return "The file '" + file + "' not exist, do you want to create it? [y/n]";
+    }
+
+    public String getHasErrorMessage(Path file) {
+        if (this == CHINESE) return "文件 '" + file + "' 包含错误的哈希记录, 是否想要更新它? [y/n]";
+        else return "The file '" + file + "' contains invalid hash record, do you want to update it? [y/n]";
     }
 
     public String getNewFileBeRecordedMessage(String file) {
