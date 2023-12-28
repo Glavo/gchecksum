@@ -102,7 +102,6 @@ public final class Verify {
     }
 
     public static void verify(Path basePath, BufferedReader reader, Hasher hasher, int numThreads) throws IOException, Exit {
-
         long successCount;
         long failureCount;
 
@@ -158,11 +157,10 @@ public final class Verify {
             if (Files.notExists(cf)) {
                 if (argsIsEmpty) {
                     System.out.println(Lang.getInstance().getHelpMessage());
-                    throw Exit.error();
                 } else {
                     Logger.error(Lang.getInstance().getFileNotExistMessage(cf));
-                    throw Exit.error();
                 }
+                throw Exit.error();
             } else if (!Files.isReadable(cf)) {
                 Logger.error(Lang.getInstance().getFileCannotBeReadMessage(cf));
                 throw Exit.error();
