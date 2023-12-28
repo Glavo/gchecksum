@@ -70,8 +70,8 @@ public final class CreateOrUpdate {
         }
 
         @Override
-        public FileVisitResult visitFileFailed(Path file, IOException exc) {
-            exc.printStackTrace();
+        public FileVisitResult visitFileFailed(Path file, IOException e) {
+            Logger.error(Lang.getInstance().getErrorOccurredMessage(file), e);
             return FileVisitResult.CONTINUE;
         }
 

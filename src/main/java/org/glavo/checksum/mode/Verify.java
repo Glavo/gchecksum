@@ -64,10 +64,7 @@ public final class Verify {
         try {
             fileHash = hasher.hashFile(file);
         } catch (IOException e) {
-            synchronized (System.err) {
-                Logger.error(Lang.getInstance().getErrorOccurredMessage(file));
-                e.printStackTrace();
-            }
+            Logger.error(Lang.getInstance().getErrorOccurredMessage(file), e);
             return false;
         }
 

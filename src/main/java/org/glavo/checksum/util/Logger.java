@@ -16,6 +16,8 @@
 
 package org.glavo.checksum.util;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Locale;
 
 public final class Logger {
@@ -49,5 +51,25 @@ public final class Logger {
         } else {
             System.err.println(message);
         }
+    }
+
+    public static void error(String message, Throwable exception) {
+        StringWriter writer = new StringWriter();
+
+        if (colored) {
+            writer.write(RED);
+        }
+
+        writer.write(message);
+        writer.write(System.lineSeparator());
+        try (var pr = new PrintWriter(writer, false)) {
+            exception.printStackTrace(pr);
+        }
+
+        if (colored) {
+            writer.write(RESET);
+        }
+
+        System.err.print(writer);
     }
 }
