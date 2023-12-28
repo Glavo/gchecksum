@@ -39,20 +39,21 @@ public final class Main {
             switch (firstArg) {
                 case "v":
                 case "verify":
+                    iterator.next();
                     mode = Mode.Verify;
                     break;
                 case "c":
                 case "create":
+                    iterator.next();
                     mode = Mode.Create;
                     break;
                 case "u":
                 case "update":
+                    iterator.next();
                     mode = Mode.Update;
                     break;
                 default:
-                    if (firstArg.startsWith("-")) {
-                        iterator.next();
-                    } else {
+                    if (!firstArg.startsWith("-")) {
                         Logger.error(Lang.getInstance().getUnknownModeMessage(firstArg));
                         System.exit(1);
                         return;

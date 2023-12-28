@@ -178,7 +178,7 @@ public enum Lang {
         else return "error: " + option + " requires an argument";
     }
 
-    public String getParamRespecifiedMessage(String option) {
+    public String getOptionRespecifiedMessage(String option) {
         if (this == CHINESE) return "错误: 选项 " + option + " 被指定多次";
         else return "error: option " + option + " is specified more than once";
     }
@@ -241,7 +241,7 @@ public enum Lang {
     }
 
     public String getInvalidOptionMessage(String option) {
-        if (this == CHINESE) return "错误: 无效参数: " + option;
+        if (this == CHINESE) return "错误: 无效选项: " + option;
         else return "error: invalid option: " + option;
     }
 

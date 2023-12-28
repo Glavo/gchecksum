@@ -47,98 +47,11 @@ public class Options {
 
         while (iterator.hasNext()) {
             String arg = iterator.next();
-            switch (arg) {
-                case "-?":
-                case "-h":
-                case "--help":
-                    System.out.println(Lang.getInstance().getHelpMessage());
-                    throw Exit.success();
-                case "-v":
-                case "--version":
-                    System.out.println(lang.getVersionInformation());
-                    throw Exit.success();
-                case "--print-runtime-information":
-                    printRuntimeInformation();
-                    throw Exit.success();
-                case "-f":
-                    if (!iterator.hasNext()) {
-                        reportMissArg(arg);
-                    }
-                    if (checksumsFile != null) {
-                        reportParamRespecified(arg);
-                    }
-                    checksumsFile = iterator.next();
-                    break;
-                case "-d":
-                    if (!iterator.hasNext()) {
-                        reportMissArg(arg);
-                    }
-                    if (directory != null) {
-                        reportParamRespecified(arg);
-                    }
-                    if (inputs != null) {
-                        Logger.error(lang.getOptionMixedMessage("-d", "-i"));
-                        throw Exit.error();
-                    }
-                    directory = iterator.next();
-                    break;
-                case "-i":
-                    if (!iterator.hasNext()) {
-                        reportMissArg(arg);
-                    }
-                    if (inputs != null) {
-                        reportParamRespecified(arg);
-                    }
-                    if (directory != null) {
-                        Logger.error(lang.getOptionMixedMessage("-d", "-i"));
-                        throw Exit.error();
-                    }
-                    inputs = iterator.next();
-                    Logger.error("error: -i option is not yet supported");
-                    throw Exit.error();
-                case "-a":
-                case "--algorithm":
-                    if (!iterator.hasNext()) {
-                        reportMissArg(arg);
-                    }
-                    if (algorithm != null) {
-                        reportParamRespecified(arg);
-                    }
-                    String algoName = iterator.next();
-                    algorithm = Hasher.ofName(algoName);
-                    if (algorithm == null) {
-                        Logger.error(lang.getUnsupportedAlgorithmMessage(algoName));
-                        throw Exit.error();
-                    }
-                    break;
-                case "-n":
-                case "--num-threads":
-                    if (!iterator.hasNext()) {
-                        reportMissArg(arg);
-                    }
-                    if (numThreads != null) {
-                        reportParamRespecified(arg);
-                    }
-                    String nt = iterator.next();
-                    int n = 0;
-                    try {
-                        n = Integer.parseInt(nt);
-                    } catch (NumberFormatException ignored) {
-                    }
-                    if (n <= 0) {
-                        Logger.error(lang.getInvalidOptionValueMessage(arg, nt));
-                        throw Exit.error();
-                    }
-                    numThreads = n;
-                    break;
-                case "-y":
-                case "--yes":
-                case "--assume-yes":
-                    if (assumeYes) {
-                        reportParamRespecified(arg);
-                    }
-                    assumeYes = true;
-                    break;
+            if (arg.startsWith("-")) {
+                parseOption(arg);
+            } else {
+                Logger.error(lang.getInvalidOptionMessage(arg));
+                throw Exit.error();
             }
         }
 
@@ -166,7 +79,7 @@ public class Options {
     }
 
     protected static void reportParamRespecified(String opt) throws Exit {
-        Logger.error(Lang.getInstance().getParamRespecifiedMessage(opt));
+        Logger.error(Lang.getInstance().getOptionRespecifiedMessage(opt));
         throw Exit.error();
     }
 
@@ -213,7 +126,101 @@ public class Options {
     }
 
     protected void parseOption(String option) throws Exit {
-        Logger.error(lang.getInvalidOptionMessage(option));
-        throw Exit.error();
+        switch (option) {
+            case "-?":
+            case "-h":
+            case "--help":
+                System.out.println(Lang.getInstance().getHelpMessage());
+                throw Exit.success();
+            case "-v":
+            case "--version":
+                System.out.println(lang.getVersionInformation());
+                throw Exit.success();
+            case "--print-runtime-information":
+                printRuntimeInformation();
+                throw Exit.success();
+            case "-f":
+                if (!iterator.hasNext()) {
+                    reportMissArg(option);
+                }
+                if (checksumsFile != null) {
+                    reportParamRespecified(option);
+                }
+                checksumsFile = iterator.next();
+                break;
+            case "-d":
+                if (!iterator.hasNext()) {
+                    reportMissArg(option);
+                }
+                if (directory != null) {
+                    reportParamRespecified(option);
+                }
+                if (inputs != null) {
+                    Logger.error(lang.getOptionMixedMessage("-d", "-i"));
+                    throw Exit.error();
+                }
+                directory = iterator.next();
+                break;
+            case "-i":
+                if (!iterator.hasNext()) {
+                    reportMissArg(option);
+                }
+                if (inputs != null) {
+                    reportParamRespecified(option);
+                }
+                if (directory != null) {
+                    Logger.error(lang.getOptionMixedMessage("-d", "-i"));
+                    throw Exit.error();
+                }
+                inputs = iterator.next();
+                Logger.error("error: -i option is not yet supported");
+                throw Exit.error();
+            case "-a":
+            case "--algorithm":
+                if (!iterator.hasNext()) {
+                    reportMissArg(option);
+                }
+                if (algorithm != null) {
+                    reportParamRespecified(option);
+                }
+                String algoName = iterator.next();
+                algorithm = Hasher.ofName(algoName);
+                if (algorithm == null) {
+                    Logger.error(lang.getUnsupportedAlgorithmMessage(algoName));
+                    throw Exit.error();
+                }
+                break;
+            case "-n":
+            case "--num-threads":
+                if (!iterator.hasNext()) {
+                    reportMissArg(option);
+                }
+                if (numThreads != null) {
+                    reportParamRespecified(option);
+                }
+                String nt = iterator.next();
+                int n = 0;
+                try {
+                    n = Integer.parseInt(nt);
+                } catch (NumberFormatException ignored) {
+                }
+                if (n <= 0) {
+                    Logger.error(lang.getInvalidOptionValueMessage(option, nt));
+                    throw Exit.error();
+                }
+                numThreads = n;
+                break;
+            case "-y":
+            case "--yes":
+            case "--assume-yes":
+                if (assumeYes) {
+                    reportParamRespecified(option);
+                }
+                assumeYes = true;
+                break;
+            default:
+                Logger.error(lang.getInvalidOptionMessage(option));
+                throw Exit.error();
+        }
     }
 }
