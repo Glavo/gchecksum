@@ -16,14 +16,13 @@
 
 package org.glavo.checksum.util;
 
-import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.LinkOption;
 import java.nio.file.attribute.FileAttribute;
+import java.util.Locale;
 
 public final class IOUtils {
     public static final int DEFAULT_BUFFER_SIZE = 320 * 1024; // 320 KiB
@@ -33,10 +32,14 @@ public final class IOUtils {
     public static final LinkOption[] EMPTY_LINK_OPTIONS = new LinkOption[0];
 
     public static boolean readChoice() throws IOException {
-        try (BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in))) {
-            final String res = stdin.readLine();
-            return "y".equalsIgnoreCase(res) || "yes".equalsIgnoreCase(res);
+        StringBuilder lineBuilder = new StringBuilder();
+        int ch;
+        while ((ch = System.in.read()) > 0 && ch != '\r' && ch != '\n') {
+            lineBuilder.append((char) ch);
         }
+
+        String line = lineBuilder.toString().toLowerCase(Locale.ROOT);
+        return "y".equals(line) || "yes".equals(line);
     }
 
     public static int readAsPossible(ReadableByteChannel channel, ByteBuffer buffer) throws IOException {
