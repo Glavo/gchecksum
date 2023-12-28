@@ -19,11 +19,11 @@ package org.glavo.checksum.util;
 import org.glavo.checksum.Main;
 import org.glavo.checksum.hash.Hasher;
 
-import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
@@ -154,8 +154,8 @@ public enum Lang {
         }
 
         try {
-            provider = Cipher.getInstance("AES/GCM/NoPadding").getProvider().toString();
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | NullPointerException ignored) {
+            provider = MessageDigest.getInstance("SHA-256").getProvider().toString();
+        } catch (NoSuchAlgorithmException | NullPointerException ignored) {
         }
 
         if (version == null) version = "unknown";
