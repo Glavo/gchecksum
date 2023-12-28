@@ -24,6 +24,7 @@ import org.glavo.checksum.util.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -157,7 +158,7 @@ public final class Verify {
     public static void verify(Options options, boolean argsIsEmpty) throws IOException, Exit {
         BufferedReader reader;
         if ("-".equals(options.checksumsFile)) {
-            reader = new BufferedReader(new InputStreamReader(System.in));
+            reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
         } else {
             final Path cf = Paths.get(options.checksumsFile).toAbsolutePath();
             if (Files.notExists(cf)) {
