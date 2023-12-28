@@ -148,6 +148,10 @@ public final class Verify {
         }
 
         Logger.info(Lang.getInstance().getVerificationCompletedMessage(successCount, failureCount));
+
+        if (failureCount > 0) {
+            throw Exit.error();
+        }
     }
 
     public static void verify(Options options, boolean argsIsEmpty) throws IOException, Exit {
@@ -169,10 +173,8 @@ public final class Verify {
             }
             reader = Files.newBufferedReader(cf);
         }
-        try {
+        try (reader) {
             Verify.verify(options.basePath, reader, options.algorithm, options.numThreads);
-        } finally {
-            reader.close();
         }
     }
 }
