@@ -75,11 +75,11 @@ public abstract class Hasher {
                 return MessageDigestHasher.SHA_512;
             // java.util.zip.Checksum
             case "CRC32":
-                return ZipChecksumHasher.CRC32;
+                return new ZipChecksumHasher(java.util.zip.CRC32::new);
             case "CRC32C":
-                return ZipChecksumHasher.CRC32C;
+                return new ZipChecksumHasher(java.util.zip.CRC32C::new);
             case "ADLER32":
-                return ZipChecksumHasher.ADLER32;
+                return new ZipChecksumHasher(java.util.zip.Adler32::new);
             // xxHash
             case "XX64":
             case "XXH64":

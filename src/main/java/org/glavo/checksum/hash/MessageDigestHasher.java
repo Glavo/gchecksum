@@ -38,7 +38,7 @@ final class MessageDigestHasher extends HasherBase {
     }
 
     @Override
-    protected Context createContext() {
+    protected HasherBase.Context createContext() {
         try {
             return new Context(MessageDigest.getInstance(algorithm));
         } catch (NoSuchAlgorithmException e) {
