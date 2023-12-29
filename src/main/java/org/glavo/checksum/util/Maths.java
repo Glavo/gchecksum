@@ -21,8 +21,6 @@ public final class Maths {
     private Maths() {
     }
 
-    // Math.multiplyHigh() is intrinsified from JDK 10. But JDK 9 is out of life, we always prefer
-    // this version to the scalar one.
     public static long unsignedLongMulXorFold(final long lhs, final long rhs) {
         final long upper = Math.multiplyHigh(lhs, rhs) + ((lhs >> 63) & rhs) + ((rhs >> 63) & lhs);
         final long lower = lhs * rhs;
