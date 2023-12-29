@@ -232,14 +232,14 @@ public final class CreateOrUpdate {
                         String line;
                         while ((line = r.readLine()) != null) {
                             if (!line.isEmpty()) {
-                                final Pair<String, String> p = Utils.spiltRecord(line);
-                                if (p == null || !options.algorithm.isAcceptChecksum(p.component1)) {
+                                final HashRecord p = HashRecord.of(line);
+                                if (p == null || !options.algorithm.isAcceptChecksum(p.hash)) {
                                     Logger.error(Lang.getInstance().getInvalidHashRecordMessage(line));
                                     hasError = true;
                                 } else {
-                                    String oldHash = old.put(p.component2, p.component1);
+                                    String oldHash = old.put(p.file, p.hash);
                                     if (oldHash != null) {
-                                        Logger.error(Lang.getInstance().getDuplicateHashRecordMessage(p.component2));
+                                        Logger.error(Lang.getInstance().getDuplicateHashRecordMessage(p.file));
                                         hasError = true;
                                     }
                                 }

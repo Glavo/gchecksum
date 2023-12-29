@@ -36,19 +36,19 @@ import java.util.function.BiConsumer;
 
 public final class Verify {
     private static boolean verifyFile(Path basePath, String line, Hasher hasher) {
-        final Pair<String, String> r = Utils.spiltRecord(line);
+        final HashRecord r = HashRecord.of(line);
         if (r == null) {
             Logger.error(Lang.getInstance().getInvalidHashRecordMessage(line));
             return false;
         }
 
-        final String recordHashValue = r.component1;
+        final String recordHashValue = r.hash;
         if (!hasher.isAcceptChecksum(recordHashValue)) {
             Logger.error(Lang.getInstance().getInvalidHashRecordMessage(line));
             return false;
         }
 
-        final Path file = basePath.resolve(r.component2).toAbsolutePath();
+        final Path file = basePath.resolve(r.file).toAbsolutePath();
         if (Files.notExists(file)) {
             Logger.error(Lang.getInstance().getFileNotExistMessage(file));
             return false;

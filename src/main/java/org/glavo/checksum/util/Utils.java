@@ -112,21 +112,4 @@ public final class Utils {
 
         return new String(out, 0, 32, ISO_8859_1);
     }
-
-    public static Pair<String, String> spiltRecord(String r) {
-        final int rLength = r.length();
-
-        final int idx = r.indexOf(' ');
-        if (idx == -1 || idx == rLength - 1) {
-            return null;
-        }
-
-        for (int i = idx + 1; i < rLength; i++) {
-            if (r.charAt(i) != ' ') {
-                return new Pair<>(r.substring(0, idx), r.substring(i));
-            }
-        }
-        return null;
-    }
-
 }
