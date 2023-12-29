@@ -20,12 +20,9 @@ import org.glavo.checksum.hash.Hasher;
 import org.glavo.checksum.util.Lang;
 import org.glavo.checksum.util.Logger;
 
-import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 
 public class Options {
@@ -115,13 +112,6 @@ public class Options {
         System.out.println("Property settings:");
         for (String key : properties) {
             System.out.printf("    %-" + maxLength + "s = %s%n", key, System.getProperty(key));
-        }
-
-        System.out.println("Crypto settings:");
-        try {
-            System.out.println("    provider = " + Cipher.getInstance("AES/GCM/NoPadding").getProvider());
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            e.printStackTrace();
         }
     }
 
