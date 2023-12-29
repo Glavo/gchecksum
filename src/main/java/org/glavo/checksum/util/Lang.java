@@ -19,7 +19,6 @@ package org.glavo.checksum.util;
 import org.glavo.checksum.Main;
 import org.glavo.checksum.hash.Hasher;
 
-import javax.crypto.NoSuchPaddingException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -252,9 +251,18 @@ public enum Lang {
         else return "error: invalid option: " + option;
     }
 
-    public String getErrorOccurredMessage(Path file) {
+    public String getHashErrorMessage(Path file) {
+        return getHashErrorMessage(file.toString());
+    }
+
+    public String getHashErrorMessage(String file) {
         if (this == CHINESE) return "错误: 处理文件 '" + file + "' 时发生异常";
         else return "error: an error occurred while processing the file '" + file + "'";
+    }
+
+    public String getReadWriteErrorMessage() {
+        if (this == CHINESE) return "错误: 读写 checksums 文件时发生异常";
+        else return "error: An exception occurred while reading/writing the checksums file";
     }
 
     // messages

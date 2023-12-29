@@ -71,7 +71,7 @@ public final class CreateOrUpdate {
 
         @Override
         public FileVisitResult visitFileFailed(Path file, IOException e) {
-            Logger.error(Lang.getInstance().getErrorOccurredMessage(file), e);
+            Logger.error(Lang.getInstance().getHashErrorMessage(file), e);
             return FileVisitResult.CONTINUE;
         }
 
@@ -151,22 +151,27 @@ public final class CreateOrUpdate {
                 pool.shutdown();
             }
 
-            if (old != null) {
-                visitor.result.forEach((pathArray, future) -> {
-                    try {
-                        doUpdate(pathArray, future.get(), writer, old);
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                    }
-                });
-            } else {
-                visitor.result.forEach((pathArray, future) -> {
-                    try {
-                        doCreate(pathArray, future.get(), writer);
-                    } catch (Throwable e) {
-                        e.printStackTrace();
-                    }
-                });
+            for (Map.Entry<String[], Future<String>> entry : visitor.result.entrySet()) {
+                String[] pathArray = entry.getKey();
+                Future<String> future = entry.getValue();
+
+
+                String hash;
+                try {
+                    hash = future.get();
+                } catch (InterruptedException e) {
+                    throw new AssertionError(e);
+                } catch (ExecutionException e) {
+                    String file = String.join("/", pathArray);
+                    Logger.error(Lang.getInstance().getHashErrorMessage(file), e.getCause());
+                    continue;
+                }
+
+                if (old == null) {
+                    doCreate(pathArray, hash, writer);
+                } else {
+                    doUpdate(pathArray, hash, writer, old);
+                }
             }
         } else {
             final Visitor<String> visitor = new Visitor<>(exclude) {
@@ -177,22 +182,15 @@ public final class CreateOrUpdate {
             };
             Files.walkFileTree(basePath, fileVisitOptions, Integer.MAX_VALUE, visitor);
 
-            if (old != null) {
-                visitor.result.forEach((pathArray, hash) -> {
-                    try {
-                        doUpdate(pathArray, hash, writer, old);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-            } else {
-                visitor.result.forEach((pathArray, hash) -> {
-                    try {
-                        doCreate(pathArray, hash, writer);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
+            for (Map.Entry<String[], String> entry : visitor.result.entrySet()) {
+                String[] pathArray = entry.getKey();
+                String hash = entry.getValue();
+
+                if (old == null) {
+                    doCreate(pathArray, hash, writer);
+                } else {
+                    doUpdate(pathArray, hash, writer, old);
+                }
             }
         }
 
@@ -271,10 +269,8 @@ public final class CreateOrUpdate {
             writer = Files.newBufferedWriter(cf);
         }
 
-        try {
+        try (writer) {
             CreateOrUpdate.createOrUpdate(options.basePath, writer, exclude, options.algorithm, options.numThreads, old);
-        } finally {
-            writer.close();
         }
     }
 }

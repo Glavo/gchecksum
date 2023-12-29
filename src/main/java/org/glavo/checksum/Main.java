@@ -27,7 +27,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 public final class Main {
-    public static void main(String[] args)  {
+    public static void main(String[] args) {
         final Lang resources = Lang.getInstance();
 
         Mode mode = Mode.Verify;
@@ -80,7 +80,7 @@ public final class Main {
         } catch (Exit exit) {
             System.exit(exit.getExitCode());
         } catch (IOException e) {
-            e.printStackTrace(); // TODO
+            Logger.error(Lang.getInstance().getReadWriteErrorMessage(), e);
         }
     }
 }
