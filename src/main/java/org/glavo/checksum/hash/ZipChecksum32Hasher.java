@@ -21,10 +21,10 @@ import org.glavo.checksum.util.Utils;
 import java.util.function.Supplier;
 import java.util.zip.Checksum;
 
-final class ZipChecksumHasher extends HasherBase {
+final class ZipChecksum32Hasher extends HasherBase {
     private final Supplier<Checksum> supplier;
 
-    public ZipChecksumHasher(Supplier<Checksum> supplier) {
+    public ZipChecksum32Hasher(Supplier<Checksum> supplier) {
         super(4);
         this.supplier = supplier;
     }
