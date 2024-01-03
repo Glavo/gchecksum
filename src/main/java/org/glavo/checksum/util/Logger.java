@@ -18,7 +18,6 @@ package org.glavo.checksum.util;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Locale;
 
 public final class Logger {
     public static final String GREEN = "\u001b[32m";
@@ -31,7 +30,7 @@ public final class Logger {
     static {
         String p = System.getProperty("org.glavo.checksum.logger.colored", System.getenv("GCHECKSUM_LOGGER_COLORED"));
         if (p == null) {
-            colored = !System.getProperty("os.name").toLowerCase(Locale.ROOT).startsWith("windows");
+            colored = true;
         } else {
             colored = "true".equalsIgnoreCase(p);
         }
