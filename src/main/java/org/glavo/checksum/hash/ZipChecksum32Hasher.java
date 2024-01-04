@@ -30,11 +30,11 @@ final class ZipChecksum32Hasher extends HasherBase {
     }
 
     @Override
-    protected HasherBase.Context createContext() {
+    protected Context createContext() {
         return new Context(supplier.get());
     }
 
-    private static final class Context extends HasherBase.Context {
+    protected static final class Context extends HasherBase.Context {
         private final Checksum checksum;
 
         Context(Checksum checksum) {
