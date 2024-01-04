@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -152,7 +153,9 @@ public final class Verify {
         }
     }
 
-    public static void verify(Options options, boolean argsIsEmpty) throws IOException, Exit {
+    public static void verify(Iterator<String> args, boolean argsIsEmpty) throws IOException, Exit {
+        Options options = new Options(args);
+
         BufferedReader reader;
         if ("-".equals(options.checksumsFile)) {
             reader = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));

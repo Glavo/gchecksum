@@ -17,7 +17,6 @@
 package org.glavo.checksum;
 
 import org.glavo.checksum.mode.CreateOrUpdate;
-import org.glavo.checksum.mode.Mode;
 import org.glavo.checksum.mode.Verify;
 import org.glavo.checksum.util.Lang;
 import org.glavo.checksum.util.Logger;
@@ -30,51 +29,29 @@ public final class Main {
     public static void main(String[] args) {
         final Lang resources = Lang.getInstance();
 
-        Mode mode = Mode.Verify;
-
         Iterator<String> iterator = Arrays.asList(args).iterator();
 
-        if (args.length != 0) {
-            String firstArg = args[0];
-            switch (firstArg) {
-                case "v":
-                case "verify":
-                    iterator.next();
-                    mode = Mode.Verify;
-                    break;
-                case "c":
-                case "create":
-                    iterator.next();
-                    mode = Mode.Create;
-                    break;
-                case "u":
-                case "update":
-                    iterator.next();
-                    mode = Mode.Update;
-                    break;
-                default:
-                    if (!firstArg.startsWith("-")) {
+        try {
+            if (args.length == 0 || args[0].startsWith("-")) {
+                Verify.verify(iterator, args.length == 0);
+            } else {
+                String firstArg = iterator.next();
+                switch (firstArg) {
+                    case "v":
+                    case "verify":
+                        Verify.verify(iterator, false);
+                        break;
+                    case "c":
+                    case "create":
+                        CreateOrUpdate.createOrUpdate(iterator, false);
+                        break;
+                    case "u":
+                    case "update":
+                        CreateOrUpdate.createOrUpdate(iterator, true);
+                        break;
+                    default:
                         Logger.error(Lang.getInstance().getUnknownModeMessage(firstArg));
                         System.exit(1);
-                        return;
-                    }
-            }
-        }
-
-        try {
-            Options options = new Options(iterator);
-            switch (mode) {
-                case Verify: {
-                    Verify.verify(options, args.length == 0);
-                    break;
-                }
-                case Update: {
-                    CreateOrUpdate.createOrUpdate(options, true);
-                    break;
-                }
-                case Create: {
-                    CreateOrUpdate.createOrUpdate(options, false);
-                    break;
                 }
             }
         } catch (Exit exit) {

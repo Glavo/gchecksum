@@ -197,7 +197,9 @@ public final class CreateOrUpdate {
         Logger.info(Lang.getInstance().getDoneMessage());
     }
 
-    public static void createOrUpdate(Options options, boolean update) throws IOException, Exit {
+    public static void createOrUpdate(Iterator<String> args, boolean update) throws IOException, Exit {
+        Options options = new Options(args);
+
         if (options.algorithm == null) {
             options.algorithm = Hasher.getDefault();
         }
