@@ -35,8 +35,8 @@ public final class Main {
             if (args.length == 0 || args[0].startsWith("-")) {
                 Verify.verify(iterator, args.length == 0);
             } else {
-                String firstArg = iterator.next();
-                switch (firstArg) {
+                String mode = iterator.next();
+                switch (mode) {
                     case "v":
                     case "verify":
                         Verify.verify(iterator, false);
@@ -50,7 +50,7 @@ public final class Main {
                         CreateOrUpdate.createOrUpdate(iterator, true);
                         break;
                     default:
-                        Logger.error(Lang.getInstance().getUnknownModeMessage(firstArg));
+                        Logger.error(Lang.getInstance().getUnknownModeMessage(mode));
                         System.exit(1);
                 }
             }
