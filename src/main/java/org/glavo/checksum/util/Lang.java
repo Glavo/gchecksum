@@ -59,9 +59,10 @@ public enum Lang {
                    "    gchecksum v(erify) [选项]     : 使用校验文件对文件进行验证\n" +
                    "    gchecksum u(pdate) [选项]     : 更新已存在的校验文件, 打印目录发生的变更\n" +
                    "\n" +
+                   "    gchecksum help              : 打印本帮助信息\n" +
+                   "    gchecksum version           : 打印程序版本信息\n" +
+                   "\n" +
                    "选项:\n" +
-                   "    -h -? --help            打印本帮助信息\n" +
-                   "    -v --version            打印程序版本信息\n" +
                    "    -f <checksums file>     指定校验文件路径 (默认为 checksums.txt, 使用 '-' 指定为标准输入/输出流)\n" +
                    "    -d <directory>          指定要验证的文件夹 (默认值为当前工作路径)\n" +
                    "    -y --yes --assume-yes   静默覆盖已存在的 checksums 文件\n" +
@@ -75,9 +76,10 @@ public enum Lang {
                    "    gchecksum v(erify) [options]    : Verify files using checksums file\n" +
                    "    gchecksum u(pdate) [options]    : Update the existing checksums file and print the changes\n" +
                    "\n" +
+                   "    gchecksum help                  : Print this help message\n" +
+                   "    gchecksum version               : Print version informatio\n" +
+                   "\n" +
                    "Options:\n" +
-                   "    -h -? --help            Print this help message\n" +
-                   "    -v --version            Print version information\n" +
                    "    -f <checksums file>     Specify the checksums file [default=checksums.txt]\n" +
                    "    -d <directory>          Specify the directory that will be validated [default=.] \n" +
                    "    -y --yes --assume-yes   Overwrite the existing checksums file silently\n" +

@@ -26,17 +26,56 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 public final class Main {
+    private static void printRuntimeInformation() {
+        final String[] properties = {
+                "java.home",
+                "java.runtime.name",
+                "java.runtime.version",
+                "java.vm.name",
+                "java.vm.info",
+                "java.vm.vendor",
+                "java.vm.version",
+                "os.name",
+                "os.arch",
+                "os.version",
+                "path.separator",
+                "sun.boot.library.path",
+                "user.dir",
+                "user.language",
+                "file.encoding",
+                "file.separator",
+                "native.encoding"
+        };
+
+        System.out.println(Lang.getInstance().getVersionInformation());
+        System.out.println();
+
+        int maxLength = 0;
+        for (String property : properties) {
+            maxLength = Integer.max(property.length(), maxLength);
+        }
+
+        System.out.println("Property settings:");
+        for (String key : properties) {
+            System.out.printf("    %-" + maxLength + "s = %s%n", key, System.getProperty(key));
+        }
+    }
+
     public static void main(String[] args) {
-        final Lang resources = Lang.getInstance();
+        final Lang lang = Lang.getInstance();
 
         Iterator<String> iterator = Arrays.asList(args).iterator();
 
         try {
-            if (args.length == 0 || args[0].startsWith("-")) {
-                Verify.verify(iterator, args.length == 0);
+            if (args.length == 0) {
+                Verify.verify(iterator, true);
             } else {
-                String mode = iterator.next();
-                switch (mode) {
+                String firstArg = args[0];
+                if (!firstArg.startsWith("-")) {
+                    iterator.next();
+                }
+
+                switch (firstArg) {
                     case "v":
                     case "verify":
                         Verify.verify(iterator, false);
@@ -49,9 +88,27 @@ public final class Main {
                     case "update":
                         CreateOrUpdate.createOrUpdate(iterator, true);
                         break;
+
+                    case "-?":
+                    case "-h":
+                    case "--help":
+                    case "help":
+                        System.out.println(Lang.getInstance().getHelpMessage());
+                        return;
+                    case "--print-runtime-information":
+                        printRuntimeInformation();
+                        return;
+                    case "-v":
+                    case "--version":
+                        System.out.println(lang.getVersionInformation());
+                        return;
                     default:
-                        Logger.error(Lang.getInstance().getUnknownModeMessage(mode));
-                        System.exit(1);
+                        if (firstArg.startsWith("-")) {
+                            Verify.verify(iterator, false);
+                        } else {
+                            Logger.error(Lang.getInstance().getUnknownModeMessage(firstArg));
+                            System.exit(1);
+                        }
                 }
             }
         } catch (Exit exit) {

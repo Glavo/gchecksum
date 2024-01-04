@@ -80,55 +80,8 @@ public class Options {
         throw Exit.error();
     }
 
-    private static void printRuntimeInformation() {
-        final String[] properties = {
-                "java.home",
-                "java.runtime.name",
-                "java.runtime.version",
-                "java.vm.name",
-                "java.vm.info",
-                "java.vm.vendor",
-                "java.vm.version",
-                "os.name",
-                "os.arch",
-                "os.version",
-                "path.separator",
-                "sun.boot.library.path",
-                "user.dir",
-                "user.language",
-                "file.encoding",
-                "file.separator",
-                "native.encoding"
-        };
-
-        System.out.println(Lang.getInstance().getVersionInformation());
-        System.out.println();
-
-        int maxLength = 0;
-        for (String property : properties) {
-            maxLength = Integer.max(property.length(), maxLength);
-        }
-
-        System.out.println("Property settings:");
-        for (String key : properties) {
-            System.out.printf("    %-" + maxLength + "s = %s%n", key, System.getProperty(key));
-        }
-    }
-
     protected void parseOption(String option) throws Exit {
         switch (option) {
-            case "-?":
-            case "-h":
-            case "--help":
-                System.out.println(Lang.getInstance().getHelpMessage());
-                throw Exit.success();
-            case "-v":
-            case "--version":
-                System.out.println(lang.getVersionInformation());
-                throw Exit.success();
-            case "--print-runtime-information":
-                printRuntimeInformation();
-                throw Exit.success();
             case "-f":
                 if (!iterator.hasNext()) {
                     reportMissArg(option);
