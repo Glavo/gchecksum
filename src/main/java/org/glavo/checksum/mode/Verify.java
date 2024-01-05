@@ -153,7 +153,7 @@ public final class Verify {
         }
     }
 
-    public static void verify(Iterator<String> args, boolean argsIsEmpty) throws IOException, Exit {
+    public static void verify(Iterator<String> args) throws IOException, Exit {
         Options options = new Options(args);
 
         BufferedReader reader;
@@ -162,11 +162,7 @@ public final class Verify {
         } else {
             final Path cf = Paths.get(options.checksumsFile).toAbsolutePath();
             if (Files.notExists(cf)) {
-                if (argsIsEmpty) {
-                    System.out.println(Lang.getInstance().getHelpMessage());
-                } else {
-                    Logger.error(Lang.getInstance().getFileNotExistMessage(cf));
-                }
+                Logger.error(Lang.getInstance().getFileNotExistMessage(cf));
                 throw Exit.error();
             } else if (!Files.isReadable(cf)) {
                 Logger.error(Lang.getInstance().getFileCannotBeReadMessage(cf));

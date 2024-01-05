@@ -64,52 +64,52 @@ public final class Main {
     public static void main(String[] args) {
         final Lang lang = Lang.getInstance();
 
+        if (args.length == 0) {
+            System.out.println(Lang.getInstance().getHelpMessage());
+        }
+
         Iterator<String> iterator = Arrays.asList(args).iterator();
-
         try {
-            if (args.length == 0) {
-                Verify.verify(iterator, true);
-            } else {
-                String firstArg = args[0];
-                if (!firstArg.startsWith("-")) {
-                    iterator.next();
-                }
+            String firstArg = args[0];
+            if (!firstArg.startsWith("-")) {
+                iterator.next();
+            }
 
-                switch (firstArg) {
-                    case "v":
-                    case "verify":
-                        Verify.verify(iterator, false);
-                        break;
-                    case "c":
-                    case "create":
-                        CreateOrUpdate.createOrUpdate(iterator, false);
-                        break;
-                    case "u":
-                    case "update":
-                        CreateOrUpdate.createOrUpdate(iterator, true);
-                        break;
+            switch (firstArg) {
+                case "v":
+                case "verify":
+                    Verify.verify(iterator);
+                    break;
+                case "c":
+                case "create":
+                    CreateOrUpdate.createOrUpdate(iterator, false);
+                    break;
+                case "u":
+                case "update":
+                    CreateOrUpdate.createOrUpdate(iterator, true);
+                    break;
 
-                    case "-?":
-                    case "-h":
-                    case "--help":
-                    case "help":
-                        System.out.println(Lang.getInstance().getHelpMessage());
-                        return;
-                    case "--print-runtime-information":
-                        printRuntimeInformation();
-                        return;
-                    case "-v":
-                    case "--version":
-                        System.out.println(lang.getVersionInformation());
-                        return;
-                    default:
-                        if (firstArg.startsWith("-")) {
-                            Verify.verify(iterator, false);
-                        } else {
-                            Logger.error(Lang.getInstance().getUnknownModeMessage(firstArg));
-                            System.exit(1);
-                        }
-                }
+                case "-?":
+                case "-h":
+                case "--help":
+                case "help":
+                    System.out.println(Lang.getInstance().getHelpMessage());
+                    return;
+                case "-v":
+                case "--version":
+                case "version":
+                    System.out.println(lang.getVersionInformation());
+                    return;
+                case "--print-runtime-information":
+                    printRuntimeInformation();
+                    return;
+                default:
+                    if (firstArg.startsWith("-")) {
+                        Logger.error(Lang.getInstance().getInvalidOptionMessage(firstArg));
+                    } else {
+                        Logger.error(Lang.getInstance().getUnknownModeMessage(firstArg));
+                    }
+                    System.exit(1);
             }
         } catch (Exit exit) {
             System.exit(exit.getExitCode());
