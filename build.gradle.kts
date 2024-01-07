@@ -142,7 +142,6 @@ fun nativeImageCommand(
     cmd += "-jar"
     cmd += tasks.jar.get().archiveFile.get().asFile.absolutePath
 
-
     return cmd
 }
 

@@ -59,6 +59,8 @@ public enum Lang {
                    "    gchecksum v(erify) [选项]     : 使用校验文件对文件进行验证\n" +
                    "    gchecksum u(pdate) [选项]     : 更新已存在的校验文件, 打印目录发生的变更\n" +
                    "\n" +
+                   "    gchecksum hash [选项] <文件>   : 计算并打印文件哈希\n" +
+                   "\n" +
                    "    gchecksum help              : 打印本帮助信息\n" +
                    "    gchecksum version           : 打印程序版本信息\n" +
                    "\n" +
