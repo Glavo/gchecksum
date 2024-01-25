@@ -15,7 +15,7 @@
  */
 
 enum class OS {
-    Linux, Windows, MacOS, Unknown;
+    Linux, Windows, MacOS, FreeBSD, Unknown;
 
     val classifier: String = name.lowercase()
 }
@@ -31,6 +31,7 @@ val os: OS = org.gradle.nativeplatform.platform.internal.DefaultNativePlatform.g
         it.isLinux -> OS.Linux
         it.isWindows -> OS.Windows
         it.isMacOsX -> OS.MacOS
+        it.isFreeBSD -> OS.FreeBSD
         else -> OS.Unknown
     }
 }

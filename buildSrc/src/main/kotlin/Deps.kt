@@ -19,6 +19,7 @@ object Deps {
     val lwjglPlatform = when (os) {
         OS.Windows -> "windows"
         OS.MacOS -> "macos"
+        OS.FreeBSD -> "freebsd"
         else -> "linux" // OS.Linux -> "linux"
     } + when (arch) {
         Arch.X86_64 -> ""
